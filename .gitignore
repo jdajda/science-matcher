@@ -1,0 +1,25 @@
+# --- systemowe / macOS ---
+.DS_Store
+._*
+Thumbs.db
+
+# --- lokalne archiwa robocze ---
+index.html.zip
+
+# --- wyniki pośrednie generatorów danych ---
+.doi_cache.json
+.doi_resolved.json
+
+# --- pliki tymczasowe testów headless (narzędzia sprzątają je w finally) ---
+.last_dom.html
+.probe_index.html
+.dbg.html
+.shots.html
+.spacing.html
+.staff_probe.html
+.ach_probe.html
+.layout_probe.html
+
+# --- Python ---
+__pycache__/
+*.py[cod]
