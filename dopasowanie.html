@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dopasowanie do naboru · Mapa badawcza WI AGH</title>
+<script>(function(){try{var t=localStorage.getItem('bm-theme')||'light';document.documentElement.dataset.theme=t;}catch(e){document.documentElement.dataset.theme='light';}})();</script>
+<style>
+:root {
+  --radius: 12px;
+  --header-bg: linear-gradient(135deg, #24466f 0%, #0b1322 100%);
+  --header-text: #e8edf5;
+  --header-sub: #aab6cb;
+  --bg: #0f1521;
+  --surface: #171f2e;
+  --surface2: #202a3c;
+  --text: #e5eaf2;
+  --text2: #9aa6bb;
+  --accent: #7ea6d6;
+  --accent-strong: #a5c4e8;
+  --accent-rgb: 126,166,214;
+  --accent2: #9aa3d8;
+  --border: #2a3548;
+  --on-accent: #0f1521;
+  --shadow: 0 8px 24px rgba(0,0,0,.3);
+  --overlay: rgba(4,8,14,.6);
+  --tooltip-bg: rgba(15,21,33,.96);
+  --g-co: #6f9bcb;
+  --g-ev: #c48aa8;
+  --g-ext: #6b7689;
+  --g-ring: #e5eaf2;
+  --g-label-bg: rgba(15,21,33,.86);
+  --g-label-fg: #c3cddd;
+  --g-label-focus: #ffffff;
+  color-scheme: dark;
+}
+:root[data-theme="light"] {
+  --bg: #f3f5f9;
+  --surface: #ffffff;
+  --surface2: #eef2f7;
+  --text: #1c2736;
+  --text2: #5a6679;
+  --accent: #2c64a0;
+  --accent-strong: #1d4f85;
+  --accent-rgb: 44,100,160;
+  --accent2: #55609f;
+  --border: #dbe2ec;
+  --on-accent: #ffffff;
+  --shadow: 0 8px 22px rgba(20,35,60,.12);
+  --overlay: rgba(15,23,42,.35);
+  --tooltip-bg: rgba(255,255,255,.97);
+  --g-co: #3d74ad;
+  --g-ev: #b0557e;
+  --g-ext: #8a94a6;
+  --g-ring: #1c2736;
+  --g-label-bg: rgba(255,255,255,.92);
+  --g-label-fg: #344054;
+  --g-label-focus: #0f172a;
+  color-scheme: light;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+.tabs { display: flex; gap: 0; background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 2rem; overflow-x: auto; white-space: nowrap; scrollbar-width: thin; }
+.tab { padding: .75rem 1.5rem; cursor: pointer; border: none; background: transparent; color: var(--text2); font-size: .95rem; font-weight: 500; border-bottom: 2px solid transparent; transition: all .2s; }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); background: rgba(var(--accent-rgb),0.05); }
+.tab:hover { color: var(--text); }
+.tab-pane { display: none; padding: 1.5rem 2rem; }
+.tab-pane.active { display: block; }
+
+/* STAFF TAB */
+.controls { display: flex; flex-wrap: wrap; gap: .75rem; margin-bottom: 1.25rem; align-items: center; }
+.controls input[type="text"] { flex: 1; min-width: 250px; padding: .6rem 1rem; border-radius: var(--radius); border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: .9rem; }
+.controls input:focus { outline: none; border-color: var(--accent); }
+.controls select { padding: .6rem .8rem; border-radius: var(--radius); border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: .85rem; }
+.tag-filter-bar { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: 1rem; }
+.tag-chip { padding: .3rem .7rem; border-radius: 20px; font-size: .75rem; cursor: pointer; border: 1px solid var(--border); background: var(--surface); color: var(--text2); transition: all .15s; user-select: none; }
+.tag-chip:hover { border-color: var(--accent); color: var(--text); }
+.tag-chip.active { background: var(--c, var(--accent)); color: #fff; border-color: var(--c, var(--accent)); font-weight: 600; }
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1rem; }
+
+/* AREAS TAB */
+.areas-layout { display: grid; grid-template-columns: 320px 1fr; gap: 1.5rem; min-height: 70vh; }
+.areas-sidebar { display: flex; flex-direction: column; gap: .5rem; max-height: 80vh; }
+.areas-sidebar input[type="text"] { padding: .5rem .8rem; border-radius: var(--radius); border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: .85rem; flex-shrink: 0; }
+.areas-sidebar input[type="text"]:focus { outline: none; border-color: var(--accent); }
+.areas-list { overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: .5rem; }
+.area-item { padding: .8rem 1rem; border-radius: var(--radius); cursor: pointer; border: 1px solid var(--border); background: var(--surface); transition: all .15s; }
+.area-item:hover { border-color: var(--accent); }
+.area-item.active { border-color: var(--accent); background: rgba(var(--accent-rgb),0.08); }
+.area-item .a-name { font-weight: 600; font-size: .9rem; margin-bottom: .3rem; }
+.area-item .a-meta { display: flex; justify-content: space-between; font-size: .75rem; color: var(--text2); }
+.area-item .bar { height: 4px; border-radius: 2px; background: var(--surface2); margin-top: .4rem; overflow: hidden; }
+.area-item .bar-fill { height: 100%; border-radius: 2px; }
+.area-detail { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; }
+.area-detail h2 { font-size: 1.12rem; font-weight: 600; margin-bottom: .25rem; }
+.area-detail .subtitle { color: var(--text2); font-size: .8rem; margin-bottom: 1.1rem; line-height: 1.45; }
+.achievements-block { margin-bottom: 1.5rem; }
+.achievements-summary { font-size: .86rem; font-weight: 400; margin-top: .3rem; color: var(--text); line-height: 1.6; margin-bottom: 1rem; padding: 1rem 1.2rem; background: linear-gradient(135deg, rgba(var(--accent-rgb),0.06) 0%, rgba(var(--accent-rgb),0.06) 100%); border: 1px solid rgba(var(--accent-rgb),0.2); border-radius: var(--radius); }
+.achievements-section-title { font-size: .76rem; font-weight: 600; color: var(--accent); margin: .9rem 0 .5rem; text-transform: uppercase; letter-spacing: .03em; }
+.achievement-list { list-style: none; }
+.achievement-item { font-size: .82rem; color: var(--text2); padding: .45rem 0 .45rem 1.1rem; position: relative; line-height: 1.5; border-bottom: 1px solid var(--border); }
+.achievement-item:last-child { border-bottom: none; }
+.achievement-item::before { content: ''; position: absolute; left: 0; top: .8rem; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+.achievement-item .pub-title { color: var(--text); font-weight: 500; }
+.achievement-item.ach-item { cursor: pointer; padding-left: 1.1rem; transition: background .15s, padding-left .15s; }
+.achievement-item.ach-item:hover { background: rgba(var(--accent-rgb),.07); padding-left: 1.4rem; }
+.achievement-item.ach-item .ach-item-title { display: block; color: var(--text); font-weight: 500; font-size: .84rem; }
+.achievement-item.ach-item .ach-item-desc { display: block; color: var(--text2); font-size: .78rem; margin-top: .15rem; }
+.achievement-item.ach-item::after { content: '\203A'; position: absolute; right: .4rem; top: .5rem; color: var(--accent); opacity: 0; transition: opacity .15s, transform .15s; font-size: 1.1rem; }
+.achievement-item.ach-item:hover::after { opacity: 1; transform: translateX(2px); }
+.ach-kicker { font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; margin-bottom: .3rem; font-weight: 600; }
+.ach-kind { display: inline-block; padding: .2rem .65rem; border-radius: 12px; background: var(--surface2); color: var(--text2); font-size: .72rem; margin: .5rem 0 .2rem; }
+.ach-block { margin-top: 1rem; }
+.ach-desc { font-size: .85rem; color: var(--text); line-height: 1.6; padding: .7rem .9rem; background: rgba(var(--accent-rgb),.06); border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; }
+.ach-summary { font-size: .84rem; color: var(--text2); line-height: 1.65; }
+.ach-people { display: flex; flex-direction: column; gap: .3rem; }
+.ach-person { display: flex; align-items: center; gap: .7rem; padding: .45rem .5rem; border-radius: 8px; cursor: pointer; transition: background .15s; border: 1px solid transparent; }
+.ach-person:hover { background: rgba(var(--accent-rgb),.08); border-color: rgba(var(--accent-rgb),.25); }
+.ach-person .avatar { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: .7rem; font-weight: 700; color: #fff; flex-shrink: 0; }
+.ach-person .ap-info { flex: 1; min-width: 0; }
+.ach-person .ap-name { font-size: .84rem; font-weight: 500; }
+.ach-person .ap-meta { font-size: .73rem; color: var(--text2); }
+.ach-person .ap-ext { font-size: .7rem; color: var(--text2); text-decoration: none; border: 1px solid var(--border); border-radius: 6px; padding: .2rem .45rem; flex-shrink: 0; transition: all .15s; }
+.ach-person .ap-ext:hover { color: var(--accent); border-color: var(--accent); }
+.member-row { display: flex; align-items: center; gap: .8rem; padding: .7rem .5rem; border-bottom: 1px solid var(--border); transition: background .15s; }
+.member-row:hover { background: rgba(var(--accent-rgb),0.04); }
+.member-row .rank { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: .75rem; font-weight: 700; background: var(--surface2); flex-shrink: 0; }
+.member-row .m-info { flex: 1; }
+.member-row .m-name { font-weight: 500; font-size: .88rem; cursor: pointer; }
+.member-row .m-name:hover { color: var(--accent); }
+.member-row .m-pubs { font-size: .75rem; color: var(--text2); }
+.member-row .m-bar { width: 120px; height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
+.member-row .m-bar-fill { height: 100%; border-radius: 3px; }
+.member-row .m-share { width: 52px; text-align: right; font-size: .8rem; color: var(--text2); font-variant-numeric: tabular-nums; }
+.member-row:nth-child(-n+3) .m-share { color: var(--text); font-weight: 600; }
+
+/* GRAPH TAB */
+.graph-controls { display: flex; flex-wrap: wrap; gap: .75rem; margin-bottom: 1rem; align-items: center; }
+.graph-controls input[type="text"] { padding: .5rem .8rem; border-radius: var(--radius); border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: .85rem; width: 220px; }
+.graph-controls label { font-size: .8rem; color: var(--text2); display: flex; align-items: center; gap: .3rem; cursor: pointer; }
+.graph-controls input[type="range"] { width: 100px; }
+.graph-container { position: relative; width: 100%; height: calc(100vh - 260px); min-height: 500px; background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; }
+#graph-canvas { width: 100%; height: 100%; }
+.graph-tooltip { position: absolute; pointer-events: none; background: var(--tooltip-bg); border: 1px solid var(--border); border-radius: 8px; padding: .6rem .9rem; font-size: .8rem; max-width: 280px; display: none; z-index: 10; }
+.graph-tooltip .tt-name { font-weight: 700; font-size: .9rem; margin-bottom: .2rem; }
+.graph-tooltip .tt-info { color: var(--text2); font-size: .75rem; line-height: 1.4; }
+.graph-legend { position: absolute; bottom: 1rem; left: 1rem; background: var(--tooltip-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: .8rem 1rem; font-size: .75rem; }
+.graph-legend div { display: flex; align-items: center; gap: .4rem; margin-bottom: .3rem; }
+.graph-legend .dot { width: 10px; height: 10px; border-radius: 50%; }
+.graph-legend .line { width: 18px; height: 3px; border-radius: 2px; }
+.btn { padding: .4rem .8rem; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: .8rem; cursor: pointer; }
+.btn:hover { border-color: var(--accent); }
+
+/* MODAL */
+.detail-overlay { position: fixed; inset: 0; background: var(--overlay); z-index: 100; opacity: 0; visibility: hidden; transition: opacity .25s ease, visibility .25s ease; }
+.detail-overlay.show { opacity: 1; visibility: visible; }
+.detail-panel { position: absolute; top: 0; right: 0; height: 100%; width: min(560px, 92vw); background: var(--surface); border-left: 1px solid var(--border); box-shadow: -12px 0 40px rgba(0,0,0,.45); padding: 1.75rem 1.5rem; overflow-y: auto; transform: translateX(100%); transition: transform .3s cubic-bezier(.22,1,.36,1); }
+.detail-overlay.show .detail-panel { transform: translateX(0); }
+.detail-panel h2 { font-size: 1.2rem; margin-bottom: .2rem; }
+.detail-panel .sub { color: var(--text2); font-size: .85rem; margin-bottom: 1rem; }
+.detail-panel .modal-tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: .8rem; }
+.detail-panel .section-title { font-size: .85rem; font-weight: 600; color: var(--accent); margin: .8rem 0 .4rem; }
+.detail-panel .pub-list { list-style: none; }
+.detail-panel .pub-list li { font-size: .8rem; color: var(--text2); padding: .2rem 0; border-bottom: 1px solid var(--border); }
+.detail-panel .co-list { display: flex; flex-wrap: wrap; gap: .4rem; }
+.detail-panel .co-chip { padding: .25rem .6rem; background: var(--surface2); border-radius: 12px; font-size: .75rem; }
+.detail-panel .close-btn { position: absolute; top: 1rem; right: 1rem; background: none; border: none; color: var(--text2); font-size: 1.4rem; cursor: pointer; }
+.detail-panel .profile-links { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: 1rem; padding-top: .9rem; border-top: 1px solid var(--border); }
+.detail-panel .profile-links a, .detail-panel .profile-links .btn { font-size: .8rem; color: var(--accent); text-decoration: none; padding: .35rem .8rem; border: 1px solid var(--border); border-radius: 6px; background: transparent; cursor: pointer; transition: all .15s; }
+.detail-panel .profile-links a:hover, .detail-panel .profile-links .btn:hover { border-color: var(--accent); background: rgba(var(--accent-rgb),.08); }
+.tag-clickable { cursor: pointer; transition: all .15s; }
+.tag-clickable:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,.25); filter: brightness(1.15); }
+.detail-panel .tag { display: inline-block; padding: .25rem .65rem; border-radius: 12px; font-size: .78rem; font-weight: 500; color: #fff; }
+.profile-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+.avatar-lg { width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; font-weight: 700; color: #fff; flex-shrink: 0; }
+.profile-header-info h2 { margin: 0 0 .2rem; font-size: 1.2rem; }
+.profile-meta { font-size: .82rem; color: var(--text2); }
+.profile-pubstats { display: flex; gap: 1.2rem; margin-top: .4rem; }
+.stat-item { font-size: .78rem; color: var(--text2); }
+.stat-item b { color: var(--text); font-size: .95rem; }
+.profile-section { margin-bottom: .8rem; }
+.profile-tags { display: flex; flex-wrap: wrap; gap: .4rem; }
+.kw-chip { padding: .25rem .6rem; background: var(--surface2); border-radius: 12px; font-size: .75rem; color: var(--text2); }
+.co-internal { border: 1px solid var(--accent); cursor: pointer; transition: all .15s; }
+.co-internal:hover { background: rgba(var(--accent-rgb),.15); border-color: var(--accent); }
+.co-external { opacity: .75; }
+.co-count { opacity: .6; font-size: .7rem; margin-left: .2rem; }
+.pub-item { font-size: .82rem; color: var(--text); padding: .35rem 0; border-bottom: 1px solid var(--border); line-height: 1.45; }
+.pub-item:last-child { border-bottom: none; }
+.pub-item .pub-title { color: var(--text); }
+.pub-link { color: var(--accent); text-decoration: none; border-bottom: 1px dotted rgba(var(--accent-rgb),.5); transition: color .15s, border-color .15s; }
+.pub-link:hover { color: var(--accent-strong); border-bottom-color: var(--accent-strong); border-bottom-style: solid; }
+.pub-link::after { content: ' \2197'; font-size: .72em; opacity: .6; }
+.pubs-note { font-size: .75rem; color: var(--text2); font-weight: 400; }
+.pubs-total { font-size: .8rem; color: var(--text2); font-weight: 400; }
+.stats-bar { display: flex; gap: 1.5rem; margin-top: .5rem; }
+.stat { font-size: .8rem; color: var(--text2); }
+.stat b { color: var(--text); font-size: 1rem; }
+.loading { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .8rem; padding: 3.5rem 1rem; color: var(--text2); font-size: .9rem; }
+.spinner { width: 30px; height: 30px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* MATCH TAB */
+.match-head h2 { font-size: 1.25rem; margin-bottom: .3rem; }
+.match-sub { color: var(--text2); font-size: .85rem; margin-bottom: 1rem; max-width: 70ch; }
+.match-textarea { width: 100%; min-height: 110px; padding: .7rem 1rem; border-radius: var(--radius); border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: .9rem; font-family: inherit; resize: vertical; line-height: 1.5; }
+.match-textarea:focus { outline: none; border-color: var(--accent); }
+.match-actions { display: flex; align-items: center; gap: .8rem; margin: .8rem 0 1.2rem; }
+.match-actions .btn { background: var(--accent); color: var(--on-accent); font-weight: 600; border-color: var(--accent); }
+.match-actions .btn:hover { background: var(--accent-strong); }
+.match-hint { font-size: .75rem; color: var(--text2); }
+.match-empty { color: var(--text2); font-size: .85rem; padding: 2rem; text-align: center; border: 1px dashed var(--border); border-radius: var(--radius); }
+.match-top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: .8rem; flex-wrap: wrap; }
+.match-top .count { font-size: .85rem; color: var(--text2); }
+.match-top .count b { color: var(--accent); }
+.match-row .m-terms { display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .35rem; }
+.match-row .m-terms .kw-chip { color: var(--accent); border: 1px solid rgba(var(--accent-rgb),.35); background: rgba(var(--accent-rgb),.06); }
+.match-row .m-score-num { width: 52px; text-align: right; font-size: .8rem; color: var(--text2); }
+@media(max-width:768px){ .areas-layout{grid-template-columns:1fr} .card-grid{grid-template-columns:1fr} .detail-panel{ width:100%; border-radius:0; } }
+
+/* ===== Układ strony: nagłówek, zakładki, wyszukiwanie, filtry, wyniki ===== */
+.container { max-width: 1280px; margin: 0 auto; padding: 0 1.5rem; }
+.tab-pane { padding: 1.5rem 0; }
+#tab-areas { padding: 1.5rem; }
+.site-header { position: relative; background: var(--header-bg); color: var(--header-text); border-bottom: 1px solid var(--border); }
+.site-header::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+.header-row { display: flex; align-items: center; gap: 2.2rem; padding-top: 1.2rem; padding-bottom: 1.1rem; flex-wrap: wrap; }
+.brand { display: flex; align-items: stretch; gap: .8rem; }
+.brand-logo { height: 46px; width: auto; display: block; }
+.brand-name { font-size: 1.6rem; font-weight: 800; letter-spacing: .01em; color: var(--header-text); line-height: 1; }
+.brand-sub { font-size: .64rem; font-weight: 700; letter-spacing: .14em; color: var(--header-sub); margin-top: .4rem; }
+.faculty { font-size: .8rem; color: var(--header-sub); line-height: 1.35; }
+.faculty b { display: block; font-weight: 600; color: var(--header-sub); }
+.header-row .theme-toggle { margin-left: auto; }
+.tabs { background: var(--surface); border-bottom: 1px solid var(--border); overflow-x: auto; }
+.tabs-row { display: flex; gap: 1.4rem; }
+.tab { padding: .9rem .1rem; border: none; border-bottom: 2px solid transparent; background: transparent; color: var(--text2); font: inherit; font-size: .88rem; font-weight: 500; cursor: pointer; white-space: nowrap; transition: color .15s; }
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; background: transparent; }
+
+.hero { display: grid; grid-template-columns: 1fr auto; gap: 2rem; align-items: center; padding: 2.4rem 2.2rem; margin: 1.5rem 0 1.4rem; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; }
+.eyebrow { font-size: .76rem; font-weight: 700; letter-spacing: .14em; color: var(--accent); text-transform: uppercase; margin-bottom: .9rem; }
+.hero-title { font-size: 2.1rem; line-height: 1.12; font-weight: 700; color: var(--text); letter-spacing: -.02em; margin-bottom: .9rem; }
+.hero-sub { color: var(--text2); font-size: .92rem; line-height: 1.6; max-width: 48ch; }
+.hero-card { display: flex; flex-direction: column; gap: .25rem; min-width: 220px; padding: 1rem 1.2rem; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; cursor: pointer; text-align: left; font: inherit; color: inherit; }
+.hero-card span { color: var(--text2); font-size: .9rem; }
+.hero-card b { color: var(--accent); font-size: 1.02rem; }
+.hero-card:hover { border-color: var(--accent); }
+
+.search-label { display: block; font-weight: 600; color: var(--text); font-size: .9rem; margin-bottom: .5rem; }
+.searchbox { display: flex; align-items: center; gap: .6rem; padding: .4rem .4rem .4rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; box-shadow: var(--shadow); }
+.searchbox svg { width: 20px; height: 20px; color: var(--text2); flex-shrink: 0; }
+.searchbox input { flex: 1; min-width: 0; border: none; background: transparent; color: var(--text); font: inherit; font-size: .95rem; padding: .6rem .2rem; outline: none; }
+.searchbox input::placeholder { color: var(--text2); }
+.searchbox .btn-primary { padding: .7rem 1.4rem; border-radius: 10px; font-size: .98rem; }
+.search-hint { color: var(--text2); font-size: .85rem; margin: .5rem 0 1.4rem; }
+
+.btn-primary { background: var(--accent); color: var(--on-accent); border: 1px solid var(--accent); font-weight: 600; cursor: pointer; }
+.btn-primary:hover { background: var(--accent-strong); border-color: var(--accent-strong); }
+
+.staff-layout { display: grid; grid-template-columns: 300px 1fr; gap: 1.5rem; align-items: start; }
+.side-card { position: sticky; top: 1rem; max-height: calc(100vh - 2rem); overflow-y: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.1rem 1.2rem; }
+.side-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: .4rem; }
+.side-head h3 { font-size: .95rem; font-weight: 700; color: var(--text); }
+.side-head h3 span { color: var(--accent); font-size: .9rem; font-weight: 600; }
+.link-btn { background: none; border: none; color: var(--accent); font: inherit; font-size: .86rem; cursor: pointer; padding: 0; }
+.link-btn:hover { text-decoration: underline; }
+.side-block { border-top: 1px solid var(--border); padding: .9rem 0; }
+.side-label { display: block; font-size: .9rem; font-weight: 700; color: var(--text); }
+.side-note { font-size: .78rem; color: var(--text2); margin: .15rem 0 .4rem; }
+.side-block select { width: 100%; margin-top: .4rem; padding: .5rem .6rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font: inherit; font-size: .88rem; }
+.area-check { display: flex; align-items: flex-start; gap: .6rem; padding: .3rem 0; font-size: .88rem; line-height: 1.35; color: var(--text); cursor: pointer; }
+.area-check input, .f-check input { width: 16px; height: 16px; margin-top: .2rem; accent-color: var(--accent); flex-shrink: 0; }
+.area-check .area-n { margin-left: auto; color: var(--text2); font-size: .78rem; padding-top: .1rem; }
+.more-areas summary { cursor: pointer; color: var(--accent); font-size: .88rem; padding: .4rem 0; list-style: none; }
+.more-areas summary::-webkit-details-marker { display: none; }
+.more-areas summary::before { content: '▸ '; }
+.more-areas[open] summary::before { content: '▾ '; }
+.f-check { display: flex; align-items: center; gap: .5rem; font-size: .88rem; color: var(--text); cursor: pointer; }
+.f-check input { margin-top: 0; }
+
+.results-head { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: .9rem; }
+.results-head .stats-bar { margin: 0; font-size: .92rem; }
+.results-head .stat b { font-size: 1.02rem; }
+.stats-bar .stat + .stat { margin-left: 1rem; color: var(--accent); font-size: .86rem; }
+.sort { display: flex; align-items: center; gap: .5rem; color: var(--text2); font-size: .88rem; }
+.sort select { padding: .5rem .7rem; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font: inherit; font-size: .9rem; }
+.staff-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .9rem; }
+.staff-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.1rem 1.3rem; cursor: pointer; transition: border-color .15s, box-shadow .15s; }
+.staff-card:hover { border-color: var(--accent); box-shadow: var(--shadow); }
+.s-head { display: flex; align-items: center; gap: .9rem; }
+.s-av { width: 46px; height: 46px; flex-shrink: 0; border-radius: 50%; background: var(--surface2); color: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: .95rem; }
+.s-id h3 { font-size: .98rem; font-weight: 600; color: var(--text); }
+.s-sub { color: var(--text2); font-size: .88rem; margin-top: .1rem; }
+.s-pills { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .8rem; }
+.s-pill { display: inline-flex; align-items: center; gap: .4rem; font-size: .8rem; font-weight: 500; padding: .26rem .65rem .26rem .5rem; border-radius: 999px; background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+.s-pill::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--c, var(--accent)); flex-shrink: 0; }
+.s-kw { color: var(--text2); font-size: .86rem; line-height: 1.5; margin-top: .6rem; }
+.s-foot { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-top: .8rem; padding-top: .7rem; border-top: 1px solid var(--border); font-size: .86rem; color: var(--text2); }
+.s-foot b { color: var(--text); }
+.s-link { color: var(--accent); font-weight: 600; white-space: nowrap; }
+
+.empty-state { grid-column: 1 / -1; text-align: center; padding: 2.5rem 1rem; color: var(--text2); border: 1px dashed var(--border); border-radius: var(--radius); font-size: .9rem; }
+.empty-state .btn { margin-left: .3rem; }
+
+@media (max-width: 900px) {
+  .staff-layout { grid-template-columns: 1fr; }
+  .side-card { position: static; }
+  .hero { grid-template-columns: 1fr; padding: 1.6rem; }
+  .hero-title { font-size: 2rem; }
+}
+@media (max-width: 600px) {
+  .container { padding: 0 1rem; }
+  .tab { padding: .7rem .1rem; }
+  
+  .searchbox .btn-primary { padding: .6rem .9rem; }
+}
+
+/* ===== Obszary: lista w panelu bocznym ===== */
+.area-list { display: flex; flex-direction: column; gap: .05rem; margin-top: .3rem; }
+.side-search { width: 100%; margin-top: .4rem; padding: .45rem .6rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font: inherit; font-size: .85rem; }
+.area-check { display: flex; align-items: center; gap: .5rem; padding: .3rem .3rem; border-radius: 6px; font-size: .86rem; line-height: 1.3; color: var(--text); cursor: pointer; }
+.area-check:hover { background: var(--surface2); }
+.area-check::before { content: ''; width: 8px; height: 8px; flex-shrink: 0; border-radius: 50%; background: var(--c); }
+.area-check > input { width: 15px; height: 15px; margin: 0; flex-shrink: 0; accent-color: var(--accent); }
+.area-check > span:nth-of-type(1) { flex: 1; min-width: 0; }
+.area-check .area-n { font-size: .74rem; color: var(--text2); }
+.more-filters > summary { cursor: pointer; list-style: none; }
+.more-filters > summary::-webkit-details-marker { display: none; }
+.more-filters > summary::after { content: ' ▾'; color: var(--text2); }
+.more-filters[open] > summary::after { content: ' ▴'; }
+.more-filters .side-label { display: block; margin-top: .7rem; }
+.more-filters select { margin-top: .3rem; }
+.more-filters .f-check { margin-top: .5rem; }
+.area-bar-head, .area-bar { display: none; }
+.results-head { justify-content: space-between; }
+.active-chips { display: flex; flex-wrap: wrap; gap: .4rem; margin: .1rem 0 .9rem; }
+.active-chips:empty { display: none; }
+.chip { border: 1px solid var(--border); background: var(--surface); color: var(--text); border-radius: 999px; padding: .24rem .7rem; font: inherit; font-size: .8rem; cursor: pointer; }
+.chip:hover { border-color: var(--accent); }
+
+/* ===== Hero: prosty nagłówek i wyszukiwarka ===== */
+.hero-simple { padding: 1.2rem 0 .4rem; }
+.hero-simple .hero-title { font-size: 1.9rem; letter-spacing: -.01em; margin-bottom: .3rem; }
+.hero-simple .hero-sub { color: var(--text2); font-size: .92rem; margin-bottom: 1rem; }
+.hero-simple .searchbox { box-shadow: none; }
+.search-hint { color: var(--text2); font-size: .82rem; margin: .5rem 0 1.2rem; }
+.search-hint .link-btn { display: inline-flex; align-items: center; gap: .35rem; margin-left: .6rem; padding: .3rem .85rem; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent); background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent); font-size: .82rem; font-weight: 600; text-decoration: none; transition: background .15s, border-color .15s; }
+.search-hint .link-btn:hover { background: color-mix(in srgb, var(--accent) 22%, transparent); border-color: var(--accent); text-decoration: none; }
+.header-row .tabs { background: none; border: none; overflow: visible; flex: 1; }
+.header-row .tabs-row { gap: 1.2rem; justify-content: flex-start; }
+
+/* ===== Wizytówki: kolor obszaru widoczny, reszta spokojna ===== */
+.s-av { width: 46px; height: 46px; flex-shrink: 0; border-radius: 50%; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: .95rem; }
+.s-pills { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .8rem; }
+.s-pill { display: inline-flex; align-items: center; font-size: .8rem; font-weight: 600; padding: .26rem .65rem; border-radius: 999px; background: color-mix(in srgb, var(--c, var(--accent)) 27%, var(--surface)); border: 1px solid color-mix(in srgb, var(--c, var(--accent)) 65%, transparent); color: var(--text); }
+.s-pill::before { display: none; }
+.s-kw { display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .6rem; }
+.kw { font-size: .74rem; padding: .18rem .5rem; border-radius: 6px; background: var(--surface2); color: var(--text2); }
+
+/* ===== Filtr obszarów w grafie ===== */
+.g-areas { position: relative; }
+.g-areas > summary { list-style: none; cursor: pointer; display: inline-block; padding: .45rem .8rem; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); color: var(--text); font-size: .85rem; font-weight: 600; }
+.g-areas > summary::-webkit-details-marker { display: none; }
+.g-areas[open] > .g-area-list { display: block; }
+.g-area-list { position: absolute; z-index: 20; top: calc(100% + .4rem); left: 0; width: 300px; max-height: 360px; overflow-y: auto; display: none; padding: .5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow); }
+.g-area { display: flex; align-items: center; gap: .5rem; padding: .3rem .4rem; border-radius: 6px; font-size: .84rem; color: var(--text); cursor: pointer; }
+.g-area:hover { background: var(--surface2); }
+.g-area::before { content: ''; width: 8px; height: 8px; flex-shrink: 0; border-radius: 50%; background: var(--c); }
+.g-area input { accent-color: var(--accent); margin: 0; }
+
+/* ===== Przełącznik widoku grafu ===== */
+.seg { display: inline-flex; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: var(--surface); }
+.seg button { padding: .45rem .95rem; border: none; background: transparent; color: var(--text2); font: inherit; font-size: .85rem; font-weight: 600; cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--border); }
+.seg button.active { background: var(--accent); color: var(--on-accent); }
+
+/* ===== Dobierz zespół: przykłady ===== */
+.match-examples { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: center; margin-top: 1rem; }
+
+/* ===== Zakładki w nagłówku: kontrast ===== */
+.header-row .tab { color: #c3cfe2; font-weight: 600; }
+.header-row .tab:hover { color: #ffffff; }
+.header-row .tab.active { color: #ffffff; border-bottom: 3px solid #7fb3e6; }
+
+/* ===== Motyw, dostępność i poprawki UX ===== */
+body { transition: background-color .25s ease, color .25s ease; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.theme-toggle { margin-left: auto; display: inline-flex; align-items: center; gap: .5rem; padding: .45rem .85rem; border-radius: 999px; border: 1px solid rgba(255,255,255,.22); background: rgba(255,255,255,.06); color: var(--header-text); font: inherit; font-size: .8rem; cursor: pointer; flex-shrink: 0; transition: background .15s, border-color .15s; }
+.theme-toggle:hover { background: rgba(255,255,255,.14); border-color: rgba(255,255,255,.35); }
+.theme-toggle svg { width: 16px; height: 16px; flex-shrink: 0; display: none; }
+.theme-toggle .i-moon { display: block; }
+:root[data-theme="light"] .theme-toggle .i-moon { display: none; }
+:root[data-theme="light"] .theme-toggle .i-sun { display: block; }
+.tag-chip::before { content: ''; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--c, var(--accent)); margin-right: .4rem; vertical-align: middle; }
+.tag-chip.active::before { display: none; }
+.tabs::-webkit-scrollbar { height: 4px; }
+.tab { white-space: nowrap; }
+@media (max-width: 600px) {
+  .tabs { padding: 0 .5rem; }
+  .tab { padding: .7rem .85rem; }
+  .tab-pane { padding: 1rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .6s !important; scroll-behavior: auto !important; }
+}
+</style>
+<style>a.tab, a.tab:hover { text-decoration: none; }</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-row">
+    <img class="brand-logo" alt="Logo Wydziału Informatyki AGH" src="data:image/svg+xml;base64,77u/CjxzdmcgaWQ9IldhcnN0d2FfMiIgZGF0YS1uYW1lPSJXYXJzdHdhIDIiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDI1My41OCA2MC4wMSI+CiAgPGRlZnM+CiAgICA8c3R5bGU+CiAgICAgIC5jbHMtMSB7CiAgICAgICAgZmlsbDogI2ZmZmZmZjsKICAgICAgfQoKICAgICAgLmNscy0yIHsKICAgICAgICBmaWxsOiAjZmZmZmZmOwogICAgICB9CgogICAgICAuY2xzLTMgewogICAgICAgIGZpbGw6ICNmZmZmZmY7CiAgICAgIH0KCiAgICAgIC5jbHMtNCB7CiAgICAgICAgZmlsbDogI2ZmZmZmZjsKICAgICAgfQoKICAgICAgLmNscy01IHsKICAgICAgICBmaWxsOiAjZmZmZmZmOwogICAgICB9CgogICAgICAuY2xzLTYgewogICAgICAgIGZpbGw6ICNmZmZmZmY7CiAgICAgIH0KCiAgICAgIC5jbHMtNyB7CiAgICAgICAgZmlsbDogI2ZmZmZmZjsKICAgICAgfQoKICAgICAgLmNscy04IHsKICAgICAgICBmaWxsOiAjZmZmZmZmOwogICAgICB9CgogICAgICAuY2xzLTkgewogICAgICAgIGZpbGw6ICNmZmZmZmY7CiAgICAgIH0KICAgIDwvc3R5bGU+CiAgPC9kZWZzPgogIDxnIGlkPSJXYXJzdHdhXzEtMiIgZGF0YS1uYW1lPSJXYXJzdHdhIDEiPgogICAgPGc+CiAgICAgIDxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTI5LjE4LDE3Ljc5aDQuOTFsOS4xNywxNC4zMXYtMTQuMzFoNS4xMXYyNC4xaC00LjkxbC05LjE3LTE0LjI3djE0LjI3aC01LjExVjE3Ljc5WiIvPgogICAgICA8cGF0aCBjbGFzcz0iY2xzLTMiIGQ9Ik01My44OSwxNy43OWgxMy43MnY1LjA0aC04LjI4djQuNTJoOC4wOXY1LjA0aC04LjA5djkuNDloLTUuNDNWMTcuNzlaIi8+CiAgICAgIDxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTcwLjQyLDI5Ljg0YzAtNy4zNyw1LjM3LTEyLjU0LDEyLjU3LTEyLjU0czEyLjYsNS4xNywxMi42LDEyLjU0LTUuNCwxMi41NC0xMi42LDEyLjU0LTEyLjU3LTUuMTctMTIuNTctMTIuNTRabTEyLjU3LDcuMzdjMy45NiwwLDYuOTctMi45NSw2Ljk3LTcuMzdzLTMuMDEtNy4zNy02Ljk3LTcuMzctNi45NCwyLjk1LTYuOTQsNy4zNywyLjk4LDcuMzcsNi45NCw3LjM3WiIvPgogICAgICA8cGF0aCBjbGFzcz0iY2xzLTMiIGQ9Ik0xMDUuMTksMzIuNDZ2OS40M2gtNS40M1YxNy43OWg4LjE4YzUuMTEsMCw4LjI1LDIuNTUsOC4yNSw3LjUsMCwzLjMxLTIsNS43OS01LjQsNi42NWw2LjkxLDkuOTVoLTYuNTVsLTUuOTYtOS40M1ptMi40OS00LjM1YzEuODMsMCwyLjk4LTEuMDgsMi45OC0yLjgycy0xLjE1LTIuODItMi45OC0yLjgyaC0yLjQ5djUuNjNoMi40OVoiLz4KICAgICAgPHBhdGggY2xhc3M9ImNscy0zIiBkPSJNMTIxLjU5LDE3Ljc5aDUuMzRsNy4wNCwxMS44NSw2Ljk0LTExLjg1aDUuMjR2MjQuMWgtNS4xMXYtMTQuOGwtNS41LDkuNDNoLTMuMjdsLTUuNTctOS40OXYxNC44NmgtNS4xMVYxNy43OVoiLz4KICAgICAgPHBhdGggY2xhc3M9ImNscy0zIiBkPSJNMTU3LjczLDE3Ljc5aDUuM2w4LjE4LDI0LjFoLTUuNjZsLTEuMTEtMy42M2gtOC4xMmwtMS4xMSwzLjYzaC01LjZsOC4xMi0yNC4xWm01LjI3LDE1LjgxbC0yLjY1LTguNTQtMi42Miw4LjU0aDUuMjdaIi8+CiAgICAgIDxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTE3Ni41NSwyMi44M2gtNS40M3YtNS4wNGgxNi4zdjUuMDRoLTUuNDN2MTkuMDVoLTUuNDNWMjIuODNaIi8+CiAgICAgIDxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTE5Ny40LDMyLjQ5bC03LjY5LTE0LjdoNi4xMmw0LjMyLDguODcsNC4yOS04Ljg3aDUuN2wtNy4zLDE0Ljd2OS40aC01LjQzdi05LjRaIi8+CiAgICAgIDxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTIxOC4wMywzMS44N3YxMC4wMmgtNS40M1YxNy43OWg1LjQzdjkuMzNsNi41OC05LjEzaDYuMzhsLTguMjgsMTEuMjksOC43NCwxMi42aC02LjYxbC02LjgxLTEwLjAyWiIvPgogICAgICA8cGF0aCBjbGFzcz0iY2xzLTMiIGQ9Ik0yNDAuMDksMTcuNzloNS4zbDguMTgsMjQuMWgtNS42NmwtMS4xMS0zLjYzaC04LjEybC0xLjExLDMuNjNoLTUuNmw4LjEyLTI0LjFabTUuMjcsMTUuODFsLTIuNjUtOC41NC0yLjYyLDguNTRoNS4yN1oiLz4KICAgICAgPHJlY3QgY2xhc3M9ImNscy03IiB4PSI4Ljg2IiB5PSIxNy43OCIgd2lkdGg9IjYuMzIiIGhlaWdodD0iNi4zMiIvPgogICAgICA8cmVjdCBjbGFzcz0iY2xzLTQiIHg9IjguODkiIHk9IjguODkiIHdpZHRoPSI2LjMyIiBoZWlnaHQ9IjYuMzIiLz4KICAgICAgPHJlY3QgY2xhc3M9ImNscy01IiB4PSI4Ljg2IiB5PSI0NC40NiIgd2lkdGg9IjYuMzIiIGhlaWdodD0iNi4zMiIvPgogICAgICA8cmVjdCBjbGFzcz0iY2xzLTgiIHg9IjguODYiIHk9IjI2LjY2IiB3aWR0aD0iNi4zMiIgaGVpZ2h0PSI2LjMyIi8+CiAgICAgIDxyZWN0IGNsYXNzPSJjbHMtNiIgeD0iOC44NiIgeT0iMzUuNTYiIHdpZHRoPSI2LjMyIiBoZWlnaHQ9IjYuMzIiLz4KICAgICAgPHJlY3QgY2xhc3M9ImNscy0xIiB4PSIxNy44MiIgd2lkdGg9IjYuMzIiIGhlaWdodD0iNi4zMiIvPgogICAgICA8cmVjdCBjbGFzcz0iY2xzLTciIHk9IjI2LjY3IiB3aWR0aD0iNi4zMiIgaGVpZ2h0PSI2LjMyIi8+CiAgICAgIDxyZWN0IGNsYXNzPSJjbHMtNCIgeT0iMTcuNzciIHdpZHRoPSI2LjMyIiBoZWlnaHQ9IjYuMzIiLz4KICAgICAgPHJlY3QgY2xhc3M9ImNscy01IiB5PSI1My4zNCIgd2lkdGg9IjYuMzIiIGhlaWdodD0iNi4zMiIvPgogICAgICA8cmVjdCBjbGFzcz0iY2xzLTgiIHk9IjM1LjU2IiB3aWR0aD0iNi4zMiIgaGVpZ2h0PSI2LjMyIi8+CiAgICAgIDxyZWN0IGNsYXNzPSJjbHMtNiIgeT0iNDQuNDkiIHdpZHRoPSI2LjMyIiBoZWlnaHQ9IjYuMzIiLz4KICAgICAgPHJlY3QgY2xhc3M9ImNscy0yIiB4PSIxNy45NyIgeT0iMTcuNzkiIHdpZHRoPSI2LjE2IiBoZWlnaHQ9IjI0LjEiLz4KICAgICAgPGc+CiAgICAgICAgPHBhdGggY2xhc3M9ImNscy05IiBkPSJNMjAuNDgsNTcuMjdsLS45MywyLjZoLTEuMTRsMy4wOC04LjY1aDEuNDFsMy4yMSw4LjY1aC0xLjIybC0uOTYtMi42aC0zLjQ1Wm0zLjE2LS45OGMtLjgyLTIuMjctMS4yOC0zLjQ4LTEuNDYtNC4xNGgtLjAxYy0uMjEsLjczLS43MiwyLjItMS4zOCw0LjE0aDIuODZaIi8+CiAgICAgICAgPHBhdGggY2xhc3M9ImNscy05IiBkPSJNMjguNjQsNTYuNTdjLjUzLS42MiwxLjkyLTIuMDgsMi43Ny0zLjAxaDEuM2wtMi4zNywyLjQ2LDIuNjUsMy44NWgtMS4yN2wtMi4xMi0zLjE1LS45NSwuOTJ2Mi4yNGgtMS4wOXYtOS4xM2gxLjA5djUuODNaIi8+CiAgICAgICAgPHBhdGggY2xhc3M9ImNscy05IiBkPSJNMzguOTMsNTguNDljMCwuNTcsLjA1LDEuMTksLjA5LDEuMzhoLTEuMDRjLS4wNS0uMTQtLjA5LS40NC0uMS0uODMtLjIyLC40Mi0uNzIsLjk4LTEuOTUsLjk4LTEuNDksMC0yLjEyLS45Ny0yLjEyLTEuOTMsMC0xLjQxLDEuMTEtMi4wNSwyLjk4LTIuMDVoMS4wOHYtLjU0YzAtLjU2LS4xOC0xLjIzLTEuMzYtMS4yMy0xLjA1LDAtMS4yMywuNTItMS4zNSwxLjAyaC0xLjA1Yy4wOC0uODcsLjYyLTEuODcsMi40My0xLjg3LDEuNTQsMCwyLjM5LC42MywyLjM5LDIuMDd2My4wMVptLTEuMDYtMS43aC0xLjAyYy0xLjI2LDAtMS45MywuMzUtMS45MywxLjI0LDAsLjY2LC40NSwxLjEzLDEuMjMsMS4xMywxLjUyLDAsMS43Mi0xLjAyLDEuNzItMi4xN3YtLjJaIi8+CiAgICAgICAgPHBhdGggY2xhc3M9ImNscy05IiBkPSJNNDYuMjksNTAuNzN2Ny4zNWMwLC41OSwwLDEuMTcsLjAxLDEuNzhoLTEuMDVjLS4wMy0uMTctLjA1LS42NS0uMDUtLjktLjMxLC42Ni0uOTUsMS4wNC0xLjk4LDEuMDQtMS42MiwwLTIuNjItMS4zMS0yLjYyLTMuMjRzMS4wNy0zLjM3LDIuODItMy4zN2MxLjEyLDAsMS42MSwuNDUsMS43OCwuOHYtMy40OGgxLjA5Wm0tNC41Niw2LjAxYzAsMS41MiwuNzIsMi4zNSwxLjcxLDIuMzUsMS40NywwLDEuOC0xLjA5LDEuOC0yLjQ3cy0uMjktMi4yOS0xLjcxLTIuMjljLTEuMTEsMC0xLjgsLjg4LTEuOCwyLjQxWiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtOSIgZD0iTTQ5LjA1LDU2LjkxYzAsMS4yOCwuNjUsMi4xOSwxLjcyLDIuMTksMSwwLDEuMzItLjUxLDEuNTItLjk4aDEuMWMtLjI1LC44MS0uOTIsMS44OS0yLjY1LDEuODktMS45OCwwLTIuNzktMS42MS0yLjc5LTMuMjMsMC0xLjg4LC45NS0zLjM3LDIuODYtMy4zNywyLjAzLDAsMi43LDEuNjMsMi43LDIuOTgsMCwuMTksMCwuMzUtLjAyLC41MmgtNC40NFptMy4zNi0uNzdjLS4wMS0xLjA0LS41My0xLjg3LTEuNjEtMS44N3MtMS42LC43Ny0xLjcxLDEuODdoMy4zMloiLz4KICAgICAgICA8cGF0aCBjbGFzcz0iY2xzLTkiIGQ9Ik01NS4xNyw1NS4xOGMwLS41NCwwLTEuMTEtLjAxLTEuNjNoMS4wNWMuMDIsLjE5LC4wNSwuNjUsLjA0LC45NywuMjktLjU2LC44NC0xLjEyLDEuODMtMS4xMiwuODksMCwxLjUxLC40NSwxLjc1LDEuMTMsLjM0LS42LC45My0xLjEzLDIuMDEtMS4xM3MxLjk5LC42LDEuOTksMi4zMXY0LjE0aC0xLjA3di00LjAxYzAtLjczLS4yNi0xLjUtMS4yNS0xLjVzLTEuNDcsLjc4LTEuNDcsMS44OXYzLjYyaC0xLjA3di0zLjk4YzAtLjgxLS4yMy0xLjUzLTEuMjItMS41M3MtMS41LC44Mi0xLjUsMi4wMnYzLjQ5aC0xLjA4di00LjY4WiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtOSIgZD0iTTY1Ljk0LDUwLjczaDEuMDl2MS4zNmgtMS4wOXYtMS4zNlptMCwyLjgyaDEuMDl2Ni4zMWgtMS4wOXYtNi4zMVoiLz4KICAgICAgICA8cGF0aCBjbGFzcz0iY2xzLTkiIGQ9Ik03My43Niw1OC40OWMwLC41NywuMDUsMS4xOSwuMDksMS4zOGgtMS4wNGMtLjA1LS4xNC0uMDktLjQ0LS4xLS44My0uMjIsLjQyLS43MiwuOTgtMS45NSwuOTgtMS40OSwwLTIuMTItLjk3LTIuMTItMS45MywwLTEuNDEsMS4xMS0yLjA1LDIuOTgtMi4wNWgxLjA4di0uNTRjMC0uNTYtLjE4LTEuMjMtMS4zNi0xLjIzLTEuMDUsMC0xLjIzLC41Mi0xLjM1LDEuMDJoLTEuMDVjLjA4LS44NywuNjItMS44NywyLjQzLTEuODcsMS41NCwwLDIuMzksLjYzLDIuMzksMi4wN3YzLjAxWm0tMS4wNi0xLjdoLTEuMDJjLTEuMjYsMC0xLjkzLC4zNS0xLjkzLDEuMjQsMCwuNjYsLjQ1LDEuMTMsMS4yMywxLjEzLDEuNTIsMCwxLjcyLTEuMDIsMS43Mi0yLjE3di0uMloiLz4KICAgICAgICA8cGF0aCBjbGFzcz0iY2xzLTkiIGQ9Ik04Ni41MSw1OS44NmgtLjg4Yy0uMDYtLjE3LS4wOS0uNTUtLjExLTEuMTctLjM4LC42MS0xLjEyLDEuMjktMi42OSwxLjI5LTIuNSwwLTMuODItMS44OS0zLjgyLTQuMzYsMC0yLjU5LDEuNDItNC41NCw0LjAzLTQuNTQsMi4wMSwwLDMuMjgsMS4wOSwzLjUyLDIuNjRoLTEuMTVjLS4yOS0uOTctLjk5LTEuNjgtMi40LTEuNjgtMi4wMSwwLTIuODEsMS42LTIuODEsMy41MywwLDEuNzgsLjgsMy40NSwyLjc2LDMuNDVzMi40Mi0xLjI5LDIuNDItMi43NXYtLjA5aC0yLjQ0di0uOThoMy41NXY0LjY3WiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtOSIgZD0iTTk0LjA5LDU2LjdjMCwxLjgyLTEuMDQsMy4zMS0yLjk3LDMuMzEtMS44MSwwLTIuOS0xLjQtMi45LTMuMjlzMS4wNy0zLjMxLDIuOTctMy4zMWMxLjc1LDAsMi45LDEuMzEsMi45LDMuMjlabS00Ljc1LC4wMWMwLDEuMzgsLjY5LDIuMzksMS44MiwyLjM5czEuOC0uOTYsMS44LTIuMzktLjY0LTIuNC0xLjgzLTIuNC0xLjgsLjk1LTEuOCwyLjM5Wm0zLjk5LTYuMWwtMS45MSwxLjkxaC0xLjAzbDEuNTktMS45MWgxLjM0WiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtOSIgZD0iTTk1Ljc2LDU1LjI3YzAtLjg4LDAtMS4zOC0uMDEtMS43MWgxLjA3Yy4wMiwuMTgsLjAzLC42NywuMDMsMS4yOSwuMzMtLjg1LDEuMDgtMS40LDIuMTItMS40NHYxLjA5Yy0xLjI5LC4wNC0yLjEyLC43MS0yLjEyLDIuMzF2My4wNmgtMS4wOXYtNC41OVoiLz4KICAgICAgICA8cGF0aCBjbGFzcz0iY2xzLTkiIGQ9Ik0xMDAuMjcsNTUuMTVjMC0uNTUsMC0xLjEtLjAxLTEuNTloMS4wNmMuMDMsLjE5LC4wNSwuODUsLjA0LDEuMDQsLjI1LS41NCwuNzctMS4xOSwxLjk5LTEuMTlzMi4xMSwuNzIsMi4xMSwyLjR2NC4wNmgtMS4wOXYtMy45MmMwLS45NS0uMzctMS41OS0xLjMzLTEuNTktMS4xOSwwLTEuNjcsLjkxLTEuNjcsMi4xN3YzLjM0aC0xLjA5di00LjcyWiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtOSIgZD0iTTEwNy41NSw1MC43M2gxLjA5djEuMzZoLTEuMDl2LTEuMzZabTAsMi44MmgxLjA5djYuMzFoLTEuMDl2LTYuMzFaIi8+CiAgICAgICAgPHBhdGggY2xhc3M9ImNscy05IiBkPSJNMTE1LjcyLDU3Ljk0Yy0uMjcsMS4wOS0xLDIuMDgtMi42MSwyLjA4LTEuNzQsMC0yLjgxLTEuMjUtMi44MS0zLjI3LDAtMS43OCwxLjAxLTMuMzQsMi44OS0zLjM0czIuNDUsMS4zLDIuNTMsMi4xMWgtMS4wOGMtLjE2LS42NC0uNTYtMS4yLTEuNDctMS4yLTEuMTIsMC0xLjc1LC45Ni0xLjc1LDIuMzlzLjYxLDIuNCwxLjcxLDIuNGMuNzksMCwxLjI1LS40MiwxLjUtMS4xN2gxLjA4WiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtOSIgZD0iTTExNi44MSw1OC45OGwzLjYzLTQuNTFoLTMuNDV2LS45Mmg0LjY5di45MWwtMy41OCw0LjQ4aDMuNzVsLS4xOCwuOTFoLTQuODd2LS44OFoiLz4KICAgICAgICA8cGF0aCBjbGFzcz0iY2xzLTkiIGQ9Ik0xMjguNjQsNTYuN2MwLDEuODItMS4wNCwzLjMxLTIuOTcsMy4zMS0xLjgxLDAtMi45LTEuNC0yLjktMy4yOXMxLjA3LTMuMzEsMi45Ny0zLjMxYzEuNzUsMCwyLjksMS4zMSwyLjksMy4yOVptLTQuNzUsLjAxYzAsMS4zOCwuNjksMi4zOSwxLjgyLDIuMzlzMS44LS45NiwxLjgtMi4zOS0uNjQtMi40LTEuODMtMi40LTEuOCwuOTUtMS44LDIuMzlaIi8+CiAgICAgICAgPHBhdGggY2xhc3M9ImNscy05IiBkPSJNMTMzLjU4LDU2LjE4di45OWgtMy4yN3YtLjk5aDMuMjdaIi8+CiAgICAgICAgPHBhdGggY2xhc3M9ImNscy05IiBkPSJNMTM1LjU2LDUxLjIxaDEuMTV2My42MWg0LjUxdi0zLjYxaDEuMTV2OC42NWgtMS4xNXYtNC4wNmgtNC41MXY0LjA2aC0xLjE1di04LjY1WiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtOSIgZD0iTTE0OS41Miw1OC4wM2MwLC42MSwwLDEuNDcsLjAxLDEuODRoLTEuMDZjLS4wMi0uMTctLjA0LS41NS0uMDQtLjk1LS4zMSwuNy0uOTIsMS4wOS0xLjkxLDEuMDktMS4wNiwwLTIuMDgtLjUzLTIuMDgtMi4zMXYtNC4xNWgxLjA4djMuOTFjMCwuODMsLjI2LDEuNTksMS4zMSwxLjU5LDEuMTYsMCwxLjYxLS42NCwxLjYxLTIuMjJ2LTMuMjloMS4wOXY0LjQ3WiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtOSIgZD0iTTE1MC45Niw1My41NmgxLjA5di0xLjg2aDEuMDl2MS44NmgxLjM5di44OWgtMS4zOXYzLjY5YzAsLjYxLC4xNSwuOTMsLjcyLC45MywuMTUsMCwuMzgsMCwuNTUtLjA1di44MmMtLjI3LC4xLS42NCwuMTItLjk0LC4xMi0uOTgsMC0xLjQyLS41MS0xLjQyLTEuNTZ2LTMuOTVoLTEuMDl2LS44OVoiLz4KICAgICAgICA8cGF0aCBjbGFzcz0iY2xzLTkiIGQ9Ik0xNTUuODksNTUuMTVjMC0uNTUsMC0xLjEtLjAxLTEuNTloMS4wNmMuMDMsLjE5LC4wNSwuODUsLjA0LDEuMDQsLjI1LS41NCwuNzctMS4xOSwxLjk5LTEuMTlzMi4xMSwuNzIsMi4xMSwyLjR2NC4wNmgtMS4wOXYtMy45MmMwLS45NS0uMzctMS41OS0xLjMzLTEuNTktMS4xOSwwLTEuNjcsLjkxLTEuNjcsMi4xN3YzLjM0aC0xLjA5di00LjcyWiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtOSIgZD0iTTE2My4xOCw1MC43M2gxLjA5djEuMzZoLTEuMDl2LTEuMzZabTAsMi44MmgxLjA5djYuMzFoLTEuMDl2LTYuMzFaIi8+CiAgICAgICAgPHBhdGggY2xhc3M9ImNscy05IiBkPSJNMTcxLjM1LDU3Ljk0Yy0uMjcsMS4wOS0xLDIuMDgtMi42MSwyLjA4LTEuNzQsMC0yLjgxLTEuMjUtMi44MS0zLjI3LDAtMS43OCwxLjAxLTMuMzQsMi44OS0zLjM0czIuNDUsMS4zLDIuNTMsMi4xMWgtMS4wOGMtLjE2LS42NC0uNTYtMS4yLTEuNDctMS4yLTEuMTIsMC0xLjc1LC45Ni0xLjc1LDIuMzlzLjYxLDIuNCwxLjcxLDIuNGMuNzksMCwxLjI1LS40MiwxLjUtMS4xN2gxLjA4WiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtOSIgZD0iTTE3Mi40NCw1OC45OGwzLjYzLTQuNTFoLTMuNDV2LS45Mmg0LjY5di45MWwtMy41OCw0LjQ4aDMuNzVsLS4xOCwuOTFoLTQuODd2LS44OFoiLz4KICAgICAgICA8cGF0aCBjbGFzcz0iY2xzLTkiIGQ9Ik0xODMuNjQsNTguNDljMCwuNTcsLjA1LDEuMTksLjA5LDEuMzhoLTEuMDRjLS4wNS0uMTQtLjA5LS40NC0uMS0uODMtLjIyLC40Mi0uNzIsLjk4LTEuOTUsLjk4LTEuNDksMC0yLjEyLS45Ny0yLjEyLTEuOTMsMC0xLjQxLDEuMTEtMi4wNSwyLjk4LTIuMDVoMS4wOHYtLjU0YzAtLjU2LS4xOC0xLjIzLTEuMzYtMS4yMy0xLjA1LDAtMS4yMywuNTItMS4zNSwxLjAyaC0xLjA1Yy4wOC0uODcsLjYyLTEuODcsMi40My0xLjg3LDEuNTQsMCwyLjM5LC42MywyLjM5LDIuMDd2My4wMVptLTEuMDYtMS43aC0xLjAyYy0xLjI2LDAtMS45MywuMzUtMS45MywxLjI0LDAsLjY2LC40NSwxLjEzLDEuMjMsMS4xMywxLjUyLDAsMS43Mi0xLjAyLDEuNzItMi4xN3YtLjJaIi8+CiAgICAgICAgPHBhdGggY2xhc3M9ImNscy05IiBkPSJNMTg5LjY5LDUzLjU2Yy43OCwyLjk2LDEuMjMsNC42NSwxLjM0LDUuM2guMDJjLjExLS41OSwuNTYtMi4xNiwxLjQ1LTUuM2gxLjA3Yy45OSwzLjU3LDEuMjgsNC42MSwxLjM4LDUuMTdoLjAxYy4xNi0uNjgsLjQxLTEuNjIsMS4zOS01LjE3aDEuMWwtMS45NCw2LjMxaC0xLjE4Yy0uNjEtMi4zLTEuMjItNC40My0xLjM1LTUuMTFoLS4wMWMtLjEyLC42OS0uNjgsMi42MS0xLjM5LDUuMTFoLTEuMjJsLTEuODMtNi4zMWgxLjE1WiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtOSIgZD0iTTIwMi41Niw1MS4yMWgxLjE0djQuMjRjLjY0LS42NywyLjg0LTIuODQsNC4yMS00LjI0aDEuNDNsLTMuNzIsMy42NSwzLjksNWgtMS4zOWwtMy4zMi00LjI2LTEuMTEsMXYzLjI2aC0xLjE0di04LjY1WiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtOSIgZD0iTTIxMC42NSw1NS4yN2MwLS44OCwwLTEuMzgtLjAxLTEuNzFoMS4wN2MuMDIsLjE4LC4wMywuNjcsLjAzLDEuMjksLjMzLS44NSwxLjA4LTEuNCwyLjEyLTEuNDR2MS4wOWMtMS4yOSwuMDQtMi4xMiwuNzEtMi4xMiwyLjMxdjMuMDZoLTEuMDl2LTQuNTlaIi8+CiAgICAgICAgPHBhdGggY2xhc3M9ImNscy05IiBkPSJNMjE5Ljc2LDU4LjQ5YzAsLjU3LC4wNSwxLjE5LC4wOSwxLjM4aC0xLjA0Yy0uMDUtLjE0LS4wOS0uNDQtLjEtLjgzLS4yMiwuNDItLjcyLC45OC0xLjk1LC45OC0xLjQ5LDAtMi4xMi0uOTctMi4xMi0xLjkzLDAtMS40MSwxLjExLTIuMDUsMi45OC0yLjA1aDEuMDh2LS41NGMwLS41Ni0uMTgtMS4yMy0xLjM2LTEuMjMtMS4wNSwwLTEuMjMsLjUyLTEuMzUsMS4wMmgtMS4wNWMuMDgtLjg3LC42Mi0xLjg3LDIuNDMtMS44NywxLjU0LDAsMi4zOSwuNjMsMi4zOSwyLjA3djMuMDFabS0xLjA2LTEuN2gtMS4wMmMtMS4yNiwwLTEuOTMsLjM1LTEuOTMsMS4yNCwwLC42NiwuNDUsMS4xMywxLjIzLDEuMTMsMS41MiwwLDEuNzItMS4wMiwxLjcyLTIuMTd2LS4yWiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtOSIgZD0iTTIyMi45OCw1Ni41N2MuNTMtLjYyLDEuOTItMi4wOCwyLjc3LTMuMDFoMS4zbC0yLjM3LDIuNDYsMi42NSwzLjg1aC0xLjI3bC0yLjEyLTMuMTUtLjk1LC45MnYyLjI0aC0xLjA5di05LjEzaDEuMDl2NS44M1oiLz4KICAgICAgICA8cGF0aCBjbGFzcz0iY2xzLTkiIGQ9Ik0yMzMuNzIsNTYuN2MwLDEuODItMS4wNCwzLjMxLTIuOTcsMy4zMS0xLjgxLDAtMi45LTEuNC0yLjktMy4yOXMxLjA3LTMuMzEsMi45Ny0zLjMxYzEuNzUsMCwyLjksMS4zMSwyLjksMy4yOVptLTQuNzUsLjAxYzAsMS4zOCwuNjksMi4zOSwxLjgyLDIuMzlzMS44LS45NiwxLjgtMi4zOS0uNjQtMi40LTEuODMtMi40LTEuOCwuOTUtMS44LDIuMzlaIi8+CiAgICAgICAgPHBhdGggY2xhc3M9ImNscy05IiBkPSJNMjM1Ljg2LDUzLjU2Yy43OCwyLjk2LDEuMjMsNC42NSwxLjM0LDUuM2guMDJjLjExLS41OSwuNTYtMi4xNiwxLjQ1LTUuM2gxLjA3Yy45OSwzLjU3LDEuMjgsNC42MSwxLjM4LDUuMTdoLjAxYy4xNi0uNjgsLjQxLTEuNjIsMS4zOS01LjE3aDEuMWwtMS45NCw2LjMxaC0xLjE4Yy0uNjEtMi4zLTEuMjItNC40My0xLjM1LTUuMTFoLS4wMWMtLjEyLC42OS0uNjgsMi42MS0xLjM5LDUuMTFoLTEuMjJsLTEuODMtNi4zMWgxLjE1WiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtOSIgZD0iTTI0NS4wNyw1MC43M2gxLjA5djEuMzZoLTEuMDl2LTEuMzZabTAsMi44MmgxLjA5djYuMzFoLTEuMDl2LTYuMzFaIi8+CiAgICAgICAgPHBhdGggY2xhc3M9ImNscy05IiBkPSJNMjQ4LjkyLDU2LjkxYzAsMS4yOCwuNjUsMi4xOSwxLjcyLDIuMTksMSwwLDEuMzItLjUxLDEuNTItLjk4aDEuMWMtLjI1LC44MS0uOTIsMS44OS0yLjY1LDEuODktMS45OCwwLTIuNzktMS42MS0yLjc5LTMuMjMsMC0xLjg4LC45NS0zLjM3LDIuODYtMy4zNywyLjAzLDAsMi43LDEuNjMsMi43LDIuOTgsMCwuMTksMCwuMzUtLjAyLC41MmgtNC40NFptMy4zNi0uNzdjLS4wMS0xLjA0LS41My0xLjg3LTEuNjEtMS44N3MtMS42LC43Ny0xLjcxLDEuODdoMy4zMloiLz4KICAgICAgPC9nPgogICAgPC9nPgogIDwvZz4KPC9zdmc+">
+    <div class="faculty">Wydział Informatyki AGH<b>Mapa badawcza</b></div>
+
+        <button class="theme-toggle" id="theme-toggle" type="button" title="Zmień tryb wyświetlania">
+    <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+    <span class="lbl">Tryb jasny</span>
+  </button>
+  </div>
+</header>
+
+<nav class="tabs">
+  <div class="container tabs-row">
+    <a class="tab" href="index.html#staff">Naukowcy</a>
+    <a class="tab" href="index.html#areas">Obszary badawcze</a>
+    <a class="tab" href="index.html#match">Dobierz zespół</a>
+    <a class="tab" href="index.html#graph">Graf współpracy</a>
+    <a class="tab active" href="dopasowanie.html">Dopasowanie do naboru</a>
+  </div>
+</nav>
+
+<main class="container">
+  <section class="hero-simple">
+    <div class="eyebrow">Nabór Horyzont Europa</div>
+    <h1 class="hero-title">Dopasowanie osób do naborów</h1>
+    <p class="hero-sub">Dopasowanie na podstawie tytułów tematów; pełne opisy do uzupełnienia.</p>
+  </section>
+
+  <section class="call-section" id="HORIZON-CL4-2026-04-DIGITAL-EMERGING-09" style="margin-bottom:2.2rem">
+    <div class="eyebrow">Nabór Horyzont Europa</div>
+    <h2 class="hero-title" style="font-size:1.5rem">HORIZON-CL4-2026-04-DIGITAL-EMERGING-09</h2>
+    <p class="hero-sub">Call HORIZON-CL4-2026-04 · zamknięty 15.04.2026</p>
+    <div class="stats-bar" style="margin:1rem 0">
+      <span class="stat"><b>29</b> osób z trafieniem</span>
+      <span class="stat">w profilach: <b>106</b></span>
+      <span class="stat">pokazano: <b>10</b></span>
+    </div>
+    <div class="side-card" style="position:static;max-height:none;margin-bottom:1.2rem">
+      <div class="side-head"><h3>Terminy z tematu</h3></div>
+      <div class="s-pills"><span class='s-pill'>digital</span><span class='s-pill'>early</span><span class='s-pill'>preparedness</span><span class='s-pill'>twins</span><span class='s-pill'>warning</span></div>
+      <p class="side-note" style="margin-top:.8rem">Wynik pokazuje dowody z tematów i publikacji, nie ocenę kompetencji. Weryfikuje biuro.</p>
+    </div>
+    <div class="staff-list">
+    <article class="staff-card" style="border-left:3px solid #b08a4a88">
+      <div class="s-head">
+        <div class="s-av" style="background:#b08a4acc;color:#fff">KP</div>
+        <div class="s-id">
+          <h3>1. Kica Piotr</h3>
+          <div class="s-sub">Piotr Kica</div>
+        </div>
+      </div>
+      <div class="s-pills">
+        <span class="s-pill" style="--c:#4f7fb0">wynik 4</span>
+        <span class="s-pill" style="--c:#b08a4a">pokrycie 40%</span>
+        <span class="s-pill" style="--c:#b08a4a">Decision Sciences</span>
+      </div>
+      <ul class="s-kw" style="padding-left:1.1rem"><li><b>digital</b> ← słowo kluczowe: digital transformation</li><li><b>early</b> ← słowo kluczowe: early stopping</li></ul>
+      <div class="s-foot"><span>4 trafień z tematu</span><a class='s-link' href='https://orcid.org/0009-0001-9269-6804' target='_blank' rel='noopener'>ORCID →</a></div>
+    </article>
+    <article class="staff-card" style="border-left:3px solid #b08a4a88">
+      <div class="s-head">
+        <div class="s-av" style="background:#b08a4acc;color:#fff">ŁM</div>
+        <div class="s-id">
+          <h3>2. Łoś Marcin</h3>
+          <div class="s-sub">Marcin Łoś</div>
+        </div>
+      </div>
+      <div class="s-pills">
+        <span class="s-pill" style="--c:#4f7fb0">wynik 4</span>
+        <span class="s-pill" style="--c:#b08a4a">pokrycie 40%</span>
+        <span class="s-pill" style="--c:#b08a4a">Engineering</span>
+      </div>
+      <ul class="s-kw" style="padding-left:1.1rem"><li><b>early</b> ← słowo kluczowe: earthquake early warning</li><li><b>warning</b> ← słowo kluczowe: earthquake early warning</li></ul>
+      <div class="s-foot"><span>4 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0002-8426-6345' target='_blank' rel='noopener'>ORCID →</a></div>
+    </article>
+    <article class="staff-card" style="border-left:3px solid #4f9d7488">
+      <div class="s-head">
+        <div class="s-av" style="background:#4f9d74cc;color:#fff">FM</div>
+        <div class="s-id">
+          <h3>3. Friebe Michael</h3>
+          <div class="s-sub">Michael Friebe</div>
+        </div>
+      </div>
+      <div class="s-pills">
+        <span class="s-pill" style="--c:#4f7fb0">wynik 4</span>
+        <span class="s-pill" style="--c:#b08a4a">pokrycie 40%</span>
+        <span class="s-pill" style="--c:#4f9d74">Computer Science</span>
+      </div>
+      <ul class="s-kw" style="padding-left:1.1rem"><li><b>digital</b> ← słowo kluczowe: digital health</li><li><b>early</b> ← słowo kluczowe: early detection</li></ul>
+      <div class="s-foot"><span>4 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0002-8624-0800' target='_blank' rel='noopener'>ORCID →</a></div>
+    </article>
+    <article class="staff-card" style="border-left:3px solid #4f9d7488">
+      <div class="s-head">
+        <div class="s-av" style="background:#4f9d74cc;color:#fff">OM</div>
+        <div class="s-id">
+          <h3>4. Orzechowski Michał</h3>
+          <div class="s-sub">Michał Orzechowski</div>
+        </div>
+      </div>
+      <div class="s-pills">
+        <span class="s-pill" style="--c:#4f7fb0">wynik 3</span>
+        <span class="s-pill" style="--c:#b08a4a">pokrycie 40%</span>
+        <span class="s-pill" style="--c:#4f9d74">Computer Science</span>
+      </div>
+      <ul class="s-kw" style="padding-left:1.1rem"><li><b>digital</b> ← tytuł pracy: Integrated data, metadata, and paradata management system for 3D Digital Cultural Heritage objects: Workflow automation, federated authentication, and publication</li><li><b>early</b> ← słowo kluczowe: early stopping</li></ul>
+      <div class="s-foot"><span>3 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0002-8558-1283' target='_blank' rel='noopener'>ORCID →</a></div>
+    </article>
+    <article class="staff-card" style="border-left:3px solid #4f9d7488">
+      <div class="s-head">
+        <div class="s-av" style="background:#4f9d74cc;color:#fff">KM</div>
+        <div class="s-id">
+          <h3>5. Kurdziel Marcin</h3>
+          <div class="s-sub">Marcin Kurdziel</div>
+        </div>
+      </div>
+      <div class="s-pills">
+        <span class="s-pill" style="--c:#4f7fb0">wynik 3</span>
+        <span class="s-pill" style="--c:#b06464">pokrycie 20%</span>
+        <span class="s-pill" style="--c:#4f9d74">Computer Science</span>
+      </div>
+      <ul class="s-kw" style="padding-left:1.1rem"><li><b>digital</b> ← temat badawczy: Digital Radiography and Breast Imaging</li></ul>
+      <div class="s-foot"><span>3 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0003-2022-7424' target='_blank' rel='noopener'>ORCID →</a></div>
+    </article>
+    <article class="staff-card" style="border-left:3px solid #5f9e8088">
+      <div class="s-head">
+        <div class="s-av" style="background:#5f9e80cc;color:#fff">MP</div>
+        <div class="s-id">
+          <h3>6. Mirowski Paweł</h3>
+          <div class="s-sub">Paweł Mirowski</div>
+        </div>
+      </div>
+      <div class="s-pills">
+        <span class="s-pill" style="--c:#4f7fb0">wynik 3</span>
+        <span class="s-pill" style="--c:#b06464">pokrycie 20%</span>
+        <span class="s-pill" style="--c:#5f9e80">Arts and Humanities</span>
+      </div>
+      <ul class="s-kw" style="padding-left:1.1rem"><li><b>early</b> ← temat badawczy: Reformation and Early Modern Christianity</li></ul>
+      <div class="s-foot"><span>3 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0002-6766-1810' target='_blank' rel='noopener'>ORCID →</a></div>
+    </article>
+    <article class="staff-card" style="border-left:3px solid #b07a5588">
+      <div class="s-head">
+        <div class="s-av" style="background:#b07a55cc;color:#fff">TP</div>
+        <div class="s-id">
+          <h3>7. Turek Paulina</h3>
+          <div class="s-sub">Paulina Turek</div>
+        </div>
+      </div>
+      <div class="s-pills">
+        <span class="s-pill" style="--c:#4f7fb0">wynik 3</span>
+        <span class="s-pill" style="--c:#b06464">pokrycie 20%</span>
+        <span class="s-pill" style="--c:#b07a55">Social Sciences</span>
+      </div>
+      <ul class="s-kw" style="padding-left:1.1rem"><li><b>digital</b> ← temat badawczy: Child Development and Digital Technology</li></ul>
+      <div class="s-foot"><span>3 trafień z tematu</span><a class='s-link' href='https://orcid.org/0009-0006-2363-9693' target='_blank' rel='noopener'>ORCID →</a></div>
+    </article>
+    <article class="staff-card" style="border-left:3px solid #4f9d7488">
+      <div class="s-head">
+        <div class="s-av" style="background:#4f9d74cc;color:#fff">AW</div>
+        <div class="s-id">
+          <h3>8. Achtelik Wojciech</h3>
+          <div class="s-sub">Wojciech Achtelik</div>
+        </div>
+      </div>
+      <div class="s-pills">
+        <span class="s-pill" style="--c:#4f7fb0">wynik 2</span>
+        <span class="s-pill" style="--c:#b06464">pokrycie 20%</span>
+        <span class="s-pill" style="--c:#4f9d74">Computer Science</span>
+      </div>
+      <ul class="s-kw" style="padding-left:1.1rem"><li><b>early</b> ← słowo kluczowe: early stopping</li></ul>
+      <div class="s-foot"><span>2 trafień z tematu</span><a class='s-link' href='https://orcid.org/0009-0001-7363-4448' target='_blank' rel='noopener'>ORCID →</a></div>
+    </article>
+    <article class="staff-card" style="border-left:3px solid #7a6cbf88">
+      <div class="s-head">
+        <div class="s-av" style="background:#7a6cbfcc;color:#fff">BA</div>
+        <div class="s-id">
+          <h3>9. Bałamut Anna</h3>
+          <div class="s-sub">Anna Bałamut</div>
+        </div>
+      </div>
+      <div class="s-pills">
+        <span class="s-pill" style="--c:#4f7fb0">wynik 2</span>
+        <span class="s-pill" style="--c:#b06464">pokrycie 20%</span>
+        <span class="s-pill" style="--c:#7a6cbf">Energy</span>
+      </div>
+      <ul class="s-kw" style="padding-left:1.1rem"><li><b>digital</b> ← słowo kluczowe: digital transformation</li></ul>
+      <div class="s-foot"><span>2 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0001-7300-7367' target='_blank' rel='noopener'>ORCID →</a></div>
+    </article>
+    <article class="staff-card" style="border-left:3px solid #4f9d7488">
+      <div class="s-head">
+        <div class="s-av" style="background:#4f9d74cc;color:#fff">BA</div>
+        <div class="s-id">
+          <h3>10. Brodzicki Andrzej</h3>
+          <div class="s-sub">Andrzej Brodzicki</div>
+        </div>
+      </div>
+      <div class="s-pills">
+        <span class="s-pill" style="--c:#4f7fb0">wynik 2</span>
+        <span class="s-pill" style="--c:#b06464">pokrycie 20%</span>
+        <span class="s-pill" style="--c:#4f9d74">Computer Science</span>
+      </div>
+      <ul class="s-kw" style="padding-left:1.1rem"><li><b>early</b> ← słowo kluczowe: early diagnosis</li></ul>
+      <div class="s-foot"><span>2 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0001-7713-526X' target='_blank' rel='noopener'>ORCID →</a></div>
+    </article>
+    </div>
+  </section>
+  <section class="call-section" id="HORIZON-CL4-2026-05-DIGITAL-EMERGING-02" style="margin-bottom:2.2rem">
+    <div class="eyebrow">Nabór Horyzont Europa</div>
+    <h2 class="hero-title" style="font-size:1.5rem">HORIZON-CL4-2026-05-DIGITAL-EMERGING-02</h2>
+    <p class="hero-sub">Call HORIZON-CL4-2026-05 · zamknięty 15.04.2026</p>
+    <div class="stats-bar" style="margin:1rem 0">
+      <span class="stat"><b>42</b> osób z trafieniem</span>
+      <span class="stat">w profilach: <b>106</b></span>
+      <span class="stat">pokazano: <b>10</b></span>
+    </div>
+    <div class="side-card" style="position:static;max-height:none;margin-bottom:1.2rem">
+      <div class="side-head"><h3>Terminy z tematu</h3></div>
+      <div class="s-pills"><span class='s-pill'>agents</span><span class='s-pill'>apply</span><span class='s-pill'>generation</span><span class='s-pill'>next</span><span class='s-pill'>real</span><span class='s-pill'>ria</span><span class='s-pill'>sectors</span><span class='s-pill'>world</span></div>
+      <p class="side-note" style="margin-top:.8rem">Wynik pokazuje dowody z tematów i publikacji, nie ocenę kompetencji. Weryfikuje biuro.</p>
+    </div>
+    <div class="staff-list">
+    <article class="staff-card" style="border-left:3px solid #4f9d7488">
+      <div class="s-head">
+        <div class="s-av" style="background:#4f9d74cc;color:#fff">KJ</div>
+        <div class="s-id">
+          <h3>1. Kacprzyk Janusz</h3>
+          <div class="s-sub">Janusz Kacprzyk</div>
+        </div>
+      </div>
+      <div class="s-pills">
+        <span class="s-pill" style="--c:#4f7fb0">wynik 4</span>
+        <span class="s-pill" style="--c:#b08a4a">pokrycie 38%</span>
+        <span class="s-pill" style="--c:#4f9d74">Computer Science</span>
+      </div>
+      <ul class="s-kw" style="padding-left:1.1rem"><li><b>agents</b> ← tytuł pracy: Prioritized Preference Aggregation for Non-uniform Groups of Agents</li><li><b>generation</b> ← słowo kluczowe: clean energy generation</li><li><b>world</b> ← tytuł pracy: 13th World Conference “Intelligent System for Industrial Automation” (WCIS-2024)</li></ul>
+      <div class="s-foot"><span>4 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0003-4187-5877' target='_blank' rel='noopener'>ORCID →</a></div>
+    </article>
+    <article class="staff-card" style="border-left:3px solid #4f9d7488">
+      <div class="s-head">
+        <div class="s-av" style="background:#4f9d74cc;color:#fff">MJ</div>
+        <div class="s-id">
+          <h3>2. Mańdziuk Jacek</h3>
+          <div class="s-sub">Jacek Mańdziuk</div>
+        </div>
+      </div>
+      <div class="s-pills">
+        <span class="s-pill" style="--c:#4f7fb0">wynik 4</span>
+        <span class="s-pill" style="--c:#b08a4a">pokrycie 38%</span>
+        <span class="s-pill" style="--c:#4f9d74">Computer Science</span>
+      </div>
+      <ul class="s-kw" style="padding-left:1.1rem"><li><b>generation</b> ← słowo kluczowe: synthetic data generation</li><li><b>real</b> ← tytuł pracy: Bongard-RWR+: Real-World Representations of Fine-Grained Concepts in Bongard Problems</li><li><b>world</b> ← tytuł pracy: Bongard-RWR+: Real-World Representations of Fine-Grained Concepts in Bongard Problems</li></ul>
+      <div class="s-foot"><span>4 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0003-0947-028X' target='_blank' rel='noopener'>ORCID →</a></div>
+    </article>
+    <article class="staff-card" style="border-left:3px solid #4f9d7488">
+      <div class="s-head">
+        <div class="s-av" style="background:#4f9d74cc;color:#fff">FK</div>
+        <div class="s-id">
+          <h3>3. Faber Kamil</h3>
+          <div class="s-sub">Kamil Faber</div>
+        </div>
+      </div>
+      <div class="s-pills">
+        <span class="s-pill" style="--c:#4f7fb0">wynik 4</span>
+        <span class="s-pill" style="--c:#b08a4a">pokrycie 25%</span>
+        <span class="s-pill" style="--c:#4f9d74">Computer Science</span>
+      </div>
+      <ul class="s-kw" style="padding-left:1.1rem"><li><b>generation</b> ← słowo kluczowe: scenario generation</li><li><b>real</b> ← słowo kluczowe: real-time inference</li></ul>
+      <div class="s-foot"><span>4 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0003-4221-0017' target='_blank' rel='noopener'>ORCID →</a></div>
+    </article>
+    <article class="staff-card" style="border-left:3px solid #4f9d9588">
+      <div class="s-head">
+        <div class="s-av" style="background:#4f9d95cc;color:#fff">FP</div>
+        <div class="s-id">
+          <h3>4. Faliszewski Piotr</h3>
+          <div class="s-sub">Piotr Faliszewski</div>
+        </div>
+      </div>
+      <div class="s-pills">
+        <span class="s-pill" style="--c:#4f7fb0">wynik 4</span>
+        <span class="s-pill" style="--c:#b08a4a">pokrycie 25%</span>
+        <span class="s-pill" style="--c:#4f9d95">Economics, Econometrics and Finance</span>
+      </div>
+      <ul class="s-kw" style="padding-left:1.1rem"><li><b>real</b> ← słowo kluczowe: real-world testing</li><li><b>world</b> ← słowo kluczowe: real-world testing</li></ul>
+      <div class="s-foot"><span>4 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0002-0332-4364' target='_blank' rel='noopener'>ORCID →</a></div>
+    </article>
+    <article class="staff-card" style="border-left:3px solid #5f96bf88">
+      <div class="s-head">
+        <div class="s-av" style="background:#5f96bfcc;color:#fff">GK</div>
+        <div class="s-id">
+          <h3>5. Gaska Krzysztof</h3>
+          <div class="s-sub">Krzysztof Gąska</div>
+        </div>
+      </div>
+      <div class="s-pills">
+        <span class="s-pill" style="--c:#4f7fb0">wynik 4</span>
+        <span class="s-pill" style="--c:#b08a4a">pokrycie 25%</span>
+        <span class="s-pill" style="--c:#5f96bf">Environmental Science</span>
+      </div>
+      <ul class="s-kw" style="padding-left:1.1rem"><li><b>generation</b> ← słowo kluczowe: third-generation solar cells</li><li><b>real</b> ← słowo kluczowe: real-time simulation</li></ul>
+      <div class="s-foot"><span>4 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0002-9369-6144' target='_blank' rel='noopener'>ORCID →</a></div>
+    </article>
+    <article class="staff-card" style="border-left:3px solid #5f96bf88">
+      <div class="s-head">
+        <div class="s-av" style="background:#5f96bfcc;color:#fff">KT</div>
+        <div class="s-id">
+          <h3>6. Kościółek Tomasz</h3>
+          <div class="s-sub">Tomasz Kościółek</div>
+        </div>
+      </div>
+      <div class="s-pills">
+        <span class="s-pill" style="--c:#4f7fb0">wynik 4</span>
+        <span class="s-pill" style="--c:#b08a4a">pokrycie 25%</span>
+        <span class="s-pill" style="--c:#5f96bf">Biochemistry, Genetics and Molecular Biology</span>
+      </div>
+      <ul class="s-kw" style="padding-left:1.1rem"><li><b>generation</b> ← słowo kluczowe: next-generation sequencing</li><li><b>next</b> ← słowo kluczowe: next-generation sequencing</li></ul>
+      <div class="s-foot"><span>4 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0002-9915-7387' target='_blank' rel='noopener'>ORCID →</a></div>
+    </article>
+    <article class="staff-card" style="border-left:3px solid #b08a4a88">
+      <div class="s-head">
+        <div class="s-av" style="background:#b08a4acc;color:#fff">ŁM</div>
+        <div class="s-id">
+          <h3>7. Łoś Marcin</h3>
+          <div class="s-sub">Marcin Łoś</div>
+        </div>
+      </div>
+      <div class="s-pills">
+        <span class="s-pill" style="--c:#4f7fb0">wynik 4</span>
+        <span class="s-pill" style="--c:#b08a4a">pokrycie 25%</span>
+        <span class="s-pill" style="--c:#b08a4a">Engineering</span>
+      </div>
+      <ul class="s-kw" style="padding-left:1.1rem"><li><b>generation</b> ← słowo kluczowe: mesh generation</li><li><b>real</b> ← słowo kluczowe: real-time simulation</li></ul>
+      <div class="s-foot"><span>4 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0002-8426-6345' target='_blank' rel='noopener'>ORCID →</a></div>
+    </article>
+    <article class="staff-card" style="border-left:3px solid #4f9d7488">
+      <div class="s-head">
+        <div class="s-av" style="background:#4f9d74cc;color:#fff">NP</div>
+        <div class="s-id">
+          <h3>8. Nawrocki Piotr</h3>
+          <div class="s-sub">Piotr Nawrocki</div>
+        </div>
+      </div>
+      <div class="s-pills">
+        <span class="s-pill" style="--c:#4f7fb0">wynik 4</span>
+        <span class="s-pill" style="--c:#b08a4a">pokrycie 25%</span>
+        <span class="s-pill" style="--c:#4f9d74">Computer Science</span>
+      </div>
+      <ul class="s-kw" style="padding-left:1.1rem"><li><b>agents</b> ← słowo kluczowe: communication agents</li><li><b>real</b> ← słowo kluczowe: real-time environments</li></ul>
+      <div class="s-foot"><span>4 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0003-4512-9337' target='_blank' rel='noopener'>ORCID →</a></div>
+    </article>
+    <article class="staff-card" style="border-left:3px solid #4f9d7488">
+      <div class="s-head">
+        <div class="s-av" style="background:#4f9d74cc;color:#fff">PK</div>
+        <div class="s-id">
+          <h3>9. Piętak Kamil</h3>
+          <div class="s-sub">Kamil Piętak</div>
+        </div>
+      </div>
+      <div class="s-pills">
+        <span class="s-pill" style="--c:#4f7fb0">wynik 4</span>
+        <span class="s-pill" style="--c:#b08a4a">pokrycie 25%</span>
+        <span class="s-pill" style="--c:#4f9d74">Computer Science</span>
+      </div>
+      <ul class="s-kw" style="padding-left:1.1rem"><li><b>agents</b> ← słowo kluczowe: autonomous agents</li><li><b>generation</b> ← słowo kluczowe: initial population generation</li></ul>
+      <div class="s-foot"><span>4 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0002-7062-261X' target='_blank' rel='noopener'>ORCID →</a></div>
+    </article>
+    <article class="staff-card" style="border-left:3px solid #4f9d7488">
+      <div class="s-head">
+        <div class="s-av" style="background:#4f9d74cc;color:#fff">ŚB</div>
+        <div class="s-id">
+          <h3>10. Śnieżyński Bartłomiej</h3>
+          <div class="s-sub">Bartłomiej Śnieżyński</div>
+        </div>
+      </div>
+      <div class="s-pills">
+        <span class="s-pill" style="--c:#4f7fb0">wynik 4</span>
+        <span class="s-pill" style="--c:#b08a4a">pokrycie 25%</span>
+        <span class="s-pill" style="--c:#4f9d74">Computer Science</span>
+      </div>
+      <ul class="s-kw" style="padding-left:1.1rem"><li><b>agents</b> ← słowo kluczowe: AI agents</li><li><b>generation</b> ← słowo kluczowe: scenario generation</li></ul>
+      <div class="s-foot"><span>4 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0002-4206-9052' target='_blank' rel='noopener'>ORCID →</a></div>
+    </article>
+    </div>
+  </section>
+  <section class="call-section" id="HORIZON-CL4-2026-05-DIGITAL-EMERGING-03" style="margin-bottom:2.2rem">
+    <div class="eyebrow">Nabór Horyzont Europa</div>
+    <h2 class="hero-title" style="font-size:1.5rem">HORIZON-CL4-2026-05-DIGITAL-EMERGING-03</h2>
+    <p class="hero-sub">Call HORIZON-CL4-2026-05 · zamknięty 15.04.2026</p>
+    <div class="stats-bar" style="margin:1rem 0">
+      <span class="stat"><b>56</b> osób z trafieniem</span>
+      <span class="stat">w profilach: <b>106</b></span>
+      <span class="stat">pokazano: <b>10</b></span>
+    </div>
+    <div class="side-card" style="position:static;max-height:none;margin-bottom:1.2rem">
+      <div class="side-head"><h3>Terminy z tematu</h3></div>
+      <div class="s-pills"><span class='s-pill'>agile</span><span class='s-pill'>apply</span><span class='s-pill'>generation</span><span class='s-pill'>industrial</span><span class='s-pill'>intelligent</span><span class='s-pill'>next</span><span class='s-pill'>platforms</span><span class='s-pill'>ria</span><span class='s-pill'>robotics</span><span class='s-pill'>service</span></div>
+      <p class="side-note" style="margin-top:.8rem">Wynik pokazuje dowody z tematów i publikacji, nie ocenę kompetencji. Weryfikuje biuro.</p>
+    </div>
+    <div class="staff-list">
+    <article class="staff-card" style="border-left:3px solid #4f9d7488">
+      <div class="s-head">
+        <div class="s-av" style="background:#4f9d74cc;color:#fff">KJ</div>
+        <div class="s-id">
+          <h3>1. Kacprzyk Janusz</h3>
+          <div class="s-sub">Janusz Kacprzyk</div>
+        </div>
+      </div>
+      <div class="s-pills">
+        <span class="s-pill" style="--c:#4f7fb0">wynik 10</span>
+        <span class="s-pill" style="--c:#5f9e80">pokrycie 50%</span>
+        <span class="s-pill" style="--c:#4f9d74">Computer Science</span>
+      </div>
+      <ul class="s-kw" style="padding-left:1.1rem"><li><b>generation</b> ← słowo kluczowe: clean energy generation</li><li><b>industrial</b> ← słowo kluczowe: industrial automation</li><li><b>intelligent</b> ← słowo kluczowe: intelligent systems</li><li><b>robotics</b> ← słowo kluczowe: robotics</li><li><b>service</b> ← słowo kluczowe: service reliability</li></ul>
+      <div class="s-foot"><span>10 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0003-4187-5877' target='_blank' rel='noopener'>ORCID →</a></div>
+    </article>
+    <article class="staff-card" style="border-left:3px solid #4f9d7488">
+      <div class="s-head">
+        <div class="s-av" style="background:#4f9d74cc;color:#fff">ŚB</div>
+        <div class="s-id">
+          <h3>2. Śnieżyński Bartłomiej</h3>
+          <div class="s-sub">Bartłomiej Śnieżyński</div>
+        </div>
+      </div>
+      <div class="s-pills">
+        <span class="s-pill" style="--c:#4f7fb0">wynik 7</span>
+        <span class="s-pill" style="--c:#b08a4a">pokrycie 30%</span>
+        <span class="s-pill" style="--c:#4f9d74">Computer Science</span>
+      </div>
+      <ul class="s-kw" style="padding-left:1.1rem"><li><b>generation</b> ← słowo kluczowe: scenario generation</li><li><b>robotics</b> ← temat badawczy: Reinforcement Learning in Robotics</li><li><b>service</b> ← słowo kluczowe: service security</li></ul>
+      <div class="s-foot"><span>7 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0002-4206-9052' target='_blank' rel='noopener'>ORCID →</a></div>
+    </article>
+    <article class="staff-card" style="border-left:3px solid #4f9d7488">
+      <div class="s-head">
+        <div class="s-av" style="background:#4f9d74cc;color:#fff">FK</div>
+        <div class="s-id">
+          <h3>3. Faber Kamil</h3>
+          <div class="s-sub">Kamil Faber</div>
+        </div>
+      </div>
+      <div class="s-pills">
+        <span class="s-pill" style="--c:#4f7fb0">wynik 6</span>
+        <span class="s-pill" style="--c:#b08a4a">pokrycie 30%</span>
+        <span class="s-pill" style="--c:#4f9d74">Computer Science</span>
+      </div>
+      <ul class="s-kw" style="padding-left:1.1rem"><li><b>generation</b> ← słowo kluczowe: scenario generation</li><li><b>industrial</b> ← słowo kluczowe: industrial defect detection</li><li><b>robotics</b> ← słowo kluczowe: robotics</li></ul>
+      <div class="s-foot"><span>6 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0003-4221-0017' target='_blank' rel='noopener'>ORCID →</a></div>
+    </article>
+    <article class="staff-card" style="border-left:3px solid #4f9d7488">
+      <div class="s-head">
+        <div class="s-av" style="background:#4f9d74cc;color:#fff">GP</div>
+        <div class="s-id">
+          <h3>4. Gajewski Paweł</h3>
+          <div class="s-sub">Paweł Gajewski</div>
+        </div>
+      </div>
+      <div class="s-pills">
+        <span class="s-pill" style="--c:#4f7fb0">wynik 6</span>
+        <span class="s-pill" style="--c:#b08a4a">pokrycie 30%</span>
+        <span class="s-pill" style="--c:#4f9d74">Psychology</span>
+      </div>
+      <ul class="s-kw" style="padding-left:1.1rem"><li><b>intelligent</b> ← tytuł pracy: Native Czech speakers consider English-speaking robots more intelligent</li><li><b>robotics</b> ← temat badawczy: Reinforcement Learning in Robotics</li><li><b>service</b> ← słowo kluczowe: home service robots</li></ul>
+      <div class="s-foot"><span>6 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0003-0931-2476' target='_blank' rel='noopener'>ORCID →</a></div>
+    </article>
+    <article class="staff-card" style="border-left:3px solid #4f9d7488">
+      <div class="s-head">
+        <div class="s-av" style="background:#4f9d74cc;color:#fff">FM</div>
+        <div class="s-id">
+          <h3>5. Friebe Michael</h3>
+          <div class="s-sub">Michael Friebe</div>
+        </div>
+      </div>
+      <div class="s-pills">
+        <span class="s-pill" style="--c:#4f7fb0">wynik 6</span>
+        <span class="s-pill" style="--c:#b08a4a">pokrycie 30%</span>
+        <span class="s-pill" style="--c:#4f9d74">Computer Science</span>
+      </div>
+      <ul class="s-kw" style="padding-left:1.1rem"><li><b>apply</b> ← tytuł pracy: A Review of Needle Navigation Technologies in Minimally Invasive Cardiovascular Surgeries—Toward a More Effective and Easy-to-Apply Process</li><li><b>robotics</b> ← temat badawczy: Soft Robotics and Applications</li><li><b>service</b> ← słowo kluczowe: fee-for-service</li></ul>
+      <div class="s-foot"><span>6 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0002-8624-0800' target='_blank' rel='noopener'>ORCID →</a></div>
+    </article>
+    <article class="staff-card" style="border-left:3px solid #5f96bf88">
+      <div class="s-head">
+        <div class="s-av" style="background:#5f96bfcc;color:#fff">KT</div>
+        <div class="s-id">
+          <h3>6. Kościółek Tomasz</h3>
+          <div class="s-sub">Tomasz Kościółek</div>
+        </div>
+      </div>
+      <div class="s-pills">
+        <span class="s-pill" style="--c:#4f7fb0">wynik 5</span>
+        <span class="s-pill" style="--c:#b08a4a">pokrycie 30%</span>
+        <span class="s-pill" style="--c:#5f96bf">Biochemistry, Genetics and Molecular Biology</span>
+      </div>
+      <ul class="s-kw" style="padding-left:1.1rem"><li><b>generation</b> ← słowo kluczowe: next-generation sequencing</li><li><b>next</b> ← słowo kluczowe: next-generation sequencing</li><li><b>platforms</b> ← tytuł pracy: A large-scale comparative metagenomic analysis of short-read sequencing platforms indicates high taxonomic concordance and functional analysis challenge</li></ul>
+      <div class="s-foot"><span>5 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0002-9915-7387' target='_blank' rel='noopener'>ORCID →</a></div>
+    </article>
+    <article class="staff-card" style="border-left:3px solid #b08a4a88">
+      <div class="s-head">
+        <div class="s-av" style="background:#b08a4acc;color:#fff">AM</div>
+        <div class="s-id">
+          <h3>7. Aleksandrowicz Maciej</h3>
+          <div class="s-sub">Maciej Aleksandrowicz</div>
+        </div>
+      </div>
+      <div class="s-pills">
+        <span class="s-pill" style="--c:#4f7fb0">wynik 5</span>
+        <span class="s-pill" style="--c:#b06464">pokrycie 20%</span>
+        <span class="s-pill" style="--c:#b08a4a">Engineering</span>
+      </div>
+      <ul class="s-kw" style="padding-left:1.1rem"><li><b>industrial</b> ← słowo kluczowe: industrial vision</li><li><b>robotics</b> ← temat badawczy: Robotics and Automated Systems</li></ul>
+      <div class="s-foot"><span>5 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0003-3388-5653' target='_blank' rel='noopener'>ORCID →</a></div>
+    </article>
+    <article class="staff-card" style="border-left:3px solid #4f9d7488">
+      <div class="s-head">
+        <div class="s-av" style="background:#4f9d74cc;color:#fff">JM</div>
+        <div class="s-id">
+          <h3>8. Jarosz Mateusz</h3>
+          <div class="s-sub">Mateusz Jarosz</div>
+        </div>
+      </div>
+      <div class="s-pills">
+        <span class="s-pill" style="--c:#4f7fb0">wynik 4</span>
+        <span class="s-pill" style="--c:#b06464">pokrycie 20%</span>
+        <span class="s-pill" style="--c:#4f9d74">Psychology</span>
+      </div>
+      <ul class="s-kw" style="padding-left:1.1rem"><li><b>intelligent</b> ← tytuł pracy: Multi-Platform Intelligent System for Multimodal Human-Computer Interaction</li><li><b>service</b> ← temat badawczy: AI in Service Interactions</li></ul>
+      <div class="s-foot"><span>4 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0002-9829-0127' target='_blank' rel='noopener'>ORCID →</a></div>
+    </article>
+    <article class="staff-card" style="border-left:3px solid #4f9d7488">
+      <div class="s-head">
+        <div class="s-av" style="background:#4f9d74cc;color:#fff">ST</div>
+        <div class="s-id">
+          <h3>9. Szydło Tomasz</h3>
+          <div class="s-sub">Tomasz Szydło</div>
+        </div>
+      </div>
+      <div class="s-pills">
+        <span class="s-pill" style="--c:#4f7fb0">wynik 4</span>
+        <span class="s-pill" style="--c:#b06464">pokrycie 20%</span>
+        <span class="s-pill" style="--c:#4f9d74">Computer Science</span>
+      </div>
+      <ul class="s-kw" style="padding-left:1.1rem"><li><b>industrial</b> ← słowo kluczowe: industrial control systems</li><li><b>service</b> ← słowo kluczowe: function-as-a-service</li></ul>
+      <div class="s-foot"><span>4 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0003-4101-2115' target='_blank' rel='noopener'>ORCID →</a></div>
+    </article>
+    <article class="staff-card" style="border-left:3px solid #4f9d7488">
+      <div class="s-head">
+        <div class="s-av" style="background:#4f9d74cc;color:#fff">PT</div>
+        <div class="s-id">
+          <h3>10. Pełech-Pilichowski Tomasz</h3>
+          <div class="s-sub">Tomasz Pełech‐Pilichowski</div>
+        </div>
+      </div>
+      <div class="s-pills">
+        <span class="s-pill" style="--c:#4f7fb0">wynik 4</span>
+        <span class="s-pill" style="--c:#b06464">pokrycie 20%</span>
+        <span class="s-pill" style="--c:#4f9d74">Computer Science</span>
+      </div>
+      <ul class="s-kw" style="padding-left:1.1rem"><li><b>generation</b> ← słowo kluczowe: legal text generation</li><li><b>industrial</b> ← słowo kluczowe: industrial processes</li></ul>
+      <div class="s-foot"><span>4 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0003-2212-7806' target='_blank' rel='noopener'>ORCID →</a></div>
+    </article>
+    </div>
+  </section>
+</main>
+
+<script>
+(function(){
+  var KEY='bm-theme';
+  var btn=document.getElementById('theme-toggle');
+  var lbl=btn.querySelector('.lbl');
+  function apply(t){
+    document.documentElement.dataset.theme=t;
+    lbl.textContent=t==='dark'?'Tryb jasny':'Tryb ciemny';
+    try{localStorage.setItem(KEY,t);}catch(e){}
+  }
+  apply(document.documentElement.dataset.theme==='light'?'light':'dark');
+  btn.addEventListener('click',function(){
+    apply(document.documentElement.dataset.theme==='light'?'dark':'light');
+  });
+})();
+</script>
+</body>
+</html>
