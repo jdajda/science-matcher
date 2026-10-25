@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dopasowanie do naboru · Mapa badawcza WI AGH</title>
-<script>(function(){try{var t=localStorage.getItem('bm-theme')||'light';document.documentElement.dataset.theme=t;}catch(e){document.documentElement.dataset.theme='light';}})();</script>
+<script>(function(){try{var t=localStorage.getItem('bm-theme')||'dark';document.documentElement.dataset.theme=t;}catch(e){document.documentElement.dataset.theme='dark';}})();</script>
 <style>
 :root {
   --radius: 12px;
@@ -406,8 +406,30 @@ body { transition: background-color .25s ease, color .25s ease; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .6s !important; scroll-behavior: auto !important; }
 }
+.tabs-row { flex-wrap: wrap; }
+.tab { white-space: normal; }
+.m-info, .m-name, .count, .hero-title, .hero-sub, .match-sub, .s-id h3, .s-pill, .m-pubs, .m-terms { overflow-wrap: anywhere; min-width: 0; }
+.match-top { flex-wrap: wrap; gap: .5rem; }
+.hero-title, h1, h2, h3 { line-height: 1.25; letter-spacing: 0; }
+body, p, li { line-height: 1.5; }
+.tab, .btn, .s-pill, .kw, .kw-chip, .tag, .link-btn { line-height: 1.3; white-space: normal; }
+.hero-sub, .match-sub, .side-note { max-width: 70ch; }
+.m-name, .s-id h3 { line-height: 1.3; }
+#tab-staff .s-head { align-items: flex-start; }
+#tab-staff .s-id { min-width: 0; flex: 1; }
+#tab-staff .s-id h3 { line-height: 1.35; overflow-wrap: anywhere; }
+#tab-staff .s-sub { line-height: 1.4; overflow-wrap: anywhere; }
+#tab-staff .s-av { flex-shrink: 0; }
+#tab-staff .s-pills { row-gap: .4rem; }
+#tab-staff .s-pill { line-height: 1.3; white-space: normal; }
+#tab-staff .s-foot { flex-wrap: wrap; row-gap: .4rem; }
+#tab-staff .s-foot > * { min-width: 0; overflow-wrap: anywhere; }
+#tab-staff .results-head { flex-wrap: wrap; row-gap: .5rem; }
+#tab-staff .stats-bar { flex-wrap: wrap; row-gap: .4rem; }
+#tab-staff .hero-title { line-height: 1.2; }
+#tab-staff .search-hint { line-height: 1.5; }
 </style>
-<style>a.tab, a.tab:hover { text-decoration: none; }</style>
+<style>a.tab, a.tab:hover { text-decoration: none; } .tabs-row { flex-wrap: wrap; } .tab { white-space: normal; } .m-info, .m-name, .s-id h3, .s-pill, .s-kw, .s-sub, .hero-title, .hero-sub, .stat, .side-note { overflow-wrap: anywhere; min-width: 0; } .hero-title, h1, h2, h3 { line-height: 1.25; letter-spacing: 0; } body, p, li { line-height: 1.5; } .s-pill, .kw { line-height: 1.3; white-space: normal; } .hero-sub { max-width: 70ch; }</style>
 </head>
 <body>
 <header class="site-header">
@@ -427,7 +449,7 @@ body { transition: background-color .25s ease, color .25s ease; }
   <div class="container tabs-row">
     <a class="tab" href="index.html#staff">Naukowcy</a>
     <a class="tab" href="index.html#areas">Obszary badawcze</a>
-    <a class="tab" href="index.html#match">Dobierz zespół</a>
+    <a class="tab" href="index.html#match">Nabory i dopasowanie</a>
     <a class="tab" href="index.html#graph">Graf współpracy</a>
     <a class="tab active" href="dopasowanie.html">Dopasowanie do naboru</a>
   </div>
@@ -440,9 +462,15 @@ body { transition: background-color .25s ease, color .25s ease; }
     <p class="hero-sub">Dopasowanie na podstawie tytułów tematów; pełne opisy do uzupełnienia.</p>
   </section>
 
+  <div class="side-card" style="position:static;max-height:none;margin-bottom:1.6rem">
+    <div class="side-head"><h3>Filtr</h3></div>
+    <div class="s-pills"><a class='s-pill' href='#HORIZON-CL4-2026-04-DIGITAL-EMERGING-09' style='text-decoration:none'>HORIZON-CL4-2026-04-DIGITAL-EMERGING-09</a><a class='s-pill' href='#HORIZON-CL4-2026-05-DIGITAL-EMERGING-02' style='text-decoration:none'>HORIZON-CL4-2026-05-DIGITAL-EMERGING-02</a><a class='s-pill' href='#HORIZON-CL4-2026-05-DIGITAL-EMERGING-03' style='text-decoration:none'>HORIZON-CL4-2026-05-DIGITAL-EMERGING-03</a></div>
+    <input id="kw" type="search" placeholder="Filtruj osoby: nazwisko, dziedzina, słowo kluczowe…" class="kw-input" style="width:100%;margin-top:.8rem;padding:.55rem .7rem;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font:inherit;font-size:.9rem">
+  </div>
+
   <section class="call-section" id="HORIZON-CL4-2026-04-DIGITAL-EMERGING-09" style="margin-bottom:2.2rem">
     <div class="eyebrow">Nabór Horyzont Europa</div>
-    <h2 class="hero-title" style="font-size:1.5rem">HORIZON-CL4-2026-04-DIGITAL-EMERGING-09</h2>
+    <h2 class="hero-title" style="font-size:1.35rem">HORIZON-CL4-2026-04-DIGITAL-EMERGING-09</h2>
     <p class="hero-sub">Call HORIZON-CL4-2026-04 · zamknięty 15.04.2026</p>
     <div class="stats-bar" style="margin:1rem 0">
       <span class="stat"><b>29</b> osób z trafieniem</span>
@@ -451,175 +479,185 @@ body { transition: background-color .25s ease, color .25s ease; }
     </div>
     <div class="side-card" style="position:static;max-height:none;margin-bottom:1.2rem">
       <div class="side-head"><h3>Terminy z tematu</h3></div>
-      <div class="s-pills"><span class='s-pill'>digital</span><span class='s-pill'>early</span><span class='s-pill'>preparedness</span><span class='s-pill'>twins</span><span class='s-pill'>warning</span></div>
+      <div class="s-pills"><span class='s-pill' style='--c:#4f7fb0;color:#4f7fb0;font-weight:600'>digital</span><span class='s-pill' style='--c:#5f9e80;color:#5f9e80;font-weight:600'>early</span><span class='s-pill' style=''>preparedness</span><span class='s-pill' style=''>twins</span><span class='s-pill' style=''>warning</span></div>
       <p class="side-note" style="margin-top:.8rem">Wynik pokazuje dowody z tematów i publikacji, nie ocenę kompetencji. Weryfikuje biuro.</p>
     </div>
     <div class="staff-list">
-    <article class="staff-card" style="border-left:3px solid #b08a4a88">
+    <article class="staff-card" data-text="kica piotr piotr kica decision sciences digital early">
       <div class="s-head">
-        <div class="s-av" style="background:#b08a4acc;color:#fff">KP</div>
+        <div class="s-av">KP</div>
         <div class="s-id">
           <h3>1. Kica Piotr</h3>
           <div class="s-sub">Piotr Kica</div>
+          <div class="s-sub">Decision Sciences</div>
         </div>
       </div>
       <div class="s-pills">
-        <span class="s-pill" style="--c:#4f7fb0">wynik 4</span>
-        <span class="s-pill" style="--c:#b08a4a">pokrycie 40%</span>
-        <span class="s-pill" style="--c:#b08a4a">Decision Sciences</span>
+        <span class="s-pill">wynik 4</span>
+        <span class="s-pill">pokrycie 40%</span>
+        <span class='s-pill' style='--c:#b08a4a'>Decision Sciences</span>
       </div>
-      <ul class="s-kw" style="padding-left:1.1rem"><li><b>digital</b> ← słowo kluczowe: digital transformation</li><li><b>early</b> ← słowo kluczowe: early stopping</li></ul>
+      <div class='s-kw'><span class='kw'>digital</span><span class='kw'>early</span></div>
       <div class="s-foot"><span>4 trafień z tematu</span><a class='s-link' href='https://orcid.org/0009-0001-9269-6804' target='_blank' rel='noopener'>ORCID →</a></div>
     </article>
-    <article class="staff-card" style="border-left:3px solid #b08a4a88">
+    <article class="staff-card" data-text="łoś marcin marcin łoś engineering early warning">
       <div class="s-head">
-        <div class="s-av" style="background:#b08a4acc;color:#fff">ŁM</div>
+        <div class="s-av">ŁM</div>
         <div class="s-id">
           <h3>2. Łoś Marcin</h3>
           <div class="s-sub">Marcin Łoś</div>
+          <div class="s-sub">Engineering</div>
         </div>
       </div>
       <div class="s-pills">
-        <span class="s-pill" style="--c:#4f7fb0">wynik 4</span>
-        <span class="s-pill" style="--c:#b08a4a">pokrycie 40%</span>
-        <span class="s-pill" style="--c:#b08a4a">Engineering</span>
+        <span class="s-pill">wynik 4</span>
+        <span class="s-pill">pokrycie 40%</span>
+        <span class='s-pill' style='--c:#b08a4a'>Engineering</span>
       </div>
-      <ul class="s-kw" style="padding-left:1.1rem"><li><b>early</b> ← słowo kluczowe: earthquake early warning</li><li><b>warning</b> ← słowo kluczowe: earthquake early warning</li></ul>
+      <div class='s-kw'><span class='kw'>early</span><span class='kw'>warning</span></div>
       <div class="s-foot"><span>4 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0002-8426-6345' target='_blank' rel='noopener'>ORCID →</a></div>
     </article>
-    <article class="staff-card" style="border-left:3px solid #4f9d7488">
+    <article class="staff-card" data-text="friebe michael michael friebe computer science digital early">
       <div class="s-head">
-        <div class="s-av" style="background:#4f9d74cc;color:#fff">FM</div>
+        <div class="s-av">FM</div>
         <div class="s-id">
           <h3>3. Friebe Michael</h3>
           <div class="s-sub">Michael Friebe</div>
+          <div class="s-sub">Computer Science</div>
         </div>
       </div>
       <div class="s-pills">
-        <span class="s-pill" style="--c:#4f7fb0">wynik 4</span>
-        <span class="s-pill" style="--c:#b08a4a">pokrycie 40%</span>
-        <span class="s-pill" style="--c:#4f9d74">Computer Science</span>
+        <span class="s-pill">wynik 4</span>
+        <span class="s-pill">pokrycie 40%</span>
+        <span class='s-pill' style='--c:#4f9d74'>Computer Science</span>
       </div>
-      <ul class="s-kw" style="padding-left:1.1rem"><li><b>digital</b> ← słowo kluczowe: digital health</li><li><b>early</b> ← słowo kluczowe: early detection</li></ul>
+      <div class='s-kw'><span class='kw'>digital</span><span class='kw'>early</span></div>
       <div class="s-foot"><span>4 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0002-8624-0800' target='_blank' rel='noopener'>ORCID →</a></div>
     </article>
-    <article class="staff-card" style="border-left:3px solid #4f9d7488">
+    <article class="staff-card" data-text="orzechowski michał michał orzechowski computer science digital early">
       <div class="s-head">
-        <div class="s-av" style="background:#4f9d74cc;color:#fff">OM</div>
+        <div class="s-av">OM</div>
         <div class="s-id">
           <h3>4. Orzechowski Michał</h3>
           <div class="s-sub">Michał Orzechowski</div>
+          <div class="s-sub">Computer Science</div>
         </div>
       </div>
       <div class="s-pills">
-        <span class="s-pill" style="--c:#4f7fb0">wynik 3</span>
-        <span class="s-pill" style="--c:#b08a4a">pokrycie 40%</span>
-        <span class="s-pill" style="--c:#4f9d74">Computer Science</span>
+        <span class="s-pill">wynik 3</span>
+        <span class="s-pill">pokrycie 40%</span>
+        <span class='s-pill' style='--c:#4f9d74'>Computer Science</span>
       </div>
-      <ul class="s-kw" style="padding-left:1.1rem"><li><b>digital</b> ← tytuł pracy: Integrated data, metadata, and paradata management system for 3D Digital Cultural Heritage objects: Workflow automation, federated authentication, and publication</li><li><b>early</b> ← słowo kluczowe: early stopping</li></ul>
+      <div class='s-kw'><span class='kw'>digital</span><span class='kw'>early</span></div>
       <div class="s-foot"><span>3 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0002-8558-1283' target='_blank' rel='noopener'>ORCID →</a></div>
     </article>
-    <article class="staff-card" style="border-left:3px solid #4f9d7488">
+    <article class="staff-card" data-text="kurdziel marcin marcin kurdziel computer science digital">
       <div class="s-head">
-        <div class="s-av" style="background:#4f9d74cc;color:#fff">KM</div>
+        <div class="s-av">KM</div>
         <div class="s-id">
           <h3>5. Kurdziel Marcin</h3>
           <div class="s-sub">Marcin Kurdziel</div>
+          <div class="s-sub">Computer Science</div>
         </div>
       </div>
       <div class="s-pills">
-        <span class="s-pill" style="--c:#4f7fb0">wynik 3</span>
-        <span class="s-pill" style="--c:#b06464">pokrycie 20%</span>
-        <span class="s-pill" style="--c:#4f9d74">Computer Science</span>
+        <span class="s-pill">wynik 3</span>
+        <span class="s-pill">pokrycie 20%</span>
+        <span class='s-pill' style='--c:#4f9d74'>Computer Science</span>
       </div>
-      <ul class="s-kw" style="padding-left:1.1rem"><li><b>digital</b> ← temat badawczy: Digital Radiography and Breast Imaging</li></ul>
+      <div class='s-kw'><span class='kw'>digital</span></div>
       <div class="s-foot"><span>3 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0003-2022-7424' target='_blank' rel='noopener'>ORCID →</a></div>
     </article>
-    <article class="staff-card" style="border-left:3px solid #5f9e8088">
+    <article class="staff-card" data-text="mirowski paweł paweł mirowski arts and humanities early">
       <div class="s-head">
-        <div class="s-av" style="background:#5f9e80cc;color:#fff">MP</div>
+        <div class="s-av">MP</div>
         <div class="s-id">
           <h3>6. Mirowski Paweł</h3>
           <div class="s-sub">Paweł Mirowski</div>
+          <div class="s-sub">Arts and Humanities</div>
         </div>
       </div>
       <div class="s-pills">
-        <span class="s-pill" style="--c:#4f7fb0">wynik 3</span>
-        <span class="s-pill" style="--c:#b06464">pokrycie 20%</span>
-        <span class="s-pill" style="--c:#5f9e80">Arts and Humanities</span>
+        <span class="s-pill">wynik 3</span>
+        <span class="s-pill">pokrycie 20%</span>
+        <span class='s-pill' style='--c:#5f9e80'>Arts and Humanities</span>
       </div>
-      <ul class="s-kw" style="padding-left:1.1rem"><li><b>early</b> ← temat badawczy: Reformation and Early Modern Christianity</li></ul>
+      <div class='s-kw'><span class='kw'>early</span></div>
       <div class="s-foot"><span>3 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0002-6766-1810' target='_blank' rel='noopener'>ORCID →</a></div>
     </article>
-    <article class="staff-card" style="border-left:3px solid #b07a5588">
+    <article class="staff-card" data-text="turek paulina paulina turek social sciences digital">
       <div class="s-head">
-        <div class="s-av" style="background:#b07a55cc;color:#fff">TP</div>
+        <div class="s-av">TP</div>
         <div class="s-id">
           <h3>7. Turek Paulina</h3>
           <div class="s-sub">Paulina Turek</div>
+          <div class="s-sub">Social Sciences</div>
         </div>
       </div>
       <div class="s-pills">
-        <span class="s-pill" style="--c:#4f7fb0">wynik 3</span>
-        <span class="s-pill" style="--c:#b06464">pokrycie 20%</span>
-        <span class="s-pill" style="--c:#b07a55">Social Sciences</span>
+        <span class="s-pill">wynik 3</span>
+        <span class="s-pill">pokrycie 20%</span>
+        <span class='s-pill' style='--c:#b07a55'>Social Sciences</span>
       </div>
-      <ul class="s-kw" style="padding-left:1.1rem"><li><b>digital</b> ← temat badawczy: Child Development and Digital Technology</li></ul>
+      <div class='s-kw'><span class='kw'>digital</span></div>
       <div class="s-foot"><span>3 trafień z tematu</span><a class='s-link' href='https://orcid.org/0009-0006-2363-9693' target='_blank' rel='noopener'>ORCID →</a></div>
     </article>
-    <article class="staff-card" style="border-left:3px solid #4f9d7488">
+    <article class="staff-card" data-text="achtelik wojciech wojciech achtelik computer science early">
       <div class="s-head">
-        <div class="s-av" style="background:#4f9d74cc;color:#fff">AW</div>
+        <div class="s-av">AW</div>
         <div class="s-id">
           <h3>8. Achtelik Wojciech</h3>
           <div class="s-sub">Wojciech Achtelik</div>
+          <div class="s-sub">Computer Science</div>
         </div>
       </div>
       <div class="s-pills">
-        <span class="s-pill" style="--c:#4f7fb0">wynik 2</span>
-        <span class="s-pill" style="--c:#b06464">pokrycie 20%</span>
-        <span class="s-pill" style="--c:#4f9d74">Computer Science</span>
+        <span class="s-pill">wynik 2</span>
+        <span class="s-pill">pokrycie 20%</span>
+        <span class='s-pill' style='--c:#4f9d74'>Computer Science</span>
       </div>
-      <ul class="s-kw" style="padding-left:1.1rem"><li><b>early</b> ← słowo kluczowe: early stopping</li></ul>
+      <div class='s-kw'><span class='kw'>early</span></div>
       <div class="s-foot"><span>2 trafień z tematu</span><a class='s-link' href='https://orcid.org/0009-0001-7363-4448' target='_blank' rel='noopener'>ORCID →</a></div>
     </article>
-    <article class="staff-card" style="border-left:3px solid #7a6cbf88">
+    <article class="staff-card" data-text="bałamut anna anna bałamut energy digital">
       <div class="s-head">
-        <div class="s-av" style="background:#7a6cbfcc;color:#fff">BA</div>
+        <div class="s-av">BA</div>
         <div class="s-id">
           <h3>9. Bałamut Anna</h3>
           <div class="s-sub">Anna Bałamut</div>
+          <div class="s-sub">Energy</div>
         </div>
       </div>
       <div class="s-pills">
-        <span class="s-pill" style="--c:#4f7fb0">wynik 2</span>
-        <span class="s-pill" style="--c:#b06464">pokrycie 20%</span>
-        <span class="s-pill" style="--c:#7a6cbf">Energy</span>
+        <span class="s-pill">wynik 2</span>
+        <span class="s-pill">pokrycie 20%</span>
+        <span class='s-pill' style='--c:#7a6cbf'>Energy</span>
       </div>
-      <ul class="s-kw" style="padding-left:1.1rem"><li><b>digital</b> ← słowo kluczowe: digital transformation</li></ul>
+      <div class='s-kw'><span class='kw'>digital</span></div>
       <div class="s-foot"><span>2 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0001-7300-7367' target='_blank' rel='noopener'>ORCID →</a></div>
     </article>
-    <article class="staff-card" style="border-left:3px solid #4f9d7488">
+    <article class="staff-card" data-text="brodzicki andrzej andrzej brodzicki computer science early">
       <div class="s-head">
-        <div class="s-av" style="background:#4f9d74cc;color:#fff">BA</div>
+        <div class="s-av">BA</div>
         <div class="s-id">
           <h3>10. Brodzicki Andrzej</h3>
           <div class="s-sub">Andrzej Brodzicki</div>
+          <div class="s-sub">Computer Science</div>
         </div>
       </div>
       <div class="s-pills">
-        <span class="s-pill" style="--c:#4f7fb0">wynik 2</span>
-        <span class="s-pill" style="--c:#b06464">pokrycie 20%</span>
-        <span class="s-pill" style="--c:#4f9d74">Computer Science</span>
+        <span class="s-pill">wynik 2</span>
+        <span class="s-pill">pokrycie 20%</span>
+        <span class='s-pill' style='--c:#4f9d74'>Computer Science</span>
       </div>
-      <ul class="s-kw" style="padding-left:1.1rem"><li><b>early</b> ← słowo kluczowe: early diagnosis</li></ul>
+      <div class='s-kw'><span class='kw'>early</span></div>
       <div class="s-foot"><span>2 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0001-7713-526X' target='_blank' rel='noopener'>ORCID →</a></div>
     </article>
     </div>
   </section>
   <section class="call-section" id="HORIZON-CL4-2026-05-DIGITAL-EMERGING-02" style="margin-bottom:2.2rem">
     <div class="eyebrow">Nabór Horyzont Europa</div>
-    <h2 class="hero-title" style="font-size:1.5rem">HORIZON-CL4-2026-05-DIGITAL-EMERGING-02</h2>
+    <h2 class="hero-title" style="font-size:1.35rem">HORIZON-CL4-2026-05-DIGITAL-EMERGING-02</h2>
     <p class="hero-sub">Call HORIZON-CL4-2026-05 · zamknięty 15.04.2026</p>
     <div class="stats-bar" style="margin:1rem 0">
       <span class="stat"><b>42</b> osób z trafieniem</span>
@@ -628,175 +666,185 @@ body { transition: background-color .25s ease, color .25s ease; }
     </div>
     <div class="side-card" style="position:static;max-height:none;margin-bottom:1.2rem">
       <div class="side-head"><h3>Terminy z tematu</h3></div>
-      <div class="s-pills"><span class='s-pill'>agents</span><span class='s-pill'>apply</span><span class='s-pill'>generation</span><span class='s-pill'>next</span><span class='s-pill'>real</span><span class='s-pill'>ria</span><span class='s-pill'>sectors</span><span class='s-pill'>world</span></div>
+      <div class="s-pills"><span class='s-pill' style=''>agents</span><span class='s-pill' style=''>apply</span><span class='s-pill' style=''>generation</span><span class='s-pill' style=''>next</span><span class='s-pill' style=''>real</span><span class='s-pill' style=''>ria</span><span class='s-pill' style=''>sectors</span><span class='s-pill' style=''>world</span></div>
       <p class="side-note" style="margin-top:.8rem">Wynik pokazuje dowody z tematów i publikacji, nie ocenę kompetencji. Weryfikuje biuro.</p>
     </div>
     <div class="staff-list">
-    <article class="staff-card" style="border-left:3px solid #4f9d7488">
+    <article class="staff-card" data-text="kacprzyk janusz janusz kacprzyk computer science agents generation world">
       <div class="s-head">
-        <div class="s-av" style="background:#4f9d74cc;color:#fff">KJ</div>
+        <div class="s-av">KJ</div>
         <div class="s-id">
           <h3>1. Kacprzyk Janusz</h3>
           <div class="s-sub">Janusz Kacprzyk</div>
+          <div class="s-sub">Computer Science</div>
         </div>
       </div>
       <div class="s-pills">
-        <span class="s-pill" style="--c:#4f7fb0">wynik 4</span>
-        <span class="s-pill" style="--c:#b08a4a">pokrycie 38%</span>
-        <span class="s-pill" style="--c:#4f9d74">Computer Science</span>
+        <span class="s-pill">wynik 4</span>
+        <span class="s-pill">pokrycie 38%</span>
+        <span class='s-pill' style='--c:#4f9d74'>Computer Science</span>
       </div>
-      <ul class="s-kw" style="padding-left:1.1rem"><li><b>agents</b> ← tytuł pracy: Prioritized Preference Aggregation for Non-uniform Groups of Agents</li><li><b>generation</b> ← słowo kluczowe: clean energy generation</li><li><b>world</b> ← tytuł pracy: 13th World Conference “Intelligent System for Industrial Automation” (WCIS-2024)</li></ul>
+      <div class='s-kw'><span class='kw'>agents</span><span class='kw'>generation</span><span class='kw'>world</span></div>
       <div class="s-foot"><span>4 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0003-4187-5877' target='_blank' rel='noopener'>ORCID →</a></div>
     </article>
-    <article class="staff-card" style="border-left:3px solid #4f9d7488">
+    <article class="staff-card" data-text="mańdziuk jacek jacek mańdziuk computer science generation real world">
       <div class="s-head">
-        <div class="s-av" style="background:#4f9d74cc;color:#fff">MJ</div>
+        <div class="s-av">MJ</div>
         <div class="s-id">
           <h3>2. Mańdziuk Jacek</h3>
           <div class="s-sub">Jacek Mańdziuk</div>
+          <div class="s-sub">Computer Science</div>
         </div>
       </div>
       <div class="s-pills">
-        <span class="s-pill" style="--c:#4f7fb0">wynik 4</span>
-        <span class="s-pill" style="--c:#b08a4a">pokrycie 38%</span>
-        <span class="s-pill" style="--c:#4f9d74">Computer Science</span>
+        <span class="s-pill">wynik 4</span>
+        <span class="s-pill">pokrycie 38%</span>
+        <span class='s-pill' style='--c:#4f9d74'>Computer Science</span>
       </div>
-      <ul class="s-kw" style="padding-left:1.1rem"><li><b>generation</b> ← słowo kluczowe: synthetic data generation</li><li><b>real</b> ← tytuł pracy: Bongard-RWR+: Real-World Representations of Fine-Grained Concepts in Bongard Problems</li><li><b>world</b> ← tytuł pracy: Bongard-RWR+: Real-World Representations of Fine-Grained Concepts in Bongard Problems</li></ul>
+      <div class='s-kw'><span class='kw'>generation</span><span class='kw'>real</span><span class='kw'>world</span></div>
       <div class="s-foot"><span>4 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0003-0947-028X' target='_blank' rel='noopener'>ORCID →</a></div>
     </article>
-    <article class="staff-card" style="border-left:3px solid #4f9d7488">
+    <article class="staff-card" data-text="faber kamil kamil faber computer science generation real">
       <div class="s-head">
-        <div class="s-av" style="background:#4f9d74cc;color:#fff">FK</div>
+        <div class="s-av">FK</div>
         <div class="s-id">
           <h3>3. Faber Kamil</h3>
           <div class="s-sub">Kamil Faber</div>
+          <div class="s-sub">Computer Science</div>
         </div>
       </div>
       <div class="s-pills">
-        <span class="s-pill" style="--c:#4f7fb0">wynik 4</span>
-        <span class="s-pill" style="--c:#b08a4a">pokrycie 25%</span>
-        <span class="s-pill" style="--c:#4f9d74">Computer Science</span>
+        <span class="s-pill">wynik 4</span>
+        <span class="s-pill">pokrycie 25%</span>
+        <span class='s-pill' style='--c:#4f9d74'>Computer Science</span>
       </div>
-      <ul class="s-kw" style="padding-left:1.1rem"><li><b>generation</b> ← słowo kluczowe: scenario generation</li><li><b>real</b> ← słowo kluczowe: real-time inference</li></ul>
+      <div class='s-kw'><span class='kw'>generation</span><span class='kw'>real</span></div>
       <div class="s-foot"><span>4 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0003-4221-0017' target='_blank' rel='noopener'>ORCID →</a></div>
     </article>
-    <article class="staff-card" style="border-left:3px solid #4f9d9588">
+    <article class="staff-card" data-text="faliszewski piotr piotr faliszewski economics, econometrics and finance real world">
       <div class="s-head">
-        <div class="s-av" style="background:#4f9d95cc;color:#fff">FP</div>
+        <div class="s-av">FP</div>
         <div class="s-id">
           <h3>4. Faliszewski Piotr</h3>
           <div class="s-sub">Piotr Faliszewski</div>
+          <div class="s-sub">Economics, Econometrics and Finance</div>
         </div>
       </div>
       <div class="s-pills">
-        <span class="s-pill" style="--c:#4f7fb0">wynik 4</span>
-        <span class="s-pill" style="--c:#b08a4a">pokrycie 25%</span>
-        <span class="s-pill" style="--c:#4f9d95">Economics, Econometrics and Finance</span>
+        <span class="s-pill">wynik 4</span>
+        <span class="s-pill">pokrycie 25%</span>
+        <span class='s-pill' style='--c:#4f9d95'>Economics, Econometrics and Finance</span>
       </div>
-      <ul class="s-kw" style="padding-left:1.1rem"><li><b>real</b> ← słowo kluczowe: real-world testing</li><li><b>world</b> ← słowo kluczowe: real-world testing</li></ul>
+      <div class='s-kw'><span class='kw'>real</span><span class='kw'>world</span></div>
       <div class="s-foot"><span>4 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0002-0332-4364' target='_blank' rel='noopener'>ORCID →</a></div>
     </article>
-    <article class="staff-card" style="border-left:3px solid #5f96bf88">
+    <article class="staff-card" data-text="gaska krzysztof krzysztof gąska environmental science generation real">
       <div class="s-head">
-        <div class="s-av" style="background:#5f96bfcc;color:#fff">GK</div>
+        <div class="s-av">GK</div>
         <div class="s-id">
           <h3>5. Gaska Krzysztof</h3>
           <div class="s-sub">Krzysztof Gąska</div>
+          <div class="s-sub">Environmental Science</div>
         </div>
       </div>
       <div class="s-pills">
-        <span class="s-pill" style="--c:#4f7fb0">wynik 4</span>
-        <span class="s-pill" style="--c:#b08a4a">pokrycie 25%</span>
-        <span class="s-pill" style="--c:#5f96bf">Environmental Science</span>
+        <span class="s-pill">wynik 4</span>
+        <span class="s-pill">pokrycie 25%</span>
+        <span class='s-pill' style='--c:#5f96bf'>Environmental Science</span>
       </div>
-      <ul class="s-kw" style="padding-left:1.1rem"><li><b>generation</b> ← słowo kluczowe: third-generation solar cells</li><li><b>real</b> ← słowo kluczowe: real-time simulation</li></ul>
+      <div class='s-kw'><span class='kw'>generation</span><span class='kw'>real</span></div>
       <div class="s-foot"><span>4 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0002-9369-6144' target='_blank' rel='noopener'>ORCID →</a></div>
     </article>
-    <article class="staff-card" style="border-left:3px solid #5f96bf88">
+    <article class="staff-card" data-text="kościółek tomasz tomasz kościółek biochemistry, genetics and molecular biology generation next">
       <div class="s-head">
-        <div class="s-av" style="background:#5f96bfcc;color:#fff">KT</div>
+        <div class="s-av">KT</div>
         <div class="s-id">
           <h3>6. Kościółek Tomasz</h3>
           <div class="s-sub">Tomasz Kościółek</div>
+          <div class="s-sub">Biochemistry, Genetics and Molecular Biology</div>
         </div>
       </div>
       <div class="s-pills">
-        <span class="s-pill" style="--c:#4f7fb0">wynik 4</span>
-        <span class="s-pill" style="--c:#b08a4a">pokrycie 25%</span>
-        <span class="s-pill" style="--c:#5f96bf">Biochemistry, Genetics and Molecular Biology</span>
+        <span class="s-pill">wynik 4</span>
+        <span class="s-pill">pokrycie 25%</span>
+        <span class='s-pill' style='--c:#5f96bf'>Biochemistry, Genetics and Molecular Biology</span>
       </div>
-      <ul class="s-kw" style="padding-left:1.1rem"><li><b>generation</b> ← słowo kluczowe: next-generation sequencing</li><li><b>next</b> ← słowo kluczowe: next-generation sequencing</li></ul>
+      <div class='s-kw'><span class='kw'>generation</span><span class='kw'>next</span></div>
       <div class="s-foot"><span>4 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0002-9915-7387' target='_blank' rel='noopener'>ORCID →</a></div>
     </article>
-    <article class="staff-card" style="border-left:3px solid #b08a4a88">
+    <article class="staff-card" data-text="łoś marcin marcin łoś engineering generation real">
       <div class="s-head">
-        <div class="s-av" style="background:#b08a4acc;color:#fff">ŁM</div>
+        <div class="s-av">ŁM</div>
         <div class="s-id">
           <h3>7. Łoś Marcin</h3>
           <div class="s-sub">Marcin Łoś</div>
+          <div class="s-sub">Engineering</div>
         </div>
       </div>
       <div class="s-pills">
-        <span class="s-pill" style="--c:#4f7fb0">wynik 4</span>
-        <span class="s-pill" style="--c:#b08a4a">pokrycie 25%</span>
-        <span class="s-pill" style="--c:#b08a4a">Engineering</span>
+        <span class="s-pill">wynik 4</span>
+        <span class="s-pill">pokrycie 25%</span>
+        <span class='s-pill' style='--c:#b08a4a'>Engineering</span>
       </div>
-      <ul class="s-kw" style="padding-left:1.1rem"><li><b>generation</b> ← słowo kluczowe: mesh generation</li><li><b>real</b> ← słowo kluczowe: real-time simulation</li></ul>
+      <div class='s-kw'><span class='kw'>generation</span><span class='kw'>real</span></div>
       <div class="s-foot"><span>4 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0002-8426-6345' target='_blank' rel='noopener'>ORCID →</a></div>
     </article>
-    <article class="staff-card" style="border-left:3px solid #4f9d7488">
+    <article class="staff-card" data-text="nawrocki piotr piotr nawrocki computer science agents real">
       <div class="s-head">
-        <div class="s-av" style="background:#4f9d74cc;color:#fff">NP</div>
+        <div class="s-av">NP</div>
         <div class="s-id">
           <h3>8. Nawrocki Piotr</h3>
           <div class="s-sub">Piotr Nawrocki</div>
+          <div class="s-sub">Computer Science</div>
         </div>
       </div>
       <div class="s-pills">
-        <span class="s-pill" style="--c:#4f7fb0">wynik 4</span>
-        <span class="s-pill" style="--c:#b08a4a">pokrycie 25%</span>
-        <span class="s-pill" style="--c:#4f9d74">Computer Science</span>
+        <span class="s-pill">wynik 4</span>
+        <span class="s-pill">pokrycie 25%</span>
+        <span class='s-pill' style='--c:#4f9d74'>Computer Science</span>
       </div>
-      <ul class="s-kw" style="padding-left:1.1rem"><li><b>agents</b> ← słowo kluczowe: communication agents</li><li><b>real</b> ← słowo kluczowe: real-time environments</li></ul>
+      <div class='s-kw'><span class='kw'>agents</span><span class='kw'>real</span></div>
       <div class="s-foot"><span>4 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0003-4512-9337' target='_blank' rel='noopener'>ORCID →</a></div>
     </article>
-    <article class="staff-card" style="border-left:3px solid #4f9d7488">
+    <article class="staff-card" data-text="piętak kamil kamil piętak computer science agents generation">
       <div class="s-head">
-        <div class="s-av" style="background:#4f9d74cc;color:#fff">PK</div>
+        <div class="s-av">PK</div>
         <div class="s-id">
           <h3>9. Piętak Kamil</h3>
           <div class="s-sub">Kamil Piętak</div>
+          <div class="s-sub">Computer Science</div>
         </div>
       </div>
       <div class="s-pills">
-        <span class="s-pill" style="--c:#4f7fb0">wynik 4</span>
-        <span class="s-pill" style="--c:#b08a4a">pokrycie 25%</span>
-        <span class="s-pill" style="--c:#4f9d74">Computer Science</span>
+        <span class="s-pill">wynik 4</span>
+        <span class="s-pill">pokrycie 25%</span>
+        <span class='s-pill' style='--c:#4f9d74'>Computer Science</span>
       </div>
-      <ul class="s-kw" style="padding-left:1.1rem"><li><b>agents</b> ← słowo kluczowe: autonomous agents</li><li><b>generation</b> ← słowo kluczowe: initial population generation</li></ul>
+      <div class='s-kw'><span class='kw'>agents</span><span class='kw'>generation</span></div>
       <div class="s-foot"><span>4 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0002-7062-261X' target='_blank' rel='noopener'>ORCID →</a></div>
     </article>
-    <article class="staff-card" style="border-left:3px solid #4f9d7488">
+    <article class="staff-card" data-text="śnieżyński bartłomiej bartłomiej śnieżyński computer science agents generation">
       <div class="s-head">
-        <div class="s-av" style="background:#4f9d74cc;color:#fff">ŚB</div>
+        <div class="s-av">ŚB</div>
         <div class="s-id">
           <h3>10. Śnieżyński Bartłomiej</h3>
           <div class="s-sub">Bartłomiej Śnieżyński</div>
+          <div class="s-sub">Computer Science</div>
         </div>
       </div>
       <div class="s-pills">
-        <span class="s-pill" style="--c:#4f7fb0">wynik 4</span>
-        <span class="s-pill" style="--c:#b08a4a">pokrycie 25%</span>
-        <span class="s-pill" style="--c:#4f9d74">Computer Science</span>
+        <span class="s-pill">wynik 4</span>
+        <span class="s-pill">pokrycie 25%</span>
+        <span class='s-pill' style='--c:#4f9d74'>Computer Science</span>
       </div>
-      <ul class="s-kw" style="padding-left:1.1rem"><li><b>agents</b> ← słowo kluczowe: AI agents</li><li><b>generation</b> ← słowo kluczowe: scenario generation</li></ul>
+      <div class='s-kw'><span class='kw'>agents</span><span class='kw'>generation</span></div>
       <div class="s-foot"><span>4 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0002-4206-9052' target='_blank' rel='noopener'>ORCID →</a></div>
     </article>
     </div>
   </section>
   <section class="call-section" id="HORIZON-CL4-2026-05-DIGITAL-EMERGING-03" style="margin-bottom:2.2rem">
     <div class="eyebrow">Nabór Horyzont Europa</div>
-    <h2 class="hero-title" style="font-size:1.5rem">HORIZON-CL4-2026-05-DIGITAL-EMERGING-03</h2>
+    <h2 class="hero-title" style="font-size:1.35rem">HORIZON-CL4-2026-05-DIGITAL-EMERGING-03</h2>
     <p class="hero-sub">Call HORIZON-CL4-2026-05 · zamknięty 15.04.2026</p>
     <div class="stats-bar" style="margin:1rem 0">
       <span class="stat"><b>56</b> osób z trafieniem</span>
@@ -805,174 +853,192 @@ body { transition: background-color .25s ease, color .25s ease; }
     </div>
     <div class="side-card" style="position:static;max-height:none;margin-bottom:1.2rem">
       <div class="side-head"><h3>Terminy z tematu</h3></div>
-      <div class="s-pills"><span class='s-pill'>agile</span><span class='s-pill'>apply</span><span class='s-pill'>generation</span><span class='s-pill'>industrial</span><span class='s-pill'>intelligent</span><span class='s-pill'>next</span><span class='s-pill'>platforms</span><span class='s-pill'>ria</span><span class='s-pill'>robotics</span><span class='s-pill'>service</span></div>
+      <div class="s-pills"><span class='s-pill' style=''>agile</span><span class='s-pill' style=''>apply</span><span class='s-pill' style=''>generation</span><span class='s-pill' style=''>industrial</span><span class='s-pill' style=''>intelligent</span><span class='s-pill' style=''>next</span><span class='s-pill' style=''>platforms</span><span class='s-pill' style=''>ria</span></div>
       <p class="side-note" style="margin-top:.8rem">Wynik pokazuje dowody z tematów i publikacji, nie ocenę kompetencji. Weryfikuje biuro.</p>
     </div>
     <div class="staff-list">
-    <article class="staff-card" style="border-left:3px solid #4f9d7488">
+    <article class="staff-card" data-text="kacprzyk janusz janusz kacprzyk computer science generation industrial intelligent robotics service">
       <div class="s-head">
-        <div class="s-av" style="background:#4f9d74cc;color:#fff">KJ</div>
+        <div class="s-av">KJ</div>
         <div class="s-id">
           <h3>1. Kacprzyk Janusz</h3>
           <div class="s-sub">Janusz Kacprzyk</div>
+          <div class="s-sub">Computer Science</div>
         </div>
       </div>
       <div class="s-pills">
-        <span class="s-pill" style="--c:#4f7fb0">wynik 10</span>
-        <span class="s-pill" style="--c:#5f9e80">pokrycie 50%</span>
-        <span class="s-pill" style="--c:#4f9d74">Computer Science</span>
+        <span class="s-pill">wynik 10</span>
+        <span class="s-pill">pokrycie 50%</span>
+        <span class='s-pill' style='--c:#4f9d74'>Computer Science</span>
       </div>
-      <ul class="s-kw" style="padding-left:1.1rem"><li><b>generation</b> ← słowo kluczowe: clean energy generation</li><li><b>industrial</b> ← słowo kluczowe: industrial automation</li><li><b>intelligent</b> ← słowo kluczowe: intelligent systems</li><li><b>robotics</b> ← słowo kluczowe: robotics</li><li><b>service</b> ← słowo kluczowe: service reliability</li></ul>
+      <div class='s-kw'><span class='kw'>generation</span><span class='kw'>industrial</span><span class='kw'>intelligent</span><span class='kw'>robotics</span><span class='kw'>service</span></div>
       <div class="s-foot"><span>10 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0003-4187-5877' target='_blank' rel='noopener'>ORCID →</a></div>
     </article>
-    <article class="staff-card" style="border-left:3px solid #4f9d7488">
+    <article class="staff-card" data-text="śnieżyński bartłomiej bartłomiej śnieżyński computer science generation robotics service">
       <div class="s-head">
-        <div class="s-av" style="background:#4f9d74cc;color:#fff">ŚB</div>
+        <div class="s-av">ŚB</div>
         <div class="s-id">
           <h3>2. Śnieżyński Bartłomiej</h3>
           <div class="s-sub">Bartłomiej Śnieżyński</div>
+          <div class="s-sub">Computer Science</div>
         </div>
       </div>
       <div class="s-pills">
-        <span class="s-pill" style="--c:#4f7fb0">wynik 7</span>
-        <span class="s-pill" style="--c:#b08a4a">pokrycie 30%</span>
-        <span class="s-pill" style="--c:#4f9d74">Computer Science</span>
+        <span class="s-pill">wynik 7</span>
+        <span class="s-pill">pokrycie 30%</span>
+        <span class='s-pill' style='--c:#4f9d74'>Computer Science</span>
       </div>
-      <ul class="s-kw" style="padding-left:1.1rem"><li><b>generation</b> ← słowo kluczowe: scenario generation</li><li><b>robotics</b> ← temat badawczy: Reinforcement Learning in Robotics</li><li><b>service</b> ← słowo kluczowe: service security</li></ul>
+      <div class='s-kw'><span class='kw'>generation</span><span class='kw'>robotics</span><span class='kw'>service</span></div>
       <div class="s-foot"><span>7 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0002-4206-9052' target='_blank' rel='noopener'>ORCID →</a></div>
     </article>
-    <article class="staff-card" style="border-left:3px solid #4f9d7488">
+    <article class="staff-card" data-text="faber kamil kamil faber computer science generation industrial robotics">
       <div class="s-head">
-        <div class="s-av" style="background:#4f9d74cc;color:#fff">FK</div>
+        <div class="s-av">FK</div>
         <div class="s-id">
           <h3>3. Faber Kamil</h3>
           <div class="s-sub">Kamil Faber</div>
+          <div class="s-sub">Computer Science</div>
         </div>
       </div>
       <div class="s-pills">
-        <span class="s-pill" style="--c:#4f7fb0">wynik 6</span>
-        <span class="s-pill" style="--c:#b08a4a">pokrycie 30%</span>
-        <span class="s-pill" style="--c:#4f9d74">Computer Science</span>
+        <span class="s-pill">wynik 6</span>
+        <span class="s-pill">pokrycie 30%</span>
+        <span class='s-pill' style='--c:#4f9d74'>Computer Science</span>
       </div>
-      <ul class="s-kw" style="padding-left:1.1rem"><li><b>generation</b> ← słowo kluczowe: scenario generation</li><li><b>industrial</b> ← słowo kluczowe: industrial defect detection</li><li><b>robotics</b> ← słowo kluczowe: robotics</li></ul>
+      <div class='s-kw'><span class='kw'>generation</span><span class='kw'>industrial</span><span class='kw'>robotics</span></div>
       <div class="s-foot"><span>6 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0003-4221-0017' target='_blank' rel='noopener'>ORCID →</a></div>
     </article>
-    <article class="staff-card" style="border-left:3px solid #4f9d7488">
+    <article class="staff-card" data-text="gajewski paweł paweł gajewski psychology intelligent robotics service">
       <div class="s-head">
-        <div class="s-av" style="background:#4f9d74cc;color:#fff">GP</div>
+        <div class="s-av">GP</div>
         <div class="s-id">
           <h3>4. Gajewski Paweł</h3>
           <div class="s-sub">Paweł Gajewski</div>
+          <div class="s-sub">Psychology</div>
         </div>
       </div>
       <div class="s-pills">
-        <span class="s-pill" style="--c:#4f7fb0">wynik 6</span>
-        <span class="s-pill" style="--c:#b08a4a">pokrycie 30%</span>
-        <span class="s-pill" style="--c:#4f9d74">Psychology</span>
+        <span class="s-pill">wynik 6</span>
+        <span class="s-pill">pokrycie 30%</span>
+        <span class='s-pill' style='--c:#4f9d74'>Psychology</span>
       </div>
-      <ul class="s-kw" style="padding-left:1.1rem"><li><b>intelligent</b> ← tytuł pracy: Native Czech speakers consider English-speaking robots more intelligent</li><li><b>robotics</b> ← temat badawczy: Reinforcement Learning in Robotics</li><li><b>service</b> ← słowo kluczowe: home service robots</li></ul>
+      <div class='s-kw'><span class='kw'>intelligent</span><span class='kw'>robotics</span><span class='kw'>service</span></div>
       <div class="s-foot"><span>6 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0003-0931-2476' target='_blank' rel='noopener'>ORCID →</a></div>
     </article>
-    <article class="staff-card" style="border-left:3px solid #4f9d7488">
+    <article class="staff-card" data-text="friebe michael michael friebe computer science apply robotics service">
       <div class="s-head">
-        <div class="s-av" style="background:#4f9d74cc;color:#fff">FM</div>
+        <div class="s-av">FM</div>
         <div class="s-id">
           <h3>5. Friebe Michael</h3>
           <div class="s-sub">Michael Friebe</div>
+          <div class="s-sub">Computer Science</div>
         </div>
       </div>
       <div class="s-pills">
-        <span class="s-pill" style="--c:#4f7fb0">wynik 6</span>
-        <span class="s-pill" style="--c:#b08a4a">pokrycie 30%</span>
-        <span class="s-pill" style="--c:#4f9d74">Computer Science</span>
+        <span class="s-pill">wynik 6</span>
+        <span class="s-pill">pokrycie 30%</span>
+        <span class='s-pill' style='--c:#4f9d74'>Computer Science</span>
       </div>
-      <ul class="s-kw" style="padding-left:1.1rem"><li><b>apply</b> ← tytuł pracy: A Review of Needle Navigation Technologies in Minimally Invasive Cardiovascular Surgeries—Toward a More Effective and Easy-to-Apply Process</li><li><b>robotics</b> ← temat badawczy: Soft Robotics and Applications</li><li><b>service</b> ← słowo kluczowe: fee-for-service</li></ul>
+      <div class='s-kw'><span class='kw'>apply</span><span class='kw'>robotics</span><span class='kw'>service</span></div>
       <div class="s-foot"><span>6 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0002-8624-0800' target='_blank' rel='noopener'>ORCID →</a></div>
     </article>
-    <article class="staff-card" style="border-left:3px solid #5f96bf88">
+    <article class="staff-card" data-text="kościółek tomasz tomasz kościółek biochemistry, genetics and molecular biology generation next platforms">
       <div class="s-head">
-        <div class="s-av" style="background:#5f96bfcc;color:#fff">KT</div>
+        <div class="s-av">KT</div>
         <div class="s-id">
           <h3>6. Kościółek Tomasz</h3>
           <div class="s-sub">Tomasz Kościółek</div>
+          <div class="s-sub">Biochemistry, Genetics and Molecular Biology</div>
         </div>
       </div>
       <div class="s-pills">
-        <span class="s-pill" style="--c:#4f7fb0">wynik 5</span>
-        <span class="s-pill" style="--c:#b08a4a">pokrycie 30%</span>
-        <span class="s-pill" style="--c:#5f96bf">Biochemistry, Genetics and Molecular Biology</span>
+        <span class="s-pill">wynik 5</span>
+        <span class="s-pill">pokrycie 30%</span>
+        <span class='s-pill' style='--c:#5f96bf'>Biochemistry, Genetics and Molecular Biology</span>
       </div>
-      <ul class="s-kw" style="padding-left:1.1rem"><li><b>generation</b> ← słowo kluczowe: next-generation sequencing</li><li><b>next</b> ← słowo kluczowe: next-generation sequencing</li><li><b>platforms</b> ← tytuł pracy: A large-scale comparative metagenomic analysis of short-read sequencing platforms indicates high taxonomic concordance and functional analysis challenge</li></ul>
+      <div class='s-kw'><span class='kw'>generation</span><span class='kw'>next</span><span class='kw'>platforms</span></div>
       <div class="s-foot"><span>5 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0002-9915-7387' target='_blank' rel='noopener'>ORCID →</a></div>
     </article>
-    <article class="staff-card" style="border-left:3px solid #b08a4a88">
+    <article class="staff-card" data-text="aleksandrowicz maciej maciej aleksandrowicz engineering industrial robotics">
       <div class="s-head">
-        <div class="s-av" style="background:#b08a4acc;color:#fff">AM</div>
+        <div class="s-av">AM</div>
         <div class="s-id">
           <h3>7. Aleksandrowicz Maciej</h3>
           <div class="s-sub">Maciej Aleksandrowicz</div>
+          <div class="s-sub">Engineering</div>
         </div>
       </div>
       <div class="s-pills">
-        <span class="s-pill" style="--c:#4f7fb0">wynik 5</span>
-        <span class="s-pill" style="--c:#b06464">pokrycie 20%</span>
-        <span class="s-pill" style="--c:#b08a4a">Engineering</span>
+        <span class="s-pill">wynik 5</span>
+        <span class="s-pill">pokrycie 20%</span>
+        <span class='s-pill' style='--c:#b08a4a'>Engineering</span>
       </div>
-      <ul class="s-kw" style="padding-left:1.1rem"><li><b>industrial</b> ← słowo kluczowe: industrial vision</li><li><b>robotics</b> ← temat badawczy: Robotics and Automated Systems</li></ul>
+      <div class='s-kw'><span class='kw'>industrial</span><span class='kw'>robotics</span></div>
       <div class="s-foot"><span>5 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0003-3388-5653' target='_blank' rel='noopener'>ORCID →</a></div>
     </article>
-    <article class="staff-card" style="border-left:3px solid #4f9d7488">
+    <article class="staff-card" data-text="jarosz mateusz mateusz jarosz psychology intelligent service">
       <div class="s-head">
-        <div class="s-av" style="background:#4f9d74cc;color:#fff">JM</div>
+        <div class="s-av">JM</div>
         <div class="s-id">
           <h3>8. Jarosz Mateusz</h3>
           <div class="s-sub">Mateusz Jarosz</div>
+          <div class="s-sub">Psychology</div>
         </div>
       </div>
       <div class="s-pills">
-        <span class="s-pill" style="--c:#4f7fb0">wynik 4</span>
-        <span class="s-pill" style="--c:#b06464">pokrycie 20%</span>
-        <span class="s-pill" style="--c:#4f9d74">Psychology</span>
+        <span class="s-pill">wynik 4</span>
+        <span class="s-pill">pokrycie 20%</span>
+        <span class='s-pill' style='--c:#4f9d74'>Psychology</span>
       </div>
-      <ul class="s-kw" style="padding-left:1.1rem"><li><b>intelligent</b> ← tytuł pracy: Multi-Platform Intelligent System for Multimodal Human-Computer Interaction</li><li><b>service</b> ← temat badawczy: AI in Service Interactions</li></ul>
+      <div class='s-kw'><span class='kw'>intelligent</span><span class='kw'>service</span></div>
       <div class="s-foot"><span>4 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0002-9829-0127' target='_blank' rel='noopener'>ORCID →</a></div>
     </article>
-    <article class="staff-card" style="border-left:3px solid #4f9d7488">
+    <article class="staff-card" data-text="szydło tomasz tomasz szydło computer science industrial service">
       <div class="s-head">
-        <div class="s-av" style="background:#4f9d74cc;color:#fff">ST</div>
+        <div class="s-av">ST</div>
         <div class="s-id">
           <h3>9. Szydło Tomasz</h3>
           <div class="s-sub">Tomasz Szydło</div>
+          <div class="s-sub">Computer Science</div>
         </div>
       </div>
       <div class="s-pills">
-        <span class="s-pill" style="--c:#4f7fb0">wynik 4</span>
-        <span class="s-pill" style="--c:#b06464">pokrycie 20%</span>
-        <span class="s-pill" style="--c:#4f9d74">Computer Science</span>
+        <span class="s-pill">wynik 4</span>
+        <span class="s-pill">pokrycie 20%</span>
+        <span class='s-pill' style='--c:#4f9d74'>Computer Science</span>
       </div>
-      <ul class="s-kw" style="padding-left:1.1rem"><li><b>industrial</b> ← słowo kluczowe: industrial control systems</li><li><b>service</b> ← słowo kluczowe: function-as-a-service</li></ul>
+      <div class='s-kw'><span class='kw'>industrial</span><span class='kw'>service</span></div>
       <div class="s-foot"><span>4 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0003-4101-2115' target='_blank' rel='noopener'>ORCID →</a></div>
     </article>
-    <article class="staff-card" style="border-left:3px solid #4f9d7488">
+    <article class="staff-card" data-text="pełech-pilichowski tomasz tomasz pełech‐pilichowski computer science generation industrial">
       <div class="s-head">
-        <div class="s-av" style="background:#4f9d74cc;color:#fff">PT</div>
+        <div class="s-av">PT</div>
         <div class="s-id">
           <h3>10. Pełech-Pilichowski Tomasz</h3>
           <div class="s-sub">Tomasz Pełech‐Pilichowski</div>
+          <div class="s-sub">Computer Science</div>
         </div>
       </div>
       <div class="s-pills">
-        <span class="s-pill" style="--c:#4f7fb0">wynik 4</span>
-        <span class="s-pill" style="--c:#b06464">pokrycie 20%</span>
-        <span class="s-pill" style="--c:#4f9d74">Computer Science</span>
+        <span class="s-pill">wynik 4</span>
+        <span class="s-pill">pokrycie 20%</span>
+        <span class='s-pill' style='--c:#4f9d74'>Computer Science</span>
       </div>
-      <ul class="s-kw" style="padding-left:1.1rem"><li><b>generation</b> ← słowo kluczowe: legal text generation</li><li><b>industrial</b> ← słowo kluczowe: industrial processes</li></ul>
+      <div class='s-kw'><span class='kw'>generation</span><span class='kw'>industrial</span></div>
       <div class="s-foot"><span>4 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0003-2212-7806' target='_blank' rel='noopener'>ORCID →</a></div>
     </article>
     </div>
   </section>
 </main>
 
+<script>
+document.getElementById('kw').addEventListener('input', function(){
+  const q = this.value.trim().toLowerCase();
+  document.querySelectorAll('.staff-card').forEach(c => {
+    c.style.display = (!q || c.dataset.text.includes(q)) ? '' : 'none';
+  });
+});
+</script>
 <script>
 (function(){
   var KEY='bm-theme';

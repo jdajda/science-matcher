@@ -406,6 +406,28 @@ body { transition: background-color .25s ease, color .25s ease; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .6s !important; scroll-behavior: auto !important; }
 }
+.tabs-row { flex-wrap: wrap; }
+.tab { white-space: normal; }
+.m-info, .m-name, .count, .hero-title, .hero-sub, .match-sub, .s-id h3, .s-pill, .m-pubs, .m-terms { overflow-wrap: anywhere; min-width: 0; }
+.match-top { flex-wrap: wrap; gap: .5rem; }
+.hero-title, h1, h2, h3 { line-height: 1.25; letter-spacing: 0; }
+body, p, li { line-height: 1.5; }
+.tab, .btn, .s-pill, .kw, .kw-chip, .tag, .link-btn { line-height: 1.3; white-space: normal; }
+.hero-sub, .match-sub, .side-note { max-width: 70ch; }
+.m-name, .s-id h3 { line-height: 1.3; }
+#tab-staff .s-head { align-items: flex-start; }
+#tab-staff .s-id { min-width: 0; flex: 1; }
+#tab-staff .s-id h3 { line-height: 1.35; overflow-wrap: anywhere; }
+#tab-staff .s-sub { line-height: 1.4; overflow-wrap: anywhere; }
+#tab-staff .s-av { flex-shrink: 0; }
+#tab-staff .s-pills { row-gap: .4rem; }
+#tab-staff .s-pill { line-height: 1.3; white-space: normal; }
+#tab-staff .s-foot { flex-wrap: wrap; row-gap: .4rem; }
+#tab-staff .s-foot > * { min-width: 0; overflow-wrap: anywhere; }
+#tab-staff .results-head { flex-wrap: wrap; row-gap: .5rem; }
+#tab-staff .stats-bar { flex-wrap: wrap; row-gap: .4rem; }
+#tab-staff .hero-title { line-height: 1.2; }
+#tab-staff .search-hint { line-height: 1.5; }
 </style>
 </head>
 <body>
@@ -417,7 +439,7 @@ body { transition: background-color .25s ease, color .25s ease; }
       <div class="container tabs-row">
         <button class="tab active" data-tab="staff">Naukowcy</button>
         <button class="tab" data-tab="areas">Obszary badawcze</button>
-        <button class="tab" data-tab="match">Dobierz zespół</button>
+        <button class="tab" data-tab="match">Nabory i dopasowanie</button>
         <button class="tab" data-tab="graph">Graf współpracy</button>
       </div>
     </nav>
@@ -440,7 +462,7 @@ body { transition: background-color .25s ease, color .25s ease; }
         <button class="btn btn-primary" id="staff-search-btn" type="button">Szukaj</button>
       </div>
       <p class="search-hint">Np. obliczenia rozproszone, CMS lub nazwisko naukowca.
-        <button class="link-btn" type="button" onclick="switchTab('match')">Masz opis projektu? Dobierz zespół →</button>
+        <button class="link-btn" type="button" onclick="switchTab('match')">Masz opis projektu? Dopasuj do naboru →</button>
       </p>
     </section>
 
@@ -527,15 +549,26 @@ body { transition: background-color .25s ease, color .25s ease; }
 <div id="tab-match" class="tab-pane">
   <div class="container">
     <div class="match-head">
-      <h2>Dobierz zespół</h2>
-      <p class="match-sub">Wpisz lub wklej tytuł projektu albo jego opis/streszczenie wraz z zadaniami. System porówna tekst z tytułami publikacji, słowami kluczowymi i obszarami badawczymi oraz zaproponuje najlepiej dopasowane osoby.</p>
+      <h2>Nabory i dopasowanie</h2>
+      <p class="match-sub">Wybierz nabór Horyzont Europa, aby zobaczyć osoby z Wydziału Informatyki dopasowane do jego tematu. Dopasowanie opiera się na tytułach tematów i publikacjach; wyniki są wstępne i wymagają weryfikacji.</p>
     </div>
-    <textarea id="match-input" class="match-textarea" placeholder="np. Kwantowe algorytmy optymalizacyjne do harmonogramowania workflow HPC: rozproszone systemy, obliczenia kwantowe, optymalizacja mieszana…"></textarea>
+    <details class="own-match" open style="margin-bottom:1.2rem">
+      <summary>Dopasuj własny opis projektu</summary>
+      <textarea id="match-input" class="match-textarea" placeholder="np. Kwantowe algorytmy optymalizacyjne do harmonogramowania workflow HPC: rozproszone systemy, obliczenia kwantowe, optymalizacja mieszana…"></textarea>
     <div class="match-actions">
       <button class="btn" id="match-btn">Sugeruj osoby</button>
       <span class="match-hint">Dopasowanie na bazie danych BadAP: tytuły publikacji, słowa kluczowe, obszary badawcze</span>
     </div>
     <div id="match-results"></div>
+    </details>
+    <div class="side-card" style="position:static;max-height:none;margin-bottom:1.2rem">
+      <div class="side-head"><h3>Nabór</h3></div>
+      <select id="call-select" style="width:100%;padding:.5rem .6rem;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font:inherit;font-size:.9rem"></select>
+      <p class="side-note" id="call-note" style="margin-top:.6rem"></p>
+      <div class="s-pills" id="call-terms" style="margin-top:.6rem"></div>
+      <input id="call-filter" type="search" placeholder="Filtruj osoby: nazwisko, dziedzina, słowo kluczowe…" style="width:100%;margin-top:.8rem;padding:.55rem .7rem;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font:inherit;font-size:.9rem">
+    </div>
+    <div id="call-results"></div>
   </div>
 </div>
 
@@ -1799,6 +1832,12 @@ function init(){
   tick();
 }
 window.addEventListener('load',init);
+function openTabFromHash(){
+  const name=location.hash.slice(1);
+  if(['staff','areas','match','graph'].includes(name)) switchTab(name);
+}
+window.addEventListener('load',openTabFromHash);
+window.addEventListener('hashchange',openTabFromHash);
 </script>
 <script>
 (function(){
@@ -1815,6 +1854,44 @@ window.addEventListener('load',init);
     apply(document.documentElement.dataset.theme==='light'?'dark':'light');
   });
 })();
+</script>
+<script id="calls-data" type="application/json">[{"id": "HORIZON-CL4-2026-04-DIGITAL-EMERGING-09", "nabor": "Call HORIZON-CL4-2026-04 · zamknięty 15.04.2026", "terms": ["digital", "early", "preparedness", "twins", "warning"], "matched": 29, "profiles": 106, "uwaga": "Wynik pokazuje dowody z tematów i publikacji, nie ocenę kompetencji. Weryfikuje biuro.", "people": [{"name": "Kica Piotr", "openalex": "Piotr Kica", "orcid": "https://orcid.org/0009-0001-9269-6804", "score": 4, "coverage": 0.4, "field": "Decision Sciences", "hits": [{"token": "digital", "source": "keyword", "evidence": "digital transformation"}, {"token": "early", "source": "keyword", "evidence": "early stopping"}]}, {"name": "Łoś Marcin", "openalex": "Marcin Łoś", "orcid": "https://orcid.org/0000-0002-8426-6345", "score": 4, "coverage": 0.4, "field": "Engineering", "hits": [{"token": "early", "source": "keyword", "evidence": "earthquake early warning"}, {"token": "warning", "source": "keyword", "evidence": "earthquake early warning"}]}, {"name": "Friebe Michael", "openalex": "Michael Friebe", "orcid": "https://orcid.org/0000-0002-8624-0800", "score": 4, "coverage": 0.4, "field": "Computer Science", "hits": [{"token": "digital", "source": "keyword", "evidence": "digital health"}, {"token": "early", "source": "keyword", "evidence": "early detection"}]}, {"name": "Orzechowski Michał", "openalex": "Michał Orzechowski", "orcid": "https://orcid.org/0000-0002-8558-1283", "score": 3, "coverage": 0.4, "field": "Computer Science", "hits": [{"token": "digital", "source": "work", "evidence": "Integrated data, metadata, and paradata management system for 3D Digital Cultural Heritage objects: Workflow automation, federated authentication, and publication"}, {"token": "early", "source": "keyword", "evidence": "early stopping"}]}, {"name": "Kurdziel Marcin", "openalex": "Marcin Kurdziel", "orcid": "https://orcid.org/0000-0003-2022-7424", "score": 3, "coverage": 0.2, "field": "Computer Science", "hits": [{"token": "digital", "source": "topic", "evidence": "Digital Radiography and Breast Imaging"}]}, {"name": "Mirowski Paweł", "openalex": "Paweł Mirowski", "orcid": "https://orcid.org/0000-0002-6766-1810", "score": 3, "coverage": 0.2, "field": "Arts and Humanities", "hits": [{"token": "early", "source": "topic", "evidence": "Reformation and Early Modern Christianity"}]}, {"name": "Turek Paulina", "openalex": "Paulina Turek", "orcid": "https://orcid.org/0009-0006-2363-9693", "score": 3, "coverage": 0.2, "field": "Social Sciences", "hits": [{"token": "digital", "source": "topic", "evidence": "Child Development and Digital Technology"}]}, {"name": "Achtelik Wojciech", "openalex": "Wojciech Achtelik", "orcid": "https://orcid.org/0009-0001-7363-4448", "score": 2, "coverage": 0.2, "field": "Computer Science", "hits": [{"token": "early", "source": "keyword", "evidence": "early stopping"}]}, {"name": "Bałamut Anna", "openalex": "Anna Bałamut", "orcid": "https://orcid.org/0000-0001-7300-7367", "score": 2, "coverage": 0.2, "field": "Energy", "hits": [{"token": "digital", "source": "keyword", "evidence": "digital transformation"}]}, {"name": "Brodzicki Andrzej", "openalex": "Andrzej Brodzicki", "orcid": "https://orcid.org/0000-0001-7713-526X", "score": 2, "coverage": 0.2, "field": "Computer Science", "hits": [{"token": "early", "source": "keyword", "evidence": "early diagnosis"}]}]}, {"id": "HORIZON-CL4-2026-05-DIGITAL-EMERGING-02", "nabor": "Call HORIZON-CL4-2026-05 · zamknięty 15.04.2026", "terms": ["agents", "apply", "generation", "next", "real", "ria", "sectors", "world"], "matched": 42, "profiles": 106, "uwaga": "Wynik pokazuje dowody z tematów i publikacji, nie ocenę kompetencji. Weryfikuje biuro.", "people": [{"name": "Kacprzyk Janusz", "openalex": "Janusz Kacprzyk", "orcid": "https://orcid.org/0000-0003-4187-5877", "score": 4, "coverage": 0.375, "field": "Computer Science", "hits": [{"token": "agents", "source": "work", "evidence": "Prioritized Preference Aggregation for Non-uniform Groups of Agents"}, {"token": "generation", "source": "keyword", "evidence": "clean energy generation"}, {"token": "world", "source": "work", "evidence": "13th World Conference “Intelligent System for Industrial Automation” (WCIS-2024)"}]}, {"name": "Mańdziuk Jacek", "openalex": "Jacek Mańdziuk", "orcid": "https://orcid.org/0000-0003-0947-028X", "score": 4, "coverage": 0.375, "field": "Computer Science", "hits": [{"token": "generation", "source": "keyword", "evidence": "synthetic data generation"}, {"token": "real", "source": "work", "evidence": "Bongard-RWR+: Real-World Representations of Fine-Grained Concepts in Bongard Problems"}, {"token": "world", "source": "work", "evidence": "Bongard-RWR+: Real-World Representations of Fine-Grained Concepts in Bongard Problems"}]}, {"name": "Faber Kamil", "openalex": "Kamil Faber", "orcid": "https://orcid.org/0000-0003-4221-0017", "score": 4, "coverage": 0.25, "field": "Computer Science", "hits": [{"token": "generation", "source": "keyword", "evidence": "scenario generation"}, {"token": "real", "source": "keyword", "evidence": "real-time inference"}]}, {"name": "Faliszewski Piotr", "openalex": "Piotr Faliszewski", "orcid": "https://orcid.org/0000-0002-0332-4364", "score": 4, "coverage": 0.25, "field": "Economics, Econometrics and Finance", "hits": [{"token": "real", "source": "keyword", "evidence": "real-world testing"}, {"token": "world", "source": "keyword", "evidence": "real-world testing"}]}, {"name": "Gaska Krzysztof", "openalex": "Krzysztof Gąska", "orcid": "https://orcid.org/0000-0002-9369-6144", "score": 4, "coverage": 0.25, "field": "Environmental Science", "hits": [{"token": "generation", "source": "keyword", "evidence": "third-generation solar cells"}, {"token": "real", "source": "keyword", "evidence": "real-time simulation"}]}, {"name": "Kościółek Tomasz", "openalex": "Tomasz Kościółek", "orcid": "https://orcid.org/0000-0002-9915-7387", "score": 4, "coverage": 0.25, "field": "Biochemistry, Genetics and Molecular Biology", "hits": [{"token": "generation", "source": "keyword", "evidence": "next-generation sequencing"}, {"token": "next", "source": "keyword", "evidence": "next-generation sequencing"}]}, {"name": "Łoś Marcin", "openalex": "Marcin Łoś", "orcid": "https://orcid.org/0000-0002-8426-6345", "score": 4, "coverage": 0.25, "field": "Engineering", "hits": [{"token": "generation", "source": "keyword", "evidence": "mesh generation"}, {"token": "real", "source": "keyword", "evidence": "real-time simulation"}]}, {"name": "Nawrocki Piotr", "openalex": "Piotr Nawrocki", "orcid": "https://orcid.org/0000-0003-4512-9337", "score": 4, "coverage": 0.25, "field": "Computer Science", "hits": [{"token": "agents", "source": "keyword", "evidence": "communication agents"}, {"token": "real", "source": "keyword", "evidence": "real-time environments"}]}, {"name": "Piętak Kamil", "openalex": "Kamil Piętak", "orcid": "https://orcid.org/0000-0002-7062-261X", "score": 4, "coverage": 0.25, "field": "Computer Science", "hits": [{"token": "agents", "source": "keyword", "evidence": "autonomous agents"}, {"token": "generation", "source": "keyword", "evidence": "initial population generation"}]}, {"name": "Śnieżyński Bartłomiej", "openalex": "Bartłomiej Śnieżyński", "orcid": "https://orcid.org/0000-0002-4206-9052", "score": 4, "coverage": 0.25, "field": "Computer Science", "hits": [{"token": "agents", "source": "keyword", "evidence": "AI agents"}, {"token": "generation", "source": "keyword", "evidence": "scenario generation"}]}]}, {"id": "HORIZON-CL4-2026-05-DIGITAL-EMERGING-03", "nabor": "Call HORIZON-CL4-2026-05 · zamknięty 15.04.2026", "terms": ["agile", "apply", "generation", "industrial", "intelligent", "next", "platforms", "ria", "robotics", "service"], "matched": 56, "profiles": 106, "uwaga": "Wynik pokazuje dowody z tematów i publikacji, nie ocenę kompetencji. Weryfikuje biuro.", "people": [{"name": "Kacprzyk Janusz", "openalex": "Janusz Kacprzyk", "orcid": "https://orcid.org/0000-0003-4187-5877", "score": 10, "coverage": 0.5, "field": "Computer Science", "hits": [{"token": "generation", "source": "keyword", "evidence": "clean energy generation"}, {"token": "industrial", "source": "keyword", "evidence": "industrial automation"}, {"token": "intelligent", "source": "keyword", "evidence": "intelligent systems"}, {"token": "robotics", "source": "keyword", "evidence": "robotics"}, {"token": "service", "source": "keyword", "evidence": "service reliability"}]}, {"name": "Śnieżyński Bartłomiej", "openalex": "Bartłomiej Śnieżyński", "orcid": "https://orcid.org/0000-0002-4206-9052", "score": 7, "coverage": 0.3, "field": "Computer Science", "hits": [{"token": "generation", "source": "keyword", "evidence": "scenario generation"}, {"token": "robotics", "source": "topic", "evidence": "Reinforcement Learning in Robotics"}, {"token": "service", "source": "keyword", "evidence": "service security"}]}, {"name": "Faber Kamil", "openalex": "Kamil Faber", "orcid": "https://orcid.org/0000-0003-4221-0017", "score": 6, "coverage": 0.3, "field": "Computer Science", "hits": [{"token": "generation", "source": "keyword", "evidence": "scenario generation"}, {"token": "industrial", "source": "keyword", "evidence": "industrial defect detection"}, {"token": "robotics", "source": "keyword", "evidence": "robotics"}]}, {"name": "Gajewski Paweł", "openalex": "Paweł Gajewski", "orcid": "https://orcid.org/0000-0003-0931-2476", "score": 6, "coverage": 0.3, "field": "Psychology", "hits": [{"token": "intelligent", "source": "work", "evidence": "Native Czech speakers consider English-speaking robots more intelligent"}, {"token": "robotics", "source": "topic", "evidence": "Reinforcement Learning in Robotics"}, {"token": "service", "source": "keyword", "evidence": "home service robots"}]}, {"name": "Friebe Michael", "openalex": "Michael Friebe", "orcid": "https://orcid.org/0000-0002-8624-0800", "score": 6, "coverage": 0.3, "field": "Computer Science", "hits": [{"token": "apply", "source": "work", "evidence": "A Review of Needle Navigation Technologies in Minimally Invasive Cardiovascular Surgeries—Toward a More Effective and Easy-to-Apply Process"}, {"token": "robotics", "source": "topic", "evidence": "Soft Robotics and Applications"}, {"token": "service", "source": "keyword", "evidence": "fee-for-service"}]}, {"name": "Kościółek Tomasz", "openalex": "Tomasz Kościółek", "orcid": "https://orcid.org/0000-0002-9915-7387", "score": 5, "coverage": 0.3, "field": "Biochemistry, Genetics and Molecular Biology", "hits": [{"token": "generation", "source": "keyword", "evidence": "next-generation sequencing"}, {"token": "next", "source": "keyword", "evidence": "next-generation sequencing"}, {"token": "platforms", "source": "work", "evidence": "A large-scale comparative metagenomic analysis of short-read sequencing platforms indicates high taxonomic concordance and functional analysis challenge"}]}, {"name": "Aleksandrowicz Maciej", "openalex": "Maciej Aleksandrowicz", "orcid": "https://orcid.org/0000-0003-3388-5653", "score": 5, "coverage": 0.2, "field": "Engineering", "hits": [{"token": "industrial", "source": "keyword", "evidence": "industrial vision"}, {"token": "robotics", "source": "topic", "evidence": "Robotics and Automated Systems"}]}, {"name": "Jarosz Mateusz", "openalex": "Mateusz Jarosz", "orcid": "https://orcid.org/0000-0002-9829-0127", "score": 4, "coverage": 0.2, "field": "Psychology", "hits": [{"token": "intelligent", "source": "work", "evidence": "Multi-Platform Intelligent System for Multimodal Human-Computer Interaction"}, {"token": "service", "source": "topic", "evidence": "AI in Service Interactions"}]}, {"name": "Szydło Tomasz", "openalex": "Tomasz Szydło", "orcid": "https://orcid.org/0000-0003-4101-2115", "score": 4, "coverage": 0.2, "field": "Computer Science", "hits": [{"token": "industrial", "source": "keyword", "evidence": "industrial control systems"}, {"token": "service", "source": "keyword", "evidence": "function-as-a-service"}]}, {"name": "Pełech-Pilichowski Tomasz", "openalex": "Tomasz Pełech‐Pilichowski", "orcid": "https://orcid.org/0000-0003-2212-7806", "score": 4, "coverage": 0.2, "field": "Computer Science", "hits": [{"token": "generation", "source": "keyword", "evidence": "legal text generation"}, {"token": "industrial", "source": "keyword", "evidence": "industrial processes"}]}]}]</script>
+<script>
+const CALLS = JSON.parse(document.getElementById('calls-data').textContent);
+const callSel = document.getElementById('call-select');
+CALLS.forEach(c=>{ const o=document.createElement('option'); o.value=c.id; o.textContent=c.id; callSel.appendChild(o); });
+function renderCall(){
+  const c = CALLS.find(x=>x.id===callSel.value) || CALLS[0];
+  document.getElementById('call-note').textContent = c.nabor + ' · osób z trafieniem: ' + c.matched + ' z ' + c.profiles + ' w profilach. ' + c.uwaga;
+  const TERM_COLOR={digital:'#4f7fb0',early:'#5f9e80'};
+  document.getElementById('call-terms').innerHTML = c.terms.map(t=>`<span class="kw-chip" style="${TERM_COLOR[t]?'color:'+TERM_COLOR[t]+';font-weight:600':''}">${esc(t)}</span>`).join('');
+  const q = (document.getElementById('call-filter').value || '').trim().toLowerCase();
+  const list = c.people.filter(p=>!q || [p.name,p.openalex,p.field,...p.hits.map(h=>h.token)].join(' ').toLowerCase().includes(q));
+  const max = list.length ? Math.max(...list.map(p=>p.score)) : 1;
+  const rows = list.map((p,i)=>{
+    const pct = Math.round(p.score/max*100);
+    const cov = Math.round(p.coverage*100);
+    const hits = p.hits.map(h=>`<span class="kw-chip" title="${esc(h.evidence)}">${esc(h.token)}</span>`).join('');
+    const orcid = p.orcid ? `<a class="link-btn" href="${esc(p.orcid)}" target="_blank" rel="noopener">ORCID</a>` : '<span class="m-pubs">ORCID brak · niepotwierdzone</span>';
+    return `<div class="member-row match-row">
+      <div class="rank">${i+1}</div>
+      <div class="m-info">
+        <div style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap">
+          <div class="m-name">${esc(p.name)}</div>
+          ${p.field?`<span class="tag" style="background:${p.field?'var(--surface2)':''};color:var(--text2);font-size:.68rem;padding:.15rem .5rem;border-radius:10px">${esc(p.field)}</span>`:''}
+        </div>
+        <div class="m-pubs">${esc(p.openalex||'')} · pokrycie ${cov}% · ${orcid}</div>
+        ${hits?`<div class="m-terms">${hits}</div>`:''}
+      </div>
+      <div class="m-bar"><div class="m-bar-fill" style="width:${pct}%;background:var(--accent)"></div></div>
+      <div class="m-score-num">${p.score}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('call-results').innerHTML = `<div class="match-top"><span class="count">Pokazano ${list.length} z ${c.people.length} osób · nabór <b>${esc(c.id)}</b></span></div>${rows}`;
+}
+callSel.addEventListener('change', renderCall);
+document.getElementById('call-filter').addEventListener('input', renderCall);
+renderCall();
 </script>
 </body>
 </html>

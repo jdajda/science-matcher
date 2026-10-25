@@ -84,11 +84,21 @@ def initials(name):
 
 
 def site_parts():
-    src = (ROOT / "index.html").read_text(encoding="utf-8").splitlines()
-    head = "\n".join(src[0:409])
-    header = "\n".join(src[411:430])
-    theme_js = "\n".join(src[1802:1818])
+    src = (ROOT / "index.html").read_text(encoding="utf-8")
+    head_end = src.index("</style>") + len("</style>")
+    head = src[: src.index("<body>")]
+    head = head[: head.index("</head>")] if "</head>" in head else head
+    head = src[:head_end]
+    header_start = src.index('<header class="site-header">')
+    header_end = src.index("</header>", header_start) + len("</header>")
+    header = src[header_start:header_end]
+    theme_start = src.index("var KEY='bm-theme';")
+    theme_start = src.rindex("<script>", 0, theme_start)
+    theme_end = src.index("</script>", theme_start) + len("</script>")
+    theme_js = src[theme_start:theme_end]
     head = re.sub(r"<title>.*?</title>", "<title>Dopasowanie do naboru · Mapa badawcza WI AGH</title>", head, count=1)
+    head = head.replace("localStorage.getItem('bm-theme')||'light'", "localStorage.getItem('bm-theme')||'dark'", 1)
+    head = head.replace("document.documentElement.dataset.theme='light';}", "document.documentElement.dataset.theme='dark';}", 1)
     header = re.sub(r"<nav class=\"tabs\">.*?</nav>", "", header, flags=re.S)
     return head, header, theme_js
 
@@ -99,38 +109,44 @@ def card(i, r):
         f"<a class='s-link' href='{h.escape(orcid)}' target='_blank' rel='noopener'>ORCID →</a>"
         if orcid else "<span class='s-link'>ORCID brak</span>"
     )
-    hits = "".join(
-        f"<li><b>{h.escape(x['token'])}</b> ← {SOURCE_LABEL[x['source']]}: {h.escape(x['evidence'])}</li>"
-        for x in r["hits"][:8]
-    ) or "<li>brak trafień</li>"
+    kws = "".join(f"<span class='kw'>{h.escape(x['token'])}</span>" for x in r["hits"][:6])
     pct = round(r["coverage"] * 100)
-    color = person_color(r.get("field"))
+    text = " ".join([r["wi_name"], r.get("openalex_name") or "", r.get("field") or ""] + [x["token"] for x in r["hits"]]).lower()
     return f"""
-    <article class="staff-card" style="border-left:3px solid {color}88">
+    <article class="staff-card" data-text="{h.escape(text)}">
       <div class="s-head">
-        <div class="s-av" style="background:{color}cc;color:#fff">{h.escape(initials(r['wi_name']))}</div>
+        <div class="s-av">{h.escape(initials(r['wi_name']))}</div>
         <div class="s-id">
           <h3>{i}. {h.escape(r['wi_name'])}</h3>
           <div class="s-sub">{h.escape(r.get('openalex_name') or '')}</div>
+          <div class="s-sub">{h.escape(r.get('field') or '')}</div>
         </div>
       </div>
       <div class="s-pills">
-        <span class="s-pill" style="--c:{SCORE_COLOR}">wynik {r['score']}</span>
-        <span class="s-pill" style="--c:{coverage_color(r['coverage'])}">pokrycie {pct}%</span>
-        <span class="s-pill" style="--c:{color}">{h.escape(r.get('field') or '')}</span>
+        <span class="s-pill">wynik {r['score']}</span>
+        <span class="s-pill">pokrycie {pct}%</span>
+        {f"<span class='s-pill' style='--c:{person_color(r.get('field'))}'>{h.escape(r.get('field'))}</span>" if r.get('field') else ""}
       </div>
-      <ul class="s-kw" style="padding-left:1.1rem">{hits}</ul>
+      {f"<div class='s-kw'>{kws}</div>" if kws else ""}
       <div class="s-foot"><span>{r['score']} trafień z tematu</span>{link}</div>
     </article>"""
 
 
+TERM_STYLE = {
+    "digital": "--c:#4f7fb0;color:#4f7fb0;font-weight:600",
+    "early": "--c:#5f9e80;color:#5f9e80;font-weight:600",
+}
+
+
 def section(call_id, nabor, out):
-    terms = "".join(f"<span class='s-pill'>{h.escape(t)}</span>" for t in out["topic_terms"])
+    terms = "".join(
+        f"<span class='s-pill' style='{TERM_STYLE.get(t, '')}'>{h.escape(t)}</span>" for t in out["topic_terms"][:8]
+    )
     cards = "".join(card(i, r) for i, r in enumerate(out["top"], 1))
     return f"""
   <section class="call-section" id="{h.escape(call_id)}" style="margin-bottom:2.2rem">
     <div class="eyebrow">Nabór Horyzont Europa</div>
-    <h2 class="hero-title" style="font-size:1.5rem">{h.escape(call_id)}</h2>
+    <h2 class="hero-title" style="font-size:1.35rem">{h.escape(call_id)}</h2>
     <p class="hero-sub">{h.escape(nabor)}</p>
     <div class="stats-bar" style="margin:1rem 0">
       <span class="stat"><b>{out['matched_people']}</b> osób z trafieniem</span>
@@ -149,19 +165,35 @@ def section(call_id, nabor, out):
 
 def render_html(sections):
     head, header, theme_js = site_parts()
+    chips = "".join(f"<a class='s-pill' href='#{h.escape(cid)}' style='text-decoration:none'>{h.escape(cid)}</a>" for cid, _, _ in sections)
+    bar = f"""
+  <div class="side-card" style="position:static;max-height:none;margin-bottom:1.6rem">
+    <div class="side-head"><h3>Filtr</h3></div>
+    <div class="s-pills">{chips}</div>
+    <input id="kw" type="search" placeholder="Filtruj osoby: nazwisko, dziedzina, słowo kluczowe…" class="kw-input" style="width:100%;margin-top:.8rem;padding:.55rem .7rem;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font:inherit;font-size:.9rem">
+  </div>"""
+    script = """
+<script>
+document.getElementById('kw').addEventListener('input', function(){
+  const q = this.value.trim().toLowerCase();
+  document.querySelectorAll('.staff-card').forEach(c => {
+    c.style.display = (!q || c.dataset.text.includes(q)) ? '' : 'none';
+  });
+});
+</script>"""
     tabs = """
 <nav class="tabs">
   <div class="container tabs-row">
     <a class="tab" href="index.html#staff">Naukowcy</a>
     <a class="tab" href="index.html#areas">Obszary badawcze</a>
-    <a class="tab" href="index.html#match">Dobierz zespół</a>
+    <a class="tab" href="index.html#match">Nabory i dopasowanie</a>
     <a class="tab" href="index.html#graph">Graf współpracy</a>
     <a class="tab active" href="dopasowanie.html">Dopasowanie do naboru</a>
   </div>
 </nav>"""
     body = "".join(section(*sec) for sec in sections)
     return f"""{head}
-<style>a.tab, a.tab:hover {{ text-decoration: none; }}</style>
+<style>a.tab, a.tab:hover {{ text-decoration: none; }} .tabs-row {{ flex-wrap: wrap; }} .tab {{ white-space: normal; }} .m-info, .m-name, .s-id h3, .s-pill, .s-kw, .s-sub, .hero-title, .hero-sub, .stat, .side-note {{ overflow-wrap: anywhere; min-width: 0; }} .hero-title, h1, h2, h3 {{ line-height: 1.25; letter-spacing: 0; }} body, p, li {{ line-height: 1.5; }} .s-pill, .kw {{ line-height: 1.3; white-space: normal; }} .hero-sub {{ max-width: 70ch; }}</style>
 </head>
 <body>
 {header}
@@ -173,9 +205,10 @@ def render_html(sections):
     <h1 class="hero-title">Dopasowanie osób do naborów</h1>
     <p class="hero-sub">Dopasowanie na podstawie tytułów tematów; pełne opisy do uzupełnienia.</p>
   </section>
+{bar}
 {body}
 </main>
-
+{script}
 {theme_js}
 </body>
 </html>
