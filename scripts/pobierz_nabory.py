@@ -51,11 +51,16 @@ def collect(prefix, pages, texts):
             tid = url.rsplit("/", 1)[-1].replace(".json", "")
             desc = plain(first(meta, "description"))
             texts.setdefault(call, set()).add(desc)
+            deadlines = sorted({d[:10] for d in (meta.get("deadlineDate") or []) if d})
+            if tid in found:
+                deadlines = sorted(set(deadlines) | set(found[tid]["terminy"]))
             found[tid] = {
                 "id": tid,
                 "call": call,
                 "title": r.get("summary") or "",
                 "start": first(meta, "startDate"),
+                "terminy": deadlines,
+                "model": first(meta, "deadlineModel"),
                 "opis": desc[:200],
                 "url": url,
             }

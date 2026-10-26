@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Projekty · Mapa badawcza WI AGH</title>
+<script>(function(){try{var t=localStorage.getItem('bm-theme')||'dark';document.documentElement.dataset.theme=t;}catch(e){document.documentElement.dataset.theme='dark';}})();</script>
+<style>
+:root {
+  --radius: 12px;
+  --header-bg: linear-gradient(135deg, #24466f 0%, #0b1322 100%);
+  --header-text: #e8edf5;
+  --header-sub: #aab6cb;
+  --bg: #0f1521;
+  --surface: #171f2e;
+  --surface2: #202a3c;
+  --text: #e5eaf2;
+  --text2: #9aa6bb;
+  --accent: #7ea6d6;
+  --accent-strong: #a5c4e8;
+  --accent-rgb: 126,166,214;
+  --accent2: #9aa3d8;
+  --border: #2a3548;
+  --on-accent: #0f1521;
+  --shadow: 0 8px 24px rgba(0,0,0,.3);
+  --overlay: rgba(4,8,14,.6);
+  --tooltip-bg: rgba(15,21,33,.96);
+  --g-co: #6f9bcb;
+  --g-ev: #c48aa8;
+  --g-ext: #6b7689;
+  --g-ring: #e5eaf2;
+  --g-label-bg: rgba(15,21,33,.86);
+  --g-label-fg: #c3cddd;
+  --g-label-focus: #ffffff;
+  color-scheme: dark;
+}
+:root[data-theme="light"] {
+  --bg: #f3f5f9;
+  --surface: #ffffff;
+  --surface2: #eef2f7;
+  --text: #1c2736;
+  --text2: #5a6679;
+  --accent: #2c64a0;
+  --accent-strong: #1d4f85;
+  --accent-rgb: 44,100,160;
+  --accent2: #55609f;
+  --border: #dbe2ec;
+  --on-accent: #ffffff;
+  --shadow: 0 8px 22px rgba(20,35,60,.12);
+  --overlay: rgba(15,23,42,.35);
+  --tooltip-bg: rgba(255,255,255,.97);
+  --g-co: #3d74ad;
+  --g-ev: #b0557e;
+  --g-ext: #8a94a6;
+  --g-ring: #1c2736;
+  --g-label-bg: rgba(255,255,255,.92);
+  --g-label-fg: #344054;
+  --g-label-focus: #0f172a;
+  color-scheme: light;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+.tabs { display: flex; gap: 0; background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 2rem; overflow-x: auto; white-space: nowrap; scrollbar-width: thin; }
+.tab { padding: .75rem 1.5rem; cursor: pointer; border: none; background: transparent; color: var(--text2); font-size: .95rem; font-weight: 500; border-bottom: 2px solid transparent; transition: all .2s; }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); background: rgba(var(--accent-rgb),0.05); }
+.tab:hover { color: var(--text); }
+.tab-pane { display: none; padding: 1.5rem 2rem; }
+.tab-pane.active { display: block; }
+
+/* STAFF TAB */
+.controls { display: flex; flex-wrap: wrap; gap: .75rem; margin-bottom: 1.25rem; align-items: center; }
+.controls input[type="text"] { flex: 1; min-width: 250px; padding: .6rem 1rem; border-radius: var(--radius); border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: .9rem; }
+.controls input:focus { outline: none; border-color: var(--accent); }
+.controls select { padding: .6rem .8rem; border-radius: var(--radius); border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: .85rem; }
+.tag-filter-bar { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: 1rem; }
+.tag-chip { padding: .3rem .7rem; border-radius: 20px; font-size: .75rem; cursor: pointer; border: 1px solid var(--border); background: var(--surface); color: var(--text2); transition: all .15s; user-select: none; }
+.tag-chip:hover { border-color: var(--accent); color: var(--text); }
+.tag-chip.active { background: var(--c, var(--accent)); color: #fff; border-color: var(--c, var(--accent)); font-weight: 600; }
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1rem; }
+
+/* AREAS TAB */
+.areas-layout { display: grid; grid-template-columns: 320px 1fr; gap: 1.5rem; min-height: 70vh; }
+.areas-sidebar { display: flex; flex-direction: column; gap: .5rem; max-height: 80vh; }
+.areas-sidebar input[type="text"] { padding: .5rem .8rem; border-radius: var(--radius); border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: .85rem; flex-shrink: 0; }
+.areas-sidebar input[type="text"]:focus { outline: none; border-color: var(--accent); }
+.areas-list { overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: .5rem; }
+.area-item { padding: .8rem 1rem; border-radius: var(--radius); cursor: pointer; border: 1px solid var(--border); background: var(--surface); transition: all .15s; }
+.area-item:hover { border-color: var(--accent); }
+.area-item.active { border-color: var(--accent); background: rgba(var(--accent-rgb),0.08); }
+.area-item .a-name { font-weight: 600; font-size: .9rem; margin-bottom: .3rem; }
+.area-item .a-meta { display: flex; justify-content: space-between; font-size: .75rem; color: var(--text2); }
+.area-item .bar { height: 4px; border-radius: 2px; background: var(--surface2); margin-top: .4rem; overflow: hidden; }
+.area-item .bar-fill { height: 100%; border-radius: 2px; }
+.area-detail { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; }
+.area-detail h2 { font-size: 1.12rem; font-weight: 600; margin-bottom: .25rem; }
+.area-detail .subtitle { color: var(--text2); font-size: .8rem; margin-bottom: 1.1rem; line-height: 1.45; }
+.achievements-block { margin-bottom: 1.5rem; }
+.achievements-summary { font-size: .86rem; font-weight: 400; margin-top: .3rem; color: var(--text); line-height: 1.6; margin-bottom: 1rem; padding: 1rem 1.2rem; background: linear-gradient(135deg, rgba(var(--accent-rgb),0.06) 0%, rgba(var(--accent-rgb),0.06) 100%); border: 1px solid rgba(var(--accent-rgb),0.2); border-radius: var(--radius); }
+.achievements-section-title { font-size: .76rem; font-weight: 600; color: var(--accent); margin: .9rem 0 .5rem; text-transform: uppercase; letter-spacing: .03em; }
+.achievement-list { list-style: none; }
+.achievement-item { font-size: .82rem; color: var(--text2); padding: .45rem 0 .45rem 1.1rem; position: relative; line-height: 1.5; border-bottom: 1px solid var(--border); }
+.achievement-item:last-child { border-bottom: none; }
+.achievement-item::before { content: ''; position: absolute; left: 0; top: .8rem; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+.achievement-item .pub-title { color: var(--text); font-weight: 500; }
+.achievement-item.ach-item { cursor: pointer; padding-left: 1.1rem; transition: background .15s, padding-left .15s; }
+.achievement-item.ach-item:hover { background: rgba(var(--accent-rgb),.07); padding-left: 1.4rem; }
+.achievement-item.ach-item .ach-item-title { display: block; color: var(--text); font-weight: 500; font-size: .84rem; }
+.achievement-item.ach-item .ach-item-desc { display: block; color: var(--text2); font-size: .78rem; margin-top: .15rem; }
+.achievement-item.ach-item::after { content: '\203A'; position: absolute; right: .4rem; top: .5rem; color: var(--accent); opacity: 0; transition: opacity .15s, transform .15s; font-size: 1.1rem; }
+.achievement-item.ach-item:hover::after { opacity: 1; transform: translateX(2px); }
+.ach-kicker { font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; margin-bottom: .3rem; font-weight: 600; }
+.ach-kind { display: inline-block; padding: .2rem .65rem; border-radius: 12px; background: var(--surface2); color: var(--text2); font-size: .72rem; margin: .5rem 0 .2rem; }
+.ach-block { margin-top: 1rem; }
+.ach-desc { font-size: .85rem; color: var(--text); line-height: 1.6; padding: .7rem .9rem; background: rgba(var(--accent-rgb),.06); border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; }
+.ach-summary { font-size: .84rem; color: var(--text2); line-height: 1.65; }
+.ach-people { display: flex; flex-direction: column; gap: .3rem; }
+.ach-person { display: flex; align-items: center; gap: .7rem; padding: .45rem .5rem; border-radius: 8px; cursor: pointer; transition: background .15s; border: 1px solid transparent; }
+.ach-person:hover { background: rgba(var(--accent-rgb),.08); border-color: rgba(var(--accent-rgb),.25); }
+.ach-person .avatar { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: .7rem; font-weight: 700; color: #fff; flex-shrink: 0; }
+.ach-person .ap-info { flex: 1; min-width: 0; }
+.ach-person .ap-name { font-size: .84rem; font-weight: 500; }
+.ach-person .ap-meta { font-size: .73rem; color: var(--text2); }
+.ach-person .ap-ext { font-size: .7rem; color: var(--text2); text-decoration: none; border: 1px solid var(--border); border-radius: 6px; padding: .2rem .45rem; flex-shrink: 0; transition: all .15s; }
+.ach-person .ap-ext:hover { color: var(--accent); border-color: var(--accent); }
+.member-row { display: flex; align-items: center; gap: .8rem; padding: .7rem .5rem; border-bottom: 1px solid var(--border); transition: background .15s; }
+.member-row:hover { background: rgba(var(--accent-rgb),0.04); }
+.member-row .rank { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: .75rem; font-weight: 700; background: var(--surface2); flex-shrink: 0; }
+.member-row .m-info { flex: 1; }
+.member-row .m-name { font-weight: 500; font-size: .88rem; cursor: pointer; }
+.member-row .m-name:hover { color: var(--accent); }
+.member-row .m-pubs { font-size: .75rem; color: var(--text2); }
+.member-row .m-bar { width: 120px; height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
+.member-row .m-bar-fill { height: 100%; border-radius: 3px; }
+.member-row .m-share { width: 52px; text-align: right; font-size: .8rem; color: var(--text2); font-variant-numeric: tabular-nums; }
+.member-row:nth-child(-n+3) .m-share { color: var(--text); font-weight: 600; }
+
+/* GRAPH TAB */
+.graph-controls { display: flex; flex-wrap: wrap; gap: .75rem; margin-bottom: 1rem; align-items: center; }
+.graph-controls input[type="text"] { padding: .5rem .8rem; border-radius: var(--radius); border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: .85rem; width: 220px; }
+.graph-controls label { font-size: .8rem; color: var(--text2); display: flex; align-items: center; gap: .3rem; cursor: pointer; }
+.graph-controls input[type="range"] { width: 100px; }
+.graph-container { position: relative; width: 100%; height: calc(100vh - 260px); min-height: 500px; background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; }
+#graph-canvas { width: 100%; height: 100%; }
+.graph-tooltip { position: absolute; pointer-events: none; background: var(--tooltip-bg); border: 1px solid var(--border); border-radius: 8px; padding: .6rem .9rem; font-size: .8rem; max-width: 280px; display: none; z-index: 10; }
+.graph-tooltip .tt-name { font-weight: 700; font-size: .9rem; margin-bottom: .2rem; }
+.graph-tooltip .tt-info { color: var(--text2); font-size: .75rem; line-height: 1.4; }
+.graph-legend { position: absolute; bottom: 1rem; left: 1rem; background: var(--tooltip-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: .8rem 1rem; font-size: .75rem; }
+.graph-legend div { display: flex; align-items: center; gap: .4rem; margin-bottom: .3rem; }
+.graph-legend .dot { width: 10px; height: 10px; border-radius: 50%; }
+.graph-legend .line { width: 18px; height: 3px; border-radius: 2px; }
+.btn { padding: .4rem .8rem; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: .8rem; cursor: pointer; }
+.btn:hover { border-color: var(--accent); }
+
+/* MODAL */
+.detail-overlay { position: fixed; inset: 0; background: var(--overlay); z-index: 100; opacity: 0; visibility: hidden; transition: opacity .25s ease, visibility .25s ease; }
+.detail-overlay.show { opacity: 1; visibility: visible; }
+.detail-panel { position: absolute; top: 0; right: 0; height: 100%; width: min(560px, 92vw); background: var(--surface); border-left: 1px solid var(--border); box-shadow: -12px 0 40px rgba(0,0,0,.45); padding: 1.75rem 1.5rem; overflow-y: auto; transform: translateX(100%); transition: transform .3s cubic-bezier(.22,1,.36,1); }
+.detail-overlay.show .detail-panel { transform: translateX(0); }
+.detail-panel h2 { font-size: 1.2rem; margin-bottom: .2rem; }
+.detail-panel .sub { color: var(--text2); font-size: .85rem; margin-bottom: 1rem; }
+.detail-panel .modal-tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: .8rem; }
+.detail-panel .section-title { font-size: .85rem; font-weight: 600; color: var(--accent); margin: .8rem 0 .4rem; }
+.detail-panel .pub-list { list-style: none; }
+.detail-panel .pub-list li { font-size: .8rem; color: var(--text2); padding: .2rem 0; border-bottom: 1px solid var(--border); }
+.detail-panel .co-list { display: flex; flex-wrap: wrap; gap: .4rem; }
+.detail-panel .co-chip { padding: .25rem .6rem; background: var(--surface2); border-radius: 12px; font-size: .75rem; }
+.detail-panel .close-btn { position: absolute; top: 1rem; right: 1rem; background: none; border: none; color: var(--text2); font-size: 1.4rem; cursor: pointer; }
+.detail-panel .profile-links { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: 1rem; padding-top: .9rem; border-top: 1px solid var(--border); }
+.detail-panel .profile-links a, .detail-panel .profile-links .btn { font-size: .8rem; color: var(--accent); text-decoration: none; padding: .35rem .8rem; border: 1px solid var(--border); border-radius: 6px; background: transparent; cursor: pointer; transition: all .15s; }
+.detail-panel .profile-links a:hover, .detail-panel .profile-links .btn:hover { border-color: var(--accent); background: rgba(var(--accent-rgb),.08); }
+.tag-clickable { cursor: pointer; transition: all .15s; }
+.tag-clickable:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,.25); filter: brightness(1.15); }
+.detail-panel .tag { display: inline-block; padding: .25rem .65rem; border-radius: 12px; font-size: .78rem; font-weight: 500; color: #fff; }
+.profile-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+.avatar-lg { width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; font-weight: 700; color: #fff; flex-shrink: 0; }
+.profile-header-info h2 { margin: 0 0 .2rem; font-size: 1.2rem; }
+.profile-meta { font-size: .82rem; color: var(--text2); }
+.profile-pubstats { display: flex; gap: 1.2rem; margin-top: .4rem; }
+.stat-item { font-size: .78rem; color: var(--text2); }
+.stat-item b { color: var(--text); font-size: .95rem; }
+.profile-section { margin-bottom: .8rem; }
+.profile-tags { display: flex; flex-wrap: wrap; gap: .4rem; }
+.kw-chip { padding: .25rem .6rem; background: var(--surface2); border-radius: 12px; font-size: .75rem; color: var(--text2); }
+.co-internal { border: 1px solid var(--accent); cursor: pointer; transition: all .15s; }
+.co-internal:hover { background: rgba(var(--accent-rgb),.15); border-color: var(--accent); }
+.co-external { opacity: .75; }
+.co-count { opacity: .6; font-size: .7rem; margin-left: .2rem; }
+.pub-item { font-size: .82rem; color: var(--text); padding: .35rem 0; border-bottom: 1px solid var(--border); line-height: 1.45; }
+.pub-item:last-child { border-bottom: none; }
+.pub-item .pub-title { color: var(--text); }
+.pub-link { color: var(--accent); text-decoration: none; border-bottom: 1px dotted rgba(var(--accent-rgb),.5); transition: color .15s, border-color .15s; }
+.pub-link:hover { color: var(--accent-strong); border-bottom-color: var(--accent-strong); border-bottom-style: solid; }
+.pub-link::after { content: ' \2197'; font-size: .72em; opacity: .6; }
+.pubs-note { font-size: .75rem; color: var(--text2); font-weight: 400; }
+.pubs-total { font-size: .8rem; color: var(--text2); font-weight: 400; }
+.stats-bar { display: flex; gap: 1.5rem; margin-top: .5rem; }
+.stat { font-size: .8rem; color: var(--text2); }
+.stat b { color: var(--text); font-size: 1rem; }
+.loading { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .8rem; padding: 3.5rem 1rem; color: var(--text2); font-size: .9rem; }
+.spinner { width: 30px; height: 30px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* MATCH TAB */
+.match-head h2 { font-size: 1.25rem; margin-bottom: .3rem; }
+.match-sub { color: var(--text2); font-size: .85rem; margin-bottom: 1rem; max-width: 70ch; }
+.match-textarea { width: 100%; min-height: 110px; padding: .7rem 1rem; border-radius: var(--radius); border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: .9rem; font-family: inherit; resize: vertical; line-height: 1.5; }
+.match-textarea:focus { outline: none; border-color: var(--accent); }
+.match-actions { display: flex; align-items: center; gap: .8rem; margin: .8rem 0 1.2rem; }
+.match-actions .btn { background: var(--accent); color: var(--on-accent); font-weight: 600; border-color: var(--accent); }
+.match-actions .btn:hover { background: var(--accent-strong); }
+.match-hint { font-size: .75rem; color: var(--text2); }
+.match-empty { color: var(--text2); font-size: .85rem; padding: 2rem; text-align: center; border: 1px dashed var(--border); border-radius: var(--radius); }
+.match-top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: .8rem; flex-wrap: wrap; }
+.match-top .count { font-size: .85rem; color: var(--text2); }
+.match-top .count b { color: var(--accent); }
+.match-row .m-terms { display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .35rem; }
+.match-row .m-terms .kw-chip { color: var(--accent); border: 1px solid rgba(var(--accent-rgb),.35); background: rgba(var(--accent-rgb),.06); }
+.match-row .m-score-num { width: 52px; text-align: right; font-size: .8rem; color: var(--text2); }
+@media(max-width:768px){ .areas-layout{grid-template-columns:1fr} .card-grid{grid-template-columns:1fr} .detail-panel{ width:100%; border-radius:0; } }
+
+/* ===== Układ strony: nagłówek, zakładki, wyszukiwanie, filtry, wyniki ===== */
+.container { max-width: 1280px; margin: 0 auto; padding: 0 1.5rem; }
+.tab-pane { padding: 1.5rem 0; }
+#tab-areas { padding: 1.5rem; }
+.site-header { position: relative; background: var(--header-bg); color: var(--header-text); border-bottom: 1px solid var(--border); }
+.site-header::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+.header-row { display: flex; align-items: center; gap: 2.2rem; padding-top: 1.2rem; padding-bottom: 1.1rem; flex-wrap: wrap; }
+.brand { display: flex; align-items: stretch; gap: .8rem; }
+.brand-logo { height: 46px; width: auto; display: block; }
+.brand-name { font-size: 1.6rem; font-weight: 800; letter-spacing: .01em; color: var(--header-text); line-height: 1; }
+.brand-sub { font-size: .64rem; font-weight: 700; letter-spacing: .14em; color: var(--header-sub); margin-top: .4rem; }
+.faculty { font-size: .8rem; color: var(--header-sub); line-height: 1.35; }
+.faculty b { display: block; font-weight: 600; color: var(--header-sub); }
+.header-row .theme-toggle { margin-left: auto; }
+.tabs { background: var(--surface); border-bottom: 1px solid var(--border); overflow-x: auto; }
+.tabs-row { display: flex; gap: 1.4rem; }
+.tab { padding: .9rem .1rem; border: none; border-bottom: 2px solid transparent; background: transparent; color: var(--text2); font: inherit; font-size: .88rem; font-weight: 500; cursor: pointer; white-space: nowrap; transition: color .15s; }
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; background: transparent; }
+
+.hero { display: grid; grid-template-columns: 1fr auto; gap: 2rem; align-items: center; padding: 2.4rem 2.2rem; margin: 1.5rem 0 1.4rem; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; }
+.eyebrow { font-size: .76rem; font-weight: 700; letter-spacing: .14em; color: var(--accent); text-transform: uppercase; margin-bottom: .9rem; }
+.hero-title { font-size: 2.1rem; line-height: 1.12; font-weight: 700; color: var(--text); letter-spacing: -.02em; margin-bottom: .9rem; }
+.hero-sub { color: var(--text2); font-size: .92rem; line-height: 1.6; max-width: 48ch; }
+.hero-card { display: flex; flex-direction: column; gap: .25rem; min-width: 220px; padding: 1rem 1.2rem; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; cursor: pointer; text-align: left; font: inherit; color: inherit; }
+.hero-card span { color: var(--text2); font-size: .9rem; }
+.hero-card b { color: var(--accent); font-size: 1.02rem; }
+.hero-card:hover { border-color: var(--accent); }
+
+.search-label { display: block; font-weight: 600; color: var(--text); font-size: .9rem; margin-bottom: .5rem; }
+.searchbox { display: flex; align-items: center; gap: .6rem; padding: .4rem .4rem .4rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; box-shadow: var(--shadow); }
+.searchbox svg { width: 20px; height: 20px; color: var(--text2); flex-shrink: 0; }
+.searchbox input { flex: 1; min-width: 0; border: none; background: transparent; color: var(--text); font: inherit; font-size: .95rem; padding: .6rem .2rem; outline: none; }
+.searchbox input::placeholder { color: var(--text2); }
+.searchbox .btn-primary { padding: .7rem 1.4rem; border-radius: 10px; font-size: .98rem; }
+.search-hint { color: var(--text2); font-size: .85rem; margin: .5rem 0 1.4rem; }
+
+.btn-primary { background: var(--accent); color: var(--on-accent); border: 1px solid var(--accent); font-weight: 600; cursor: pointer; }
+.btn-primary:hover { background: var(--accent-strong); border-color: var(--accent-strong); }
+
+.staff-layout { display: grid; grid-template-columns: 300px 1fr; gap: 1.5rem; align-items: start; }
+.side-card { position: sticky; top: 1rem; max-height: calc(100vh - 2rem); overflow-y: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.1rem 1.2rem; }
+.side-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: .4rem; }
+.side-head h3 { font-size: .95rem; font-weight: 700; color: var(--text); }
+.side-head h3 span { color: var(--accent); font-size: .9rem; font-weight: 600; }
+.link-btn { background: none; border: none; color: var(--accent); font: inherit; font-size: .86rem; cursor: pointer; padding: 0; }
+.link-btn:hover { text-decoration: underline; }
+.side-block { border-top: 1px solid var(--border); padding: .9rem 0; }
+.side-label { display: block; font-size: .9rem; font-weight: 700; color: var(--text); }
+.side-note { font-size: .78rem; color: var(--text2); margin: .15rem 0 .4rem; }
+.side-block select { width: 100%; margin-top: .4rem; padding: .5rem .6rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font: inherit; font-size: .88rem; }
+.area-check { display: flex; align-items: flex-start; gap: .6rem; padding: .3rem 0; font-size: .88rem; line-height: 1.35; color: var(--text); cursor: pointer; }
+.area-check input, .f-check input { width: 16px; height: 16px; margin-top: .2rem; accent-color: var(--accent); flex-shrink: 0; }
+.area-check .area-n { margin-left: auto; color: var(--text2); font-size: .78rem; padding-top: .1rem; }
+.more-areas summary { cursor: pointer; color: var(--accent); font-size: .88rem; padding: .4rem 0; list-style: none; }
+.more-areas summary::-webkit-details-marker { display: none; }
+.more-areas summary::before { content: '▸ '; }
+.more-areas[open] summary::before { content: '▾ '; }
+.f-check { display: flex; align-items: center; gap: .5rem; font-size: .88rem; color: var(--text); cursor: pointer; }
+.f-check input { margin-top: 0; }
+
+.results-head { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: .9rem; }
+.results-head .stats-bar { margin: 0; font-size: .92rem; }
+.results-head .stat b { font-size: 1.02rem; }
+.stats-bar .stat + .stat { margin-left: 1rem; color: var(--accent); font-size: .86rem; }
+.sort { display: flex; align-items: center; gap: .5rem; color: var(--text2); font-size: .88rem; }
+.sort select { padding: .5rem .7rem; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font: inherit; font-size: .9rem; }
+.staff-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .9rem; }
+.staff-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.1rem 1.3rem; cursor: pointer; transition: border-color .15s, box-shadow .15s; }
+.staff-card:hover { border-color: var(--accent); box-shadow: var(--shadow); }
+.s-head { display: flex; align-items: center; gap: .9rem; }
+.s-av { width: 46px; height: 46px; flex-shrink: 0; border-radius: 50%; background: var(--surface2); color: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: .95rem; }
+.s-id h3 { font-size: .98rem; font-weight: 600; color: var(--text); }
+.s-sub { color: var(--text2); font-size: .88rem; margin-top: .1rem; }
+.s-pills { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .8rem; }
+.s-pill { display: inline-flex; align-items: center; gap: .4rem; font-size: .8rem; font-weight: 500; padding: .26rem .65rem .26rem .5rem; border-radius: 999px; background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+.s-pill::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--c, var(--accent)); flex-shrink: 0; }
+.s-kw { color: var(--text2); font-size: .86rem; line-height: 1.5; margin-top: .6rem; }
+.s-foot { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-top: .8rem; padding-top: .7rem; border-top: 1px solid var(--border); font-size: .86rem; color: var(--text2); }
+.s-foot b { color: var(--text); }
+.s-link { color: var(--accent); font-weight: 600; white-space: nowrap; }
+
+.empty-state { grid-column: 1 / -1; text-align: center; padding: 2.5rem 1rem; color: var(--text2); border: 1px dashed var(--border); border-radius: var(--radius); font-size: .9rem; }
+.empty-state .btn { margin-left: .3rem; }
+
+@media (max-width: 900px) {
+  .staff-layout { grid-template-columns: 1fr; }
+  .side-card { position: static; }
+  .hero { grid-template-columns: 1fr; padding: 1.6rem; }
+  .hero-title { font-size: 2rem; }
+}
+@media (max-width: 600px) {
+  .container { padding: 0 1rem; }
+  .tab { padding: .7rem .1rem; }
+  
+  .searchbox .btn-primary { padding: .6rem .9rem; }
+}
+
+/* ===== Obszary: lista w panelu bocznym ===== */
+.area-list { display: flex; flex-direction: column; gap: .05rem; margin-top: .3rem; }
+.side-search { width: 100%; margin-top: .4rem; padding: .45rem .6rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font: inherit; font-size: .85rem; }
+.area-check { display: flex; align-items: center; gap: .5rem; padding: .3rem .3rem; border-radius: 6px; font-size: .86rem; line-height: 1.3; color: var(--text); cursor: pointer; }
+.area-check:hover { background: var(--surface2); }
+.area-check::before { content: ''; width: 8px; height: 8px; flex-shrink: 0; border-radius: 50%; background: var(--c); }
+.area-check > input { width: 15px; height: 15px; margin: 0; flex-shrink: 0; accent-color: var(--accent); }
+.area-check > span:nth-of-type(1) { flex: 1; min-width: 0; }
+.area-check .area-n { font-size: .74rem; color: var(--text2); }
+.more-filters > summary { cursor: pointer; list-style: none; }
+.more-filters > summary::-webkit-details-marker { display: none; }
+.more-filters > summary::after { content: ' ▾'; color: var(--text2); }
+.more-filters[open] > summary::after { content: ' ▴'; }
+.more-filters .side-label { display: block; margin-top: .7rem; }
+.more-filters select { margin-top: .3rem; }
+.more-filters .f-check { margin-top: .5rem; }
+.area-bar-head, .area-bar { display: none; }
+.results-head { justify-content: space-between; }
+.active-chips { display: flex; flex-wrap: wrap; gap: .4rem; margin: .1rem 0 .9rem; }
+.active-chips:empty { display: none; }
+.chip { border: 1px solid var(--border); background: var(--surface); color: var(--text); border-radius: 999px; padding: .24rem .7rem; font: inherit; font-size: .8rem; cursor: pointer; }
+.chip:hover { border-color: var(--accent); }
+
+/* ===== Hero: prosty nagłówek i wyszukiwarka ===== */
+.hero-simple { padding: 1.2rem 0 .4rem; }
+.hero-simple .hero-title { font-size: 1.9rem; letter-spacing: -.01em; margin-bottom: .3rem; }
+.hero-simple .hero-sub { color: var(--text2); font-size: .92rem; margin-bottom: 1rem; }
+.hero-simple .searchbox { box-shadow: none; }
+.search-hint { color: var(--text2); font-size: .82rem; margin: .5rem 0 1.2rem; }
+.search-hint .link-btn { display: inline-flex; align-items: center; gap: .35rem; margin-left: .6rem; padding: .3rem .85rem; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent); background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent); font-size: .82rem; font-weight: 600; text-decoration: none; transition: background .15s, border-color .15s; }
+.search-hint .link-btn:hover { background: color-mix(in srgb, var(--accent) 22%, transparent); border-color: var(--accent); text-decoration: none; }
+.header-row .tabs { background: none; border: none; overflow: visible; flex: 1; }
+.header-row .tabs-row { gap: 1.2rem; justify-content: flex-start; }
+
+/* ===== Wizytówki: kolor obszaru widoczny, reszta spokojna ===== */
+.s-av { width: 46px; height: 46px; flex-shrink: 0; border-radius: 50%; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: .95rem; }
+.s-pills { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .8rem; }
+.s-pill { display: inline-flex; align-items: center; font-size: .8rem; font-weight: 600; padding: .26rem .65rem; border-radius: 999px; background: color-mix(in srgb, var(--c, var(--accent)) 27%, var(--surface)); border: 1px solid color-mix(in srgb, var(--c, var(--accent)) 65%, transparent); color: var(--text); }
+.s-pill::before { display: none; }
+.s-kw { display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .6rem; }
+.kw { font-size: .74rem; padding: .18rem .5rem; border-radius: 6px; background: var(--surface2); color: var(--text2); }
+
+/* ===== Filtr obszarów w grafie ===== */
+.g-areas { position: relative; }
+.g-areas > summary { list-style: none; cursor: pointer; display: inline-block; padding: .45rem .8rem; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); color: var(--text); font-size: .85rem; font-weight: 600; }
+.g-areas > summary::-webkit-details-marker { display: none; }
+.g-areas[open] > .g-area-list { display: block; }
+.g-area-list { position: absolute; z-index: 20; top: calc(100% + .4rem); left: 0; width: 300px; max-height: 360px; overflow-y: auto; display: none; padding: .5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow); }
+.g-area { display: flex; align-items: center; gap: .5rem; padding: .3rem .4rem; border-radius: 6px; font-size: .84rem; color: var(--text); cursor: pointer; }
+.g-area:hover { background: var(--surface2); }
+.g-area::before { content: ''; width: 8px; height: 8px; flex-shrink: 0; border-radius: 50%; background: var(--c); }
+.g-area input { accent-color: var(--accent); margin: 0; }
+
+/* ===== Przełącznik widoku grafu ===== */
+.seg { display: inline-flex; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: var(--surface); }
+.seg button { padding: .45rem .95rem; border: none; background: transparent; color: var(--text2); font: inherit; font-size: .85rem; font-weight: 600; cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--border); }
+.seg button.active { background: var(--accent); color: var(--on-accent); }
+
+/* ===== Dobierz zespół: przykłady ===== */
+.match-examples { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: center; margin-top: 1rem; }
+
+/* ===== Zakładki w nagłówku: kontrast ===== */
+.header-row .tab { color: #c3cfe2; font-weight: 600; }
+.header-row .tab:hover { color: #ffffff; }
+.header-row .tab.active { color: #ffffff; border-bottom: 3px solid #7fb3e6; }
+
+/* ===== Motyw, dostępność i poprawki UX ===== */
+body { transition: background-color .25s ease, color .25s ease; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.theme-toggle { margin-left: auto; display: inline-flex; align-items: center; gap: .5rem; padding: .45rem .85rem; border-radius: 999px; border: 1px solid rgba(255,255,255,.22); background: rgba(255,255,255,.06); color: var(--header-text); font: inherit; font-size: .8rem; cursor: pointer; flex-shrink: 0; transition: background .15s, border-color .15s; }
+.theme-toggle:hover { background: rgba(255,255,255,.14); border-color: rgba(255,255,255,.35); }
+.theme-toggle svg { width: 16px; height: 16px; flex-shrink: 0; display: none; }
+.theme-toggle .i-moon { display: block; }
+:root[data-theme="light"] .theme-toggle .i-moon { display: none; }
+:root[data-theme="light"] .theme-toggle .i-sun { display: block; }
+.tag-chip::before { content: ''; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--c, var(--accent)); margin-right: .4rem; vertical-align: middle; }
+.tag-chip.active::before { display: none; }
+.tabs::-webkit-scrollbar { height: 4px; }
+.tab { white-space: nowrap; }
+@media (max-width: 600px) {
+  .tabs { padding: 0 .5rem; }
+  .tab { padding: .7rem .85rem; }
+  .tab-pane { padding: 1rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .6s !important; scroll-behavior: auto !important; }
+}
+.tabs-row { flex-wrap: wrap; }
+.tab { white-space: normal; }
+.m-info, .m-name, .count, .hero-title, .hero-sub, .match-sub, .s-id h3, .s-pill, .m-pubs, .m-terms { overflow-wrap: anywhere; min-width: 0; }
+.match-top { flex-wrap: wrap; gap: .5rem; }
+.hero-title, h1, h2, h3 { line-height: 1.25; letter-spacing: 0; }
+body, p, li { line-height: 1.5; }
+.tab, .btn, .s-pill, .kw, .kw-chip, .tag, .link-btn { line-height: 1.3; white-space: normal; }
+.hero-sub, .match-sub, .side-note { max-width: 70ch; }
+.m-name, .s-id h3 { line-height: 1.3; }
+#tab-staff .s-head { align-items: flex-start; }
+#tab-staff .s-id { min-width: 0; flex: 1; }
+#tab-staff .s-id h3 { line-height: 1.35; overflow-wrap: anywhere; }
+#tab-staff .s-sub { line-height: 1.4; overflow-wrap: anywhere; }
+#tab-staff .s-av { flex-shrink: 0; }
+#tab-staff .s-pills { row-gap: .4rem; }
+#tab-staff .s-pill { line-height: 1.3; white-space: normal; }
+#tab-staff .s-foot { flex-wrap: wrap; row-gap: .4rem; }
+#tab-staff .s-foot > * { min-width: 0; overflow-wrap: anywhere; }
+#tab-staff .results-head { flex-wrap: wrap; row-gap: .5rem; }
+#tab-staff .stats-bar { flex-wrap: wrap; row-gap: .4rem; }
+#tab-staff .hero-title { line-height: 1.2; }
+#tab-staff .search-hint { line-height: 1.5; }
+.area-item .a-row { display: flex; align-items: center; gap: .6rem; }
+.area-item .a-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.area-item .a-row .a-name { flex: 1; min-width: 0; margin: 0; font-size: .92rem; }
+.area-item .a-count { font-size: .8rem; font-weight: 700; color: var(--text2); background: var(--surface2); border-radius: 999px; padding: .1rem .55rem; }
+.area-item { padding: .65rem .9rem; }
+.ad-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.ad-head h2 { font-size: 1.3rem; font-weight: 700; margin: 0; overflow-wrap: anywhere; }
+.ad-count { font-size: .9rem; color: var(--text2); }
+.ad-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: .6rem; }
+.ad-person { display: flex; align-items: center; gap: .6rem; padding: .55rem .7rem; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); cursor: pointer; min-width: 0; }
+.ad-person:hover { border-color: var(--accent); }
+.ad-av { width: 34px; height: 34px; border-radius: 50%; color: #fff; font-size: .78rem; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.ad-name { flex: 1; min-width: 0; font-size: .9rem; font-weight: 600; color: var(--text); overflow-wrap: anywhere; line-height: 1.3; }
+.ad-pct { font-size: .78rem; color: var(--text2); flex-shrink: 0; }
+.ad-more { margin-bottom: 1rem; border: 1px solid var(--border); border-radius: 12px; padding: .6rem .9rem; background: var(--surface); }
+.ad-more summary { cursor: pointer; font-weight: 600; font-size: .9rem; color: var(--accent); }
+
+a.tab, a.tab:hover { text-decoration: none; }
+</style>
+<style>a.tab, a.tab:hover { text-decoration: none; } .tabs-row { flex-wrap: wrap; } .tab { white-space: normal; }
+.pj-layout { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 1.2rem; align-items: start; }
+.pj-side { font-size: .88rem; min-width: 0; box-sizing: border-box; }
+.pj-side .side-block { display: flex; flex-direction: column; gap: .35rem; }
+.pj-side .side-label { display: block; font-weight: 600; color: var(--text); }
+.pj-side .side-head h3 { margin: 0; }
+.pj-side .f-check { display: flex; align-items: center; gap: .5rem; margin: 0; padding: .1rem 0; }
+.pj-side .f-check input { margin: 0; width: 16px; height: 16px; flex-shrink: 0; }
+.pj-side input, .pj-side select { width: 100%; box-sizing: border-box; margin: 0; }
+.pj-side { position: sticky; top: 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1rem 1.1rem; }
+.pj-side .side-block { border-top: 1px solid var(--border); padding: .8rem 0; }
+.pj-side input, .pj-side select { width: 100%; margin-top: .4rem; padding: .45rem .6rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font: inherit; font-size: .88rem; }
+.pj-board { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .9rem; align-items: start; }
+.pj-col { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: .8rem; min-width: 0; }
+.pj-col-head { display: flex; justify-content: space-between; align-items: center; gap: .5rem; padding-bottom: .6rem; border-bottom: 3px solid var(--c); margin-bottom: .2rem; }
+.pj-col-head h3 { font-size: .95rem; }
+.pj-count { font-size: .8rem; color: var(--text2); }
+.pj-card { background: var(--bg); border: 1px solid var(--border); border-left: 4px solid var(--c); border-radius: 10px; margin-top: .6rem; overflow-wrap: anywhere; }
+.pj-card > summary { list-style: none; cursor: pointer; padding: .7rem .8rem; }
+.pj-card > summary::-webkit-details-marker { display: none; }
+.pj-title { font-weight: 600; font-size: .92rem; color: var(--text); line-height: 1.3; }
+.pj-meta { font-size: .8rem; color: var(--text2); margin-top: .25rem; line-height: 1.4; }
+.pj-tags { display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .4rem; }
+.pj-tag { font-size: .72rem; color: var(--text2); background: var(--surface2); border-radius: 999px; padding: .1rem .5rem; }
+.pj-dots { display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .5rem; }
+.pj-dot { width: 26px; height: 26px; border-radius: 50%; color: #fff; font-size: .7rem; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; }
+.pj-body { padding: 0 .8rem .8rem; border-top: 1px solid var(--border); }
+.pj-body p, .pj-body li { font-size: .85rem; color: var(--text2); line-height: 1.5; }
+.pj-body ul { padding-left: 1.1rem; margin: .4rem 0; }
+.pj-section { margin-top: .7rem; }
+.pj-label { font-size: .78rem; font-weight: 700; color: var(--text); text-transform: uppercase; letter-spacing: .04em; }
+.pj-chip { display: inline-flex; align-items: center; gap: .35rem; border-radius: 999px; padding: .15rem .3rem .15rem .15rem; background: var(--surface2); font-size: .8rem; margin: .2rem .25rem .2rem 0; }
+.pj-chip .pj-dot { width: 22px; height: 22px; font-size: .62rem; }
+.pj-chip button { background: none; border: none; color: var(--text2); cursor: pointer; font-size: .9rem; padding: 0 .2rem; }
+.pj-body select, .pj-form input, .pj-form select, .pj-form textarea { width: 100%; margin-top: .3rem; padding: .4rem .55rem; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font: inherit; font-size: .85rem; }
+.pj-form { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1rem; margin-bottom: 1.2rem; }
+.pj-form-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .8rem; margin-top: .6rem; }
+.pj-form-grid .wide { grid-column: span 2; }
+.pj-empty { color: var(--text2); font-size: .85rem; padding: .6rem 0; }
+.pj-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .8rem; margin-top: 1.4rem; }
+.pj-stat { background: var(--surface); border: 1px solid var(--border); border-top: 3px solid var(--c); border-radius: 12px; padding: .8rem 1rem; }
+.pj-stat b { font-size: 1.4rem; color: var(--text); display: block; }
+.pj-stat span { font-size: .8rem; color: var(--text2); }
+.pj-actions { display: flex; gap: .6rem; flex-wrap: wrap; margin: .8rem 0; }
+.pj-body .btn { margin-top: .7rem; }
+@media (max-width: 1100px) { .pj-board { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 900px) { .pj-layout { grid-template-columns: 1fr; } .pj-side { position: static; } .pj-form-grid { grid-template-columns: 1fr; } .pj-form-grid .wide { grid-column: auto; } .pj-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media print { body * { visibility: hidden; } #pj-report, #pj-report * { visibility: visible; } #pj-report { position: absolute; left: 0; top: 0; width: 100%; } .tabs, header, .pj-form, .pj-board, .pj-side, .pj-actions { display: none !important; } }
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-row">
+    <img class="brand-logo" alt="Logo Wydziału Informatyki AGH" src="data:image/svg+xml;base64,77u/CjxzdmcgaWQ9IldhcnN0d2FfMiIgZGF0YS1uYW1lPSJXYXJzdHdhIDIiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDI1My41OCA2MC4wMSI+CiAgPGRlZnM+CiAgICA8c3R5bGU+CiAgICAgIC5jbHMtMSB7CiAgICAgICAgZmlsbDogI2ZmZmZmZjsKICAgICAgfQoKICAgICAgLmNscy0yIHsKICAgICAgICBmaWxsOiAjZmZmZmZmOwogICAgICB9CgogICAgICAuY2xzLTMgewogICAgICAgIGZpbGw6ICNmZmZmZmY7CiAgICAgIH0KCiAgICAgIC5jbHMtNCB7CiAgICAgICAgZmlsbDogI2ZmZmZmZjsKICAgICAgfQoKICAgICAgLmNscy01IHsKICAgICAgICBmaWxsOiAjZmZmZmZmOwogICAgICB9CgogICAgICAuY2xzLTYgewogICAgICAgIGZpbGw6ICNmZmZmZmY7CiAgICAgIH0KCiAgICAgIC5jbHMtNyB7CiAgICAgICAgZmlsbDogI2ZmZmZmZjsKICAgICAgfQoKICAgICAgLmNscy04IHsKICAgICAgICBmaWxsOiAjZmZmZmZmOwogICAgICB9CgogICAgICAuY2xzLTkgewogICAgICAgIGZpbGw6ICNmZmZmZmY7CiAgICAgIH0KICAgIDwvc3R5bGU+CiAgPC9kZWZzPgogIDxnIGlkPSJXYXJzdHdhXzEtMiIgZGF0YS1uYW1lPSJXYXJzdHdhIDEiPgogICAgPGc+CiAgICAgIDxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTI5LjE4LDE3Ljc5aDQuOTFsOS4xNywxNC4zMXYtMTQuMzFoNS4xMXYyNC4xaC00LjkxbC05LjE3LTE0LjI3djE0LjI3aC01LjExVjE3Ljc5WiIvPgogICAgICA8cGF0aCBjbGFzcz0iY2xzLTMiIGQ9Ik01My44OSwxNy43OWgxMy43MnY1LjA0aC04LjI4djQuNTJoOC4wOXY1LjA0aC04LjA5djkuNDloLTUuNDNWMTcuNzlaIi8+CiAgICAgIDxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTcwLjQyLDI5Ljg0YzAtNy4zNyw1LjM3LTEyLjU0LDEyLjU3LTEyLjU0czEyLjYsNS4xNywxMi42LDEyLjU0LTUuNCwxMi41NC0xMi42LDEyLjU0LTEyLjU3LTUuMTctMTIuNTctMTIuNTRabTEyLjU3LDcuMzdjMy45NiwwLDYuOTctMi45NSw2Ljk3LTcuMzdzLTMuMDEtNy4zNy02Ljk3LTcuMzctNi45NCwyLjk1LTYuOTQsNy4zNywyLjk4LDcuMzcsNi45NCw3LjM3WiIvPgogICAgICA8cGF0aCBjbGFzcz0iY2xzLTMiIGQ9Ik0xMDUuMTksMzIuNDZ2OS40M2gtNS40M1YxNy43OWg4LjE4YzUuMTEsMCw4LjI1LDIuNTUsOC4yNSw3LjUsMCwzLjMxLTIsNS43OS01LjQsNi42NWw2LjkxLDkuOTVoLTYuNTVsLTUuOTYtOS40M1ptMi40OS00LjM1YzEuODMsMCwyLjk4LTEuMDgsMi45OC0yLjgycy0xLjE1LTIuODItMi45OC0yLjgyaC0yLjQ5djUuNjNoMi40OVoiLz4KICAgICAgPHBhdGggY2xhc3M9ImNscy0zIiBkPSJNMTIxLjU5LDE3Ljc5aDUuMzRsNy4wNCwxMS44NSw2Ljk0LTExLjg1aDUuMjR2MjQuMWgtNS4xMXYtMTQuOGwtNS41LDkuNDNoLTMuMjdsLTUuNTctOS40OXYxNC44NmgtNS4xMVYxNy43OVoiLz4KICAgICAgPHBhdGggY2xhc3M9ImNscy0zIiBkPSJNMTU3LjczLDE3Ljc5aDUuM2w4LjE4LDI0LjFoLTUuNjZsLTEuMTEtMy42M2gtOC4xMmwtMS4xMSwzLjYzaC01LjZsOC4xMi0yNC4xWm01LjI3LDE1LjgxbC0yLjY1LTguNTQtMi42Miw4LjU0aDUuMjdaIi8+CiAgICAgIDxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTE3Ni41NSwyMi44M2gtNS40M3YtNS4wNGgxNi4zdjUuMDRoLTUuNDN2MTkuMDVoLTUuNDNWMjIuODNaIi8+CiAgICAgIDxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTE5Ny40LDMyLjQ5bC03LjY5LTE0LjdoNi4xMmw0LjMyLDguODcsNC4yOS04Ljg3aDUuN2wtNy4zLDE0Ljd2OS40aC01LjQzdi05LjRaIi8+CiAgICAgIDxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTIxOC4wMywzMS44N3YxMC4wMmgtNS40M1YxNy43OWg1LjQzdjkuMzNsNi41OC05LjEzaDYuMzhsLTguMjgsMTEuMjksOC43NCwxMi42aC02LjYxbC02LjgxLTEwLjAyWiIvPgogICAgICA8cGF0aCBjbGFzcz0iY2xzLTMiIGQ9Ik0yNDAuMDksMTcuNzloNS4zbDguMTgsMjQuMWgtNS42NmwtMS4xMS0zLjYzaC04LjEybC0xLjExLDMuNjNoLTUuNmw4LjEyLTI0LjFabTUuMjcsMTUuODFsLTIuNjUtOC41NC0yLjYyLDguNTRoNS4yN1oiLz4KICAgICAgPHJlY3QgY2xhc3M9ImNscy03IiB4PSI4Ljg2IiB5PSIxNy43OCIgd2lkdGg9IjYuMzIiIGhlaWdodD0iNi4zMiIvPgogICAgICA8cmVjdCBjbGFzcz0iY2xzLTQiIHg9IjguODkiIHk9IjguODkiIHdpZHRoPSI2LjMyIiBoZWlnaHQ9IjYuMzIiLz4KICAgICAgPHJlY3QgY2xhc3M9ImNscy01IiB4PSI4Ljg2IiB5PSI0NC40NiIgd2lkdGg9IjYuMzIiIGhlaWdodD0iNi4zMiIvPgogICAgICA8cmVjdCBjbGFzcz0iY2xzLTgiIHg9IjguODYiIHk9IjI2LjY2IiB3aWR0aD0iNi4zMiIgaGVpZ2h0PSI2LjMyIi8+CiAgICAgIDxyZWN0IGNsYXNzPSJjbHMtNiIgeD0iOC44NiIgeT0iMzUuNTYiIHdpZHRoPSI2LjMyIiBoZWlnaHQ9IjYuMzIiLz4KICAgICAgPHJlY3QgY2xhc3M9ImNscy0xIiB4PSIxNy44MiIgd2lkdGg9IjYuMzIiIGhlaWdodD0iNi4zMiIvPgogICAgICA8cmVjdCBjbGFzcz0iY2xzLTciIHk9IjI2LjY3IiB3aWR0aD0iNi4zMiIgaGVpZ2h0PSI2LjMyIi8+CiAgICAgIDxyZWN0IGNsYXNzPSJjbHMtNCIgeT0iMTcuNzciIHdpZHRoPSI2LjMyIiBoZWlnaHQ9IjYuMzIiLz4KICAgICAgPHJlY3QgY2xhc3M9ImNscy01IiB5PSI1My4zNCIgd2lkdGg9IjYuMzIiIGhlaWdodD0iNi4zMiIvPgogICAgICA8cmVjdCBjbGFzcz0iY2xzLTgiIHk9IjM1LjU2IiB3aWR0aD0iNi4zMiIgaGVpZ2h0PSI2LjMyIi8+CiAgICAgIDxyZWN0IGNsYXNzPSJjbHMtNiIgeT0iNDQuNDkiIHdpZHRoPSI2LjMyIiBoZWlnaHQ9IjYuMzIiLz4KICAgICAgPHJlY3QgY2xhc3M9ImNscy0yIiB4PSIxNy45NyIgeT0iMTcuNzkiIHdpZHRoPSI2LjE2IiBoZWlnaHQ9IjI0LjEiLz4KICAgICAgPGc+CiAgICAgICAgPHBhdGggY2xhc3M9ImNscy05IiBkPSJNMjAuNDgsNTcuMjdsLS45MywyLjZoLTEuMTRsMy4wOC04LjY1aDEuNDFsMy4yMSw4LjY1aC0xLjIybC0uOTYtMi42aC0zLjQ1Wm0zLjE2LS45OGMtLjgyLTIuMjctMS4yOC0zLjQ4LTEuNDYtNC4xNGgtLjAxYy0uMjEsLjczLS43MiwyLjItMS4zOCw0LjE0aDIuODZaIi8+CiAgICAgICAgPHBhdGggY2xhc3M9ImNscy05IiBkPSJNMjguNjQsNTYuNTdjLjUzLS42MiwxLjkyLTIuMDgsMi43Ny0zLjAxaDEuM2wtMi4zNywyLjQ2LDIuNjUsMy44NWgtMS4yN2wtMi4xMi0zLjE1LS45NSwuOTJ2Mi4yNGgtMS4wOXYtOS4xM2gxLjA5djUuODNaIi8+CiAgICAgICAgPHBhdGggY2xhc3M9ImNscy05IiBkPSJNMzguOTMsNTguNDljMCwuNTcsLjA1LDEuMTksLjA5LDEuMzhoLTEuMDRjLS4wNS0uMTQtLjA5LS40NC0uMS0uODMtLjIyLC40Mi0uNzIsLjk4LTEuOTUsLjk4LTEuNDksMC0yLjEyLS45Ny0yLjEyLTEuOTMsMC0xLjQxLDEuMTEtMi4wNSwyLjk4LTIuMDVoMS4wOHYtLjU0YzAtLjU2LS4xOC0xLjIzLTEuMzYtMS4yMy0xLjA1LDAtMS4yMywuNTItMS4zNSwxLjAyaC0xLjA1Yy4wOC0uODcsLjYyLTEuODcsMi40My0xLjg3LDEuNTQsMCwyLjM5LC42MywyLjM5LDIuMDd2My4wMVptLTEuMDYtMS43aC0xLjAyYy0xLjI2LDAtMS45MywuMzUtMS45MywxLjI0LDAsLjY2LC40NSwxLjEzLDEuMjMsMS4xMywxLjUyLDAsMS43Mi0xLjAyLDEuNzItMi4xN3YtLjJaIi8+CiAgICAgICAgPHBhdGggY2xhc3M9ImNscy05IiBkPSJNNDYuMjksNTAuNzN2Ny4zNWMwLC41OSwwLDEuMTcsLjAxLDEuNzhoLTEuMDVjLS4wMy0uMTctLjA1LS42NS0uMDUtLjktLjMxLC42Ni0uOTUsMS4wNC0xLjk4LDEuMDQtMS42MiwwLTIuNjItMS4zMS0yLjYyLTMuMjRzMS4wNy0zLjM3LDIuODItMy4zN2MxLjEyLDAsMS42MSwuNDUsMS43OCwuOHYtMy40OGgxLjA5Wm0tNC41Niw2LjAxYzAsMS41MiwuNzIsMi4zNSwxLjcxLDIuMzUsMS40NywwLDEuOC0xLjA5LDEuOC0yLjQ3cy0uMjktMi4yOS0xLjcxLTIuMjljLTEuMTEsMC0xLjgsLjg4LTEuOCwyLjQxWiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtOSIgZD0iTTQ5LjA1LDU2LjkxYzAsMS4yOCwuNjUsMi4xOSwxLjcyLDIuMTksMSwwLDEuMzItLjUxLDEuNTItLjk4aDEuMWMtLjI1LC44MS0uOTIsMS44OS0yLjY1LDEuODktMS45OCwwLTIuNzktMS42MS0yLjc5LTMuMjMsMC0xLjg4LC45NS0zLjM3LDIuODYtMy4zNywyLjAzLDAsMi43LDEuNjMsMi43LDIuOTgsMCwuMTksMCwuMzUtLjAyLC41MmgtNC40NFptMy4zNi0uNzdjLS4wMS0xLjA0LS41My0xLjg3LTEuNjEtMS44N3MtMS42LC43Ny0xLjcxLDEuODdoMy4zMloiLz4KICAgICAgICA8cGF0aCBjbGFzcz0iY2xzLTkiIGQ9Ik01NS4xNyw1NS4xOGMwLS41NCwwLTEuMTEtLjAxLTEuNjNoMS4wNWMuMDIsLjE5LC4wNSwuNjUsLjA0LC45NywuMjktLjU2LC44NC0xLjEyLDEuODMtMS4xMiwuODksMCwxLjUxLC40NSwxLjc1LDEuMTMsLjM0LS42LC45My0xLjEzLDIuMDEtMS4xM3MxLjk5LC42LDEuOTksMi4zMXY0LjE0aC0xLjA3di00LjAxYzAtLjczLS4yNi0xLjUtMS4yNS0xLjVzLTEuNDcsLjc4LTEuNDcsMS44OXYzLjYyaC0xLjA3di0zLjk4YzAtLjgxLS4yMy0xLjUzLTEuMjItMS41M3MtMS41LC44Mi0xLjUsMi4wMnYzLjQ5aC0xLjA4di00LjY4WiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtOSIgZD0iTTY1Ljk0LDUwLjczaDEuMDl2MS4zNmgtMS4wOXYtMS4zNlptMCwyLjgyaDEuMDl2Ni4zMWgtMS4wOXYtNi4zMVoiLz4KICAgICAgICA8cGF0aCBjbGFzcz0iY2xzLTkiIGQ9Ik03My43Niw1OC40OWMwLC41NywuMDUsMS4xOSwuMDksMS4zOGgtMS4wNGMtLjA1LS4xNC0uMDktLjQ0LS4xLS44My0uMjIsLjQyLS43MiwuOTgtMS45NSwuOTgtMS40OSwwLTIuMTItLjk3LTIuMTItMS45MywwLTEuNDEsMS4xMS0yLjA1LDIuOTgtMi4wNWgxLjA4di0uNTRjMC0uNTYtLjE4LTEuMjMtMS4zNi0xLjIzLTEuMDUsMC0xLjIzLC41Mi0xLjM1LDEuMDJoLTEuMDVjLjA4LS44NywuNjItMS44NywyLjQzLTEuODcsMS41NCwwLDIuMzksLjYzLDIuMzksMi4wN3YzLjAxWm0tMS4wNi0xLjdoLTEuMDJjLTEuMjYsMC0xLjkzLC4zNS0xLjkzLDEuMjQsMCwuNjYsLjQ1LDEuMTMsMS4yMywxLjEzLDEuNTIsMCwxLjcyLTEuMDIsMS43Mi0yLjE3di0uMloiLz4KICAgICAgICA8cGF0aCBjbGFzcz0iY2xzLTkiIGQ9Ik04Ni41MSw1OS44NmgtLjg4Yy0uMDYtLjE3LS4wOS0uNTUtLjExLTEuMTctLjM4LC42MS0xLjEyLDEuMjktMi42OSwxLjI5LTIuNSwwLTMuODItMS44OS0zLjgyLTQuMzYsMC0yLjU5LDEuNDItNC41NCw0LjAzLTQuNTQsMi4wMSwwLDMuMjgsMS4wOSwzLjUyLDIuNjRoLTEuMTVjLS4yOS0uOTctLjk5LTEuNjgtMi40LTEuNjgtMi4wMSwwLTIuODEsMS42LTIuODEsMy41MywwLDEuNzgsLjgsMy40NSwyLjc2LDMuNDVzMi40Mi0xLjI5LDIuNDItMi43NXYtLjA5aC0yLjQ0di0uOThoMy41NXY0LjY3WiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtOSIgZD0iTTk0LjA5LDU2LjdjMCwxLjgyLTEuMDQsMy4zMS0yLjk3LDMuMzEtMS44MSwwLTIuOS0xLjQtMi45LTMuMjlzMS4wNy0zLjMxLDIuOTctMy4zMWMxLjc1LDAsMi45LDEuMzEsMi45LDMuMjlabS00Ljc1LC4wMWMwLDEuMzgsLjY5LDIuMzksMS44MiwyLjM5czEuOC0uOTYsMS44LTIuMzktLjY0LTIuNC0xLjgzLTIuNC0xLjgsLjk1LTEuOCwyLjM5Wm0zLjk5LTYuMWwtMS45MSwxLjkxaC0xLjAzbDEuNTktMS45MWgxLjM0WiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtOSIgZD0iTTk1Ljc2LDU1LjI3YzAtLjg4LDAtMS4zOC0uMDEtMS43MWgxLjA3Yy4wMiwuMTgsLjAzLC42NywuMDMsMS4yOSwuMzMtLjg1LDEuMDgtMS40LDIuMTItMS40NHYxLjA5Yy0xLjI5LC4wNC0yLjEyLC43MS0yLjEyLDIuMzF2My4wNmgtMS4wOXYtNC41OVoiLz4KICAgICAgICA8cGF0aCBjbGFzcz0iY2xzLTkiIGQ9Ik0xMDAuMjcsNTUuMTVjMC0uNTUsMC0xLjEtLjAxLTEuNTloMS4wNmMuMDMsLjE5LC4wNSwuODUsLjA0LDEuMDQsLjI1LS41NCwuNzctMS4xOSwxLjk5LTEuMTlzMi4xMSwuNzIsMi4xMSwyLjR2NC4wNmgtMS4wOXYtMy45MmMwLS45NS0uMzctMS41OS0xLjMzLTEuNTktMS4xOSwwLTEuNjcsLjkxLTEuNjcsMi4xN3YzLjM0aC0xLjA5di00LjcyWiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtOSIgZD0iTTEwNy41NSw1MC43M2gxLjA5djEuMzZoLTEuMDl2LTEuMzZabTAsMi44MmgxLjA5djYuMzFoLTEuMDl2LTYuMzFaIi8+CiAgICAgICAgPHBhdGggY2xhc3M9ImNscy05IiBkPSJNMTE1LjcyLDU3Ljk0Yy0uMjcsMS4wOS0xLDIuMDgtMi42MSwyLjA4LTEuNzQsMC0yLjgxLTEuMjUtMi44MS0zLjI3LDAtMS43OCwxLjAxLTMuMzQsMi44OS0zLjM0czIuNDUsMS4zLDIuNTMsMi4xMWgtMS4wOGMtLjE2LS42NC0uNTYtMS4yLTEuNDctMS4yLTEuMTIsMC0xLjc1LC45Ni0xLjc1LDIuMzlzLjYxLDIuNCwxLjcxLDIuNGMuNzksMCwxLjI1LS40MiwxLjUtMS4xN2gxLjA4WiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtOSIgZD0iTTExNi44MSw1OC45OGwzLjYzLTQuNTFoLTMuNDV2LS45Mmg0LjY5di45MWwtMy41OCw0LjQ4aDMuNzVsLS4xOCwuOTFoLTQuODd2LS44OFoiLz4KICAgICAgICA8cGF0aCBjbGFzcz0iY2xzLTkiIGQ9Ik0xMjguNjQsNTYuN2MwLDEuODItMS4wNCwzLjMxLTIuOTcsMy4zMS0xLjgxLDAtMi45LTEuNC0yLjktMy4yOXMxLjA3LTMuMzEsMi45Ny0zLjMxYzEuNzUsMCwyLjksMS4zMSwyLjksMy4yOVptLTQuNzUsLjAxYzAsMS4zOCwuNjksMi4zOSwxLjgyLDIuMzlzMS44LS45NiwxLjgtMi4zOS0uNjQtMi40LTEuODMtMi40LTEuOCwuOTUtMS44LDIuMzlaIi8+CiAgICAgICAgPHBhdGggY2xhc3M9ImNscy05IiBkPSJNMTMzLjU4LDU2LjE4di45OWgtMy4yN3YtLjk5aDMuMjdaIi8+CiAgICAgICAgPHBhdGggY2xhc3M9ImNscy05IiBkPSJNMTM1LjU2LDUxLjIxaDEuMTV2My42MWg0LjUxdi0zLjYxaDEuMTV2OC42NWgtMS4xNXYtNC4wNmgtNC41MXY0LjA2aC0xLjE1di04LjY1WiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtOSIgZD0iTTE0OS41Miw1OC4wM2MwLC42MSwwLDEuNDcsLjAxLDEuODRoLTEuMDZjLS4wMi0uMTctLjA0LS41NS0uMDQtLjk1LS4zMSwuNy0uOTIsMS4wOS0xLjkxLDEuMDktMS4wNiwwLTIuMDgtLjUzLTIuMDgtMi4zMXYtNC4xNWgxLjA4djMuOTFjMCwuODMsLjI2LDEuNTksMS4zMSwxLjU5LDEuMTYsMCwxLjYxLS42NCwxLjYxLTIuMjJ2LTMuMjloMS4wOXY0LjQ3WiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtOSIgZD0iTTE1MC45Niw1My41NmgxLjA5di0xLjg2aDEuMDl2MS44NmgxLjM5di44OWgtMS4zOXYzLjY5YzAsLjYxLC4xNSwuOTMsLjcyLC45MywuMTUsMCwuMzgsMCwuNTUtLjA1di44MmMtLjI3LC4xLS42NCwuMTItLjk0LC4xMi0uOTgsMC0xLjQyLS41MS0xLjQyLTEuNTZ2LTMuOTVoLTEuMDl2LS44OVoiLz4KICAgICAgICA8cGF0aCBjbGFzcz0iY2xzLTkiIGQ9Ik0xNTUuODksNTUuMTVjMC0uNTUsMC0xLjEtLjAxLTEuNTloMS4wNmMuMDMsLjE5LC4wNSwuODUsLjA0LDEuMDQsLjI1LS41NCwuNzctMS4xOSwxLjk5LTEuMTlzMi4xMSwuNzIsMi4xMSwyLjR2NC4wNmgtMS4wOXYtMy45MmMwLS45NS0uMzctMS41OS0xLjMzLTEuNTktMS4xOSwwLTEuNjcsLjkxLTEuNjcsMi4xN3YzLjM0aC0xLjA5di00LjcyWiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtOSIgZD0iTTE2My4xOCw1MC43M2gxLjA5djEuMzZoLTEuMDl2LTEuMzZabTAsMi44MmgxLjA5djYuMzFoLTEuMDl2LTYuMzFaIi8+CiAgICAgICAgPHBhdGggY2xhc3M9ImNscy05IiBkPSJNMTcxLjM1LDU3Ljk0Yy0uMjcsMS4wOS0xLDIuMDgtMi42MSwyLjA4LTEuNzQsMC0yLjgxLTEuMjUtMi44MS0zLjI3LDAtMS43OCwxLjAxLTMuMzQsMi44OS0zLjM0czIuNDUsMS4zLDIuNTMsMi4xMWgtMS4wOGMtLjE2LS42NC0uNTYtMS4yLTEuNDctMS4yLTEuMTIsMC0xLjc1LC45Ni0xLjc1LDIuMzlzLjYxLDIuNCwxLjcxLDIuNGMuNzksMCwxLjI1LS40MiwxLjUtMS4xN2gxLjA4WiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtOSIgZD0iTTE3Mi40NCw1OC45OGwzLjYzLTQuNTFoLTMuNDV2LS45Mmg0LjY5di45MWwtMy41OCw0LjQ4aDMuNzVsLS4xOCwuOTFoLTQuODd2LS44OFoiLz4KICAgICAgICA8cGF0aCBjbGFzcz0iY2xzLTkiIGQ9Ik0xODMuNjQsNTguNDljMCwuNTcsLjA1LDEuMTksLjA5LDEuMzhoLTEuMDRjLS4wNS0uMTQtLjA5LS40NC0uMS0uODMtLjIyLC40Mi0uNzIsLjk4LTEuOTUsLjk4LTEuNDksMC0yLjEyLS45Ny0yLjEyLTEuOTMsMC0xLjQxLDEuMTEtMi4wNSwyLjk4LTIuMDVoMS4wOHYtLjU0YzAtLjU2LS4xOC0xLjIzLTEuMzYtMS4yMy0xLjA1LDAtMS4yMywuNTItMS4zNSwxLjAyaC0xLjA1Yy4wOC0uODcsLjYyLTEuODcsMi40My0xLjg3LDEuNTQsMCwyLjM5LC42MywyLjM5LDIuMDd2My4wMVptLTEuMDYtMS43aC0xLjAyYy0xLjI2LDAtMS45MywuMzUtMS45MywxLjI0LDAsLjY2LC40NSwxLjEzLDEuMjMsMS4xMywxLjUyLDAsMS43Mi0xLjAyLDEuNzItMi4xN3YtLjJaIi8+CiAgICAgICAgPHBhdGggY2xhc3M9ImNscy05IiBkPSJNMTg5LjY5LDUzLjU2Yy43OCwyLjk2LDEuMjMsNC42NSwxLjM0LDUuM2guMDJjLjExLS41OSwuNTYtMi4xNiwxLjQ1LTUuM2gxLjA3Yy45OSwzLjU3LDEuMjgsNC42MSwxLjM4LDUuMTdoLjAxYy4xNi0uNjgsLjQxLTEuNjIsMS4zOS01LjE3aDEuMWwtMS45NCw2LjMxaC0xLjE4Yy0uNjEtMi4zLTEuMjItNC40My0xLjM1LTUuMTFoLS4wMWMtLjEyLC42OS0uNjgsMi42MS0xLjM5LDUuMTFoLTEuMjJsLTEuODMtNi4zMWgxLjE1WiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtOSIgZD0iTTIwMi41Niw1MS4yMWgxLjE0djQuMjRjLjY0LS42NywyLjg0LTIuODQsNC4yMS00LjI0aDEuNDNsLTMuNzIsMy42NSwzLjksNWgtMS4zOWwtMy4zMi00LjI2LTEuMTEsMXYzLjI2aC0xLjE0di04LjY1WiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtOSIgZD0iTTIxMC42NSw1NS4yN2MwLS44OCwwLTEuMzgtLjAxLTEuNzFoMS4wN2MuMDIsLjE4LC4wMywuNjcsLjAzLDEuMjksLjMzLS44NSwxLjA4LTEuNCwyLjEyLTEuNDR2MS4wOWMtMS4yOSwuMDQtMi4xMiwuNzEtMi4xMiwyLjMxdjMuMDZoLTEuMDl2LTQuNTlaIi8+CiAgICAgICAgPHBhdGggY2xhc3M9ImNscy05IiBkPSJNMjE5Ljc2LDU4LjQ5YzAsLjU3LC4wNSwxLjE5LC4wOSwxLjM4aC0xLjA0Yy0uMDUtLjE0LS4wOS0uNDQtLjEtLjgzLS4yMiwuNDItLjcyLC45OC0xLjk1LC45OC0xLjQ5LDAtMi4xMi0uOTctMi4xMi0xLjkzLDAtMS40MSwxLjExLTIuMDUsMi45OC0yLjA1aDEuMDh2LS41NGMwLS41Ni0uMTgtMS4yMy0xLjM2LTEuMjMtMS4wNSwwLTEuMjMsLjUyLTEuMzUsMS4wMmgtMS4wNWMuMDgtLjg3LC42Mi0xLjg3LDIuNDMtMS44NywxLjU0LDAsMi4zOSwuNjMsMi4zOSwyLjA3djMuMDFabS0xLjA2LTEuN2gtMS4wMmMtMS4yNiwwLTEuOTMsLjM1LTEuOTMsMS4yNCwwLC42NiwuNDUsMS4xMywxLjIzLDEuMTMsMS41MiwwLDEuNzItMS4wMiwxLjcyLTIuMTd2LS4yWiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtOSIgZD0iTTIyMi45OCw1Ni41N2MuNTMtLjYyLDEuOTItMi4wOCwyLjc3LTMuMDFoMS4zbC0yLjM3LDIuNDYsMi42NSwzLjg1aC0xLjI3bC0yLjEyLTMuMTUtLjk1LC45MnYyLjI0aC0xLjA5di05LjEzaDEuMDl2NS44M1oiLz4KICAgICAgICA8cGF0aCBjbGFzcz0iY2xzLTkiIGQ9Ik0yMzMuNzIsNTYuN2MwLDEuODItMS4wNCwzLjMxLTIuOTcsMy4zMS0xLjgxLDAtMi45LTEuNC0yLjktMy4yOXMxLjA3LTMuMzEsMi45Ny0zLjMxYzEuNzUsMCwyLjksMS4zMSwyLjksMy4yOVptLTQuNzUsLjAxYzAsMS4zOCwuNjksMi4zOSwxLjgyLDIuMzlzMS44LS45NiwxLjgtMi4zOS0uNjQtMi40LTEuODMtMi40LTEuOCwuOTUtMS44LDIuMzlaIi8+CiAgICAgICAgPHBhdGggY2xhc3M9ImNscy05IiBkPSJNMjM1Ljg2LDUzLjU2Yy43OCwyLjk2LDEuMjMsNC42NSwxLjM0LDUuM2guMDJjLjExLS41OSwuNTYtMi4xNiwxLjQ1LTUuM2gxLjA3Yy45OSwzLjU3LDEuMjgsNC42MSwxLjM4LDUuMTdoLjAxYy4xNi0uNjgsLjQxLTEuNjIsMS4zOS01LjE3aDEuMWwtMS45NCw2LjMxaC0xLjE4Yy0uNjEtMi4zLTEuMjItNC40My0xLjM1LTUuMTFoLS4wMWMtLjEyLC42OS0uNjgsMi42MS0xLjM5LDUuMTFoLTEuMjJsLTEuODMtNi4zMWgxLjE1WiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtOSIgZD0iTTI0NS4wNyw1MC43M2gxLjA5djEuMzZoLTEuMDl2LTEuMzZabTAsMi44MmgxLjA5djYuMzFoLTEuMDl2LTYuMzFaIi8+CiAgICAgICAgPHBhdGggY2xhc3M9ImNscy05IiBkPSJNMjQ4LjkyLDU2LjkxYzAsMS4yOCwuNjUsMi4xOSwxLjcyLDIuMTksMSwwLDEuMzItLjUxLDEuNTItLjk4aDEuMWMtLjI1LC44MS0uOTIsMS44OS0yLjY1LDEuODktMS45OCwwLTIuNzktMS42MS0yLjc5LTMuMjMsMC0xLjg4LC45NS0zLjM3LDIuODYtMy4zNywyLjAzLDAsMi43LDEuNjMsMi43LDIuOTgsMCwuMTksMCwuMzUtLjAyLC41MmgtNC40NFptMy4zNi0uNzdjLS4wMS0xLjA0LS41My0xLjg3LTEuNjEtMS44N3MtMS42LC43Ny0xLjcxLDEuODdoMy4zMloiLz4KICAgICAgPC9nPgogICAgPC9nPgogIDwvZz4KPC9zdmc+">
+    <div class="faculty">Wydział Informatyki AGH<b>Mapa badawcza</b></div>
+
+        <button class="theme-toggle" id="theme-toggle" type="button" title="Zmień tryb wyświetlania">
+    <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+    <span class="lbl">Tryb jasny</span>
+  </button>
+  </div>
+</header>
+
+<nav class="tabs">
+  <div class="container tabs-row">
+    <a class="tab" href="index.html#staff">Naukowcy</a>
+    <a class="tab" href="index.html#areas">Obszary badawcze</a>
+    <a class="tab" href="dopasowanie.html">Nabory i dopasowanie</a>
+    <a class="tab active" href="biuro.html">Projekty</a>
+    <a class="tab" href="index.html#graph">Graf współpracy</a>
+  </div>
+</nav>
+
+<main class="container">
+  <section class="hero-simple">
+    <div class="eyebrow">Baza projektów</div>
+    <h1 class="hero-title">Projekty i dobór zespołu</h1>
+    <p class="hero-sub">Projekty przechodzą przez etapy od przyszłych do zakończonych. Przypisz osoby z WI, rozwiń kartę, żeby zobaczyć opis naboru.</p>
+  </section>
+
+  <div class="pj-form">
+    <div class="pj-label">Nowy projekt (z zewnątrz lub z naboru)</div>
+    <div class="pj-form-grid">
+      <div><input id="pj-new-title" type="text" placeholder="Nazwa projektu"></div>
+      <div><select id="pj-new-source"><option value="Nabór UE">Nabór UE</option><option value="Partner zewnętrzny">Partner zewnętrzny</option><option value="Inne">Inne</option></select></div>
+      <div><select id="pj-new-call"><option value="">Bez naboru</option></select></div>
+      <div><select id="pj-new-program"><option value="Dane i AI">Dane i AI</option><option value="Cyfryzacja">Cyfryzacja</option><option value="Przemysł">Przemysł</option><option value="Energia i środowisko">Energia i środowisko</option><option value="Zdrowie">Zdrowie</option><option value="Inne">Inne</option></select></div>
+      <div><select id="pj-new-role"><option value="badawcza">badawcza</option><option value="zarządcza">zarządcza</option><option value="wdrożeniowa">wdrożeniowa</option><option value="komunikacja">komunikacja</option></select></div>
+      <div><input id="pj-new-term" type="date" title="Termin składania lub zakończenia"></div>
+      <div class="wide"><input id="pj-new-slowa" type="text" placeholder="Słowa kluczowe, po przecinku (np. digital twin, AI)"></div>
+      <div class="wide"><textarea id="pj-new-opis" rows="2" placeholder="Krótki opis: czego dotyczy projekt"></textarea></div>
+    </div>
+    <button id="pj-new-btn" class="btn btn-primary" type="button" style="margin-top:.8rem">Dodaj do Przyszłych</button>
+  </div>
+
+  <div class="pj-layout">
+    <aside class="pj-side">
+      <div class="side-head"><h3>Filtry</h3></div>
+      <div class="side-block">
+        <span class="side-label">Szukaj</span>
+        <input id="pj-q" type="search" placeholder="Nazwa, opis, słowo kluczowe…">
+      </div>
+      <div class="side-block">
+        <span class="side-label">Etap</span>
+        <label class="f-check"><input type="checkbox" class="pj-col-cb" value="przyszle" checked> Przyszłe</label><label class="f-check"><input type="checkbox" class="pj-col-cb" value="otwarte" checked> Otwarte</label><label class="f-check"><input type="checkbox" class="pj-col-cb" value="realizacja" checked> W trakcie realizacji</label><label class="f-check"><input type="checkbox" class="pj-col-cb" value="zakonczone" checked> Zakończone</label>
+      </div>
+      <div class="side-block">
+        <span class="side-label">Status naboru</span>
+        <select id="pj-status"><option value="">wszystkie</option><option>planowany</option><option>otwarty</option><option>zamknięty</option><option>sprawdzić</option></select>
+      </div>
+      <div class="side-block">
+        <span class="side-label">Źródło</span>
+        <select id="pj-source"><option value="">wszystkie</option><option value="Nabór UE">Nabór UE</option><option value="Partner zewnętrzny">Partner zewnętrzny</option><option value="Inne">Inne</option></select>
+      </div>
+      <div class="side-block">
+        <span class="side-label">Program</span>
+        <select id="pj-program"><option value="">wszystkie</option><option value="Dane i AI">Dane i AI</option><option value="Cyfryzacja">Cyfryzacja</option><option value="Przemysł">Przemysł</option><option value="Energia i środowisko">Energia i środowisko</option><option value="Zdrowie">Zdrowie</option><option value="Inne">Inne</option></select>
+      </div>
+      <div class="side-block">
+        <span class="side-label">Typ roli</span>
+        <select id="pj-role"><option value="">wszystkie</option><option value="badawcza">badawcza</option><option value="zarządcza">zarządcza</option><option value="wdrożeniowa">wdrożeniowa</option><option value="komunikacja">komunikacja</option></select>
+      </div>
+      <div class="side-block">
+        <span class="side-label">Osoba w zespole</span>
+        <select id="pj-person"><option value="">wszystkie</option></select>
+      </div>
+      <div class="side-block">
+        <span class="side-label">Termin do</span>
+        <input id="pj-deadline" type="date">
+      </div>
+      <div class="side-block">
+        <button id="pj-reset" class="link-btn" type="button">Wyczyść filtry</button>
+      </div>
+    </aside>
+    <div>
+      <div class="pj-board" id="pj-board"></div>
+    </div>
+  </div>
+
+  <div id="pj-report">
+    <div class="pj-actions"><button id="pj-print" class="btn btn-primary" type="button">Pobierz statystyki (PDF)</button></div>
+    <div class="pj-stats" id="pj-stats"></div>
+  </div>
+</main>
+
+<script>
+(function(){
+  const DATA = {"key": "bm-projekty-v1", "projects": [{"id": "HORIZON-CL4-2027-01", "title": "HORIZON-CL4-2027-01", "opis": "", "source": "Nabór UE", "program": "", "typ": "", "slowa": [], "start": "2026-10-13", "deadlines": ["2027-02-02"], "status": "otwarty", "column": "otwarte", "tematy": ["Wytwarzanie kluczowych produktów na dużą skalę (IA) (partnerstwo „Wyprodukowano w Europie”)", "Procesy fabryczne i automatyzacja demontażu oraz ponownego wytwarzania (RIA) (partnerstwo „Wyprodukowano w Europie”)", "Obiegowe, innowacyjne zaawansowane materiały: ułatwienie przejścia od projektu do rynku (RIA) (partnerstwa „Innowacyjne zaawansowane materiały UE” i „Wyprodukowano w Europie”)", "Obiegowość wyrobów włókienniczych dzięki zaawansowanym technologiom przetwarzania i produkcji oraz podejściu systemowemu (IA) (partnerstwo „Tekstylia na przyszłość”)", "Technologie innowacyjnego przetwarzania surowców (IA)", "Sieć ekspertów ds. krytycznych surowców (CSA)", "Innowacyjne zaawansowane materiały i nowe procesy produkcji – ograniczenie zależności od krytycznych i strategicznych surowców (IA) (partnerstwa „Innowacyjne zaawansowane materiały UE” i „procesy4Planet”)", "Uwolnienie potencjału akademickich aktywów intelektualnych dla przemysłu, MŚP i start-upów (CSA)", "Pilotażowe programy dostępu do infrastruktur technologicznych dla start-upów, scaleupów i innowacyjnych MŚP w Europie (CSA)", "„Dowód rynkowy” w celu lepszej komercjalizacji wyników badań i innowacji z programu „Horyzont”", "Europejska sieć na rzecz zwiększania roli twórców firm (venture builders) w organizacjach badawczych (CSA)"], "people": []}, {"id": "HORIZON-CL4-2027-02-two-stage", "title": "HORIZON-CL4-2027-02-two-stage", "opis": "", "source": "Nabór UE", "program": "", "typ": "", "slowa": [], "start": "2026-10-13", "deadlines": ["2027-02-02", "2027-09-02"], "status": "otwarty", "column": "otwarte", "tematy": ["Nowe podejścia do współpracy człowieka z AI w przyszłej pracy (RIA) (partnerstwa „Wyprodukowano w Europie” oraz AI, dane i robotyka)", "Efektywne wykorzystanie energii ze źródeł odnawialnych i zarządzanie energią w przemyśle procesowym (IA) (partnerstwa „Processes4Planet” i „Innowacyjne zaawansowane materiały dla UE”)"], "people": []}, {"id": "HORIZON-CL4-2027-06", "title": "HORIZON-CL4-2027-06", "opis": "", "source": "Nabór UE", "program": "", "typ": "", "slowa": [], "start": "2026-10-13", "deadlines": ["2027-02-02"], "status": "otwarty", "column": "otwarte", "tematy": ["„Szybka ścieżka” do badań i innowacji w zakresie przełomów w technologiach przemysłowych (działanie badawcze i innowacyjne)", "„Szybka ścieżka do innowacji” na rzecz przełomów w ramach planu działania dla przemysłu chemicznego (działanie badawcze i innowacyjne)"], "people": []}, {"id": "HORIZON-CL5-2027-02", "title": "HORIZON-CL5-2027-02", "opis": "", "source": "Nabór UE", "program": "", "typ": "", "slowa": [], "start": "2026-06-25", "deadlines": ["2027-03-31"], "status": "otwarty", "column": "otwarte", "tematy": ["Poprawa dostosowalności, elastyczności i efektywności procesów recyklingu (partnerstwo BATT4EU)", "Zrównoważone i konkurencyjne techniki produkcji ogniw do baterii litowo-jonowych i sodowo-jonowych (partnerstwo BATT4EU)", "Systemy skoncentrowanej energii słonecznej do dekarbonizacji procesów przemysłowych", "Współfinansowanie łańcuchów wartości paliw odnawialnych w ramach planu SET na poziomie UE, krajowym, regionalnym i lokalnym", "Innowacyjne technologie i rozwiązania poprawiające systemy energii fal i pływów", "Doliny energii odnawialnej w Afryce dla zwiększenia bezpieczeństwa energetycznego i dostępu do energii", "Technologie produkcji ogniw fotowoltaicznych innych niż krzemowe (partnerstwo EUPI-PV)", "Walidacja na dużą skalę i rozszerzenie nowoczesnych narzędzi i modeli (generatywnej) AI zasilających cyfrowy system energetyczny nowej generacji", "Postępy w bezpośrednim wychwytywaniu powietrza", "Wsparcie wdrażania ram polityki UE dla infrastruktury transportu i składowania CO2", "Wsparcie grup interesariuszy planu SET w dziedzinie energii geotermalnej"], "people": []}, {"id": "HORIZON-CL5-2027-01", "title": "HORIZON-CL5-2027-01", "opis": "", "source": "Nabór UE", "program": "", "typ": "", "slowa": [], "start": "2026-11-17", "deadlines": ["2027-03-04"], "status": "planowany", "column": "przyszle", "tematy": ["Lepsze zrozumienie, modelowanie i prognozowanie ekstremalnych zjawisk w zmianie klimatu", "Paleoklimatologia dla lepszego zrozumienia dynamiki systemu Ziemi", "Ocena skuteczności instrumentów polityki jako podstawy działań łagodzących zmiany klimatu", "Zrozumienie i unikanie błędnej adaptacji do zmian klimatu", "Działania Afryki i UE w dziedzinie klimatu w ramach CO-FUND", "Lepsze zrozumienie i przypisanie źródeł i pochłaniaczy węgla na lądzie i w oceanach", "Scenariusze nowej generacji dla informowania o transformacjach klimatycznych i zrównoważonych"], "people": []}, {"id": "HORIZON-CL4-2027-04", "title": "HORIZON-CL4-2027-04", "opis": "", "source": "Nabór UE", "program": "", "typ": "", "slowa": [], "start": "2026-11-17", "deadlines": ["2027-03-18"], "status": "planowany", "column": "przyszle", "tematy": ["Nowe podejścia do zdecentralizowanego, federacyjnego i zrównoważonego przetwarzania danych AI (RIA)", "Pilotażowe demonstratory „Demand-side 3C” na zintegrowanej infrastrukturze Telco Edge Cloud (IA)", "Efektywność energetyczna i zrównoważony rozwój przetwarzania danych AI w centrach danych", "Zastosowanie AI: akcelerator innowacji AI napędzany wyzwaniami w priorytetowych sektorach Apply AI (RIA) (partnerstwo AI, dane i robotyka)", "Zastosowanie AI: umożliwienie integracji systemów i wdrażania robotyki przemysłowej sterowanej AI (IA) (partnerstwo AI, dane i robotyka)", "Międzynarodowa współpraca w dziedzinie AI (IA)", "Monitorowanie horyzontu i prognozowanie przyszłych technologii cyfrowych (CSA)", "Inicjatywa UE dotycząca transgranicznej AI: rozwój przełomowych rozwiązań AI, bezpiecznych i efektywnych obliczeniowo w ramach Apply AI (RIA)", "Stworzenie kwitnącego i konkurencyjnego ekosystemu Virtual Worlds i Web 4.0 (CSA) (partnerstwo Virtual Worlds)", "Ułatwienie zaangażowania europejskich interesariuszy w międzynarodową normalizację cyfrową (CSA)"], "people": []}, {"id": "HORIZON-CL4-2027-05", "title": "HORIZON-CL4-2027-05", "opis": "", "source": "Nabór UE", "program": "", "typ": "", "slowa": [], "start": "2026-11-17", "deadlines": ["2027-03-18"], "status": "planowany", "column": "przyszle", "tematy": ["Zaawansowane zintegrowane urządzenia fotoniczne o rozszerzonych funkcjach i bardzo niskim poborze mocy (RIA) (partnerstwo fotoniczne)"], "people": []}, {"id": "HORIZON-CL5-2027-03", "title": "HORIZON-CL5-2027-03", "opis": "", "source": "Nabór UE", "program": "", "typ": "", "slowa": [], "start": "2026-12-15", "deadlines": ["2027-04-14"], "status": "planowany", "column": "przyszle", "tematy": ["Gospodarka o obiegu zamkniętym oparta na danych dla ekosystemu e-mobilności (partnerstwo 2ZERO)", "Demonstracja bezemisyjnych autobusów dalekobieżnych (partnerstwo 2ZERO)", "Wyższe napięcie zgodne z systemem ładowania Megawatt, modułowy układ napędowy pojazdów ciężkich (HDV) (partnerstwo 2ZERO)", "Zapobieganie pożarom pojazdów elektrycznych i ograniczanie ich skutków na zamkniętych obszarach (partnerstwo 2ZERO)", "Zrównoważone projektowanie obiegowe i druk addytywny statków powietrznych w kierunku neutralnego klimatycznie lotnictwa", "Rozwiązania z energią odnawialną na statkach i działania oszczędzające energię, ograniczające zużycie paliwa o co najmniej 55% (partnerstwo ZEWT)", "Ocena perspektyw wykorzystania energii jądrowej w żegludze (partnerstwo ZEWT)", "Autonomiczny statek w transporcie morskim na krótkich trasach i na śródlądowych drogach wodnych", "Innowacyjne rozwiązania ograniczające wpływ transportu wodnego na środowisko morskie i wodne (partnerstwo ZEWT)", "Ulepszona sprawność elektryczna i trwałość akumulatorów (partnerstwo ZEWT)", "Ocena wpływu działalności lotnisk na jakość powietrza i hałas w pobliskich społecznościach"], "people": []}, {"id": "HORIZON-CL5-2027-04-Two-Stage", "title": "HORIZON-CL5-2027-04-Two-Stage", "opis": "", "source": "Nabór UE", "program": "", "typ": "", "slowa": [], "start": "2026-12-15", "deadlines": ["2027-04-14", "2027-10-07"], "status": "planowany", "column": "przyszle", "tematy": ["Nowe podejścia do koncepcji baterii nowej generacji z wykorzystaniem innowacyjnych zaawansowanych materiałów (partnerstwa BATT4EU i IAM4EU)", "Przełomy w redukcji hałasu dla nowych, bardzo wydajnych samolotów"], "people": []}, {"id": "HORIZON-CL6-2027-03", "title": "HORIZON-CL6-2027-03", "opis": "", "source": "Nabór UE", "program": "", "typ": "", "slowa": [], "start": "2027-02-04", "deadlines": ["2027-05-11"], "status": "planowany", "column": "przyszle", "tematy": ["Wzmacnianie odporności europejskich rolników dzięki lepszej zdolności radzenia sobie z ryzykiem i kryzysami", "Poprawa zdolności analitycznych na rzecz zrównoważonej konkurencyjności sektora rolnego", "Międzynarodowy wymiar gospodarki biologicznej: poszukiwanie wzajemnie korzystnych możliwości", "Zwiększenie przepływu wiedzy do praktyki w ramach AKIS dzięki tematycznym centrom wiedzy UE", "Wspieranie odnowy pokoleniowej w rolnictwie za pośrednictwem sieci doradztwa UE", "Wzmacnianie strategicznych konsultacji i synergii między programami i inwestycjami UE a krajowymi"], "people": []}, {"id": "HORIZON-CL4-2027-03", "title": "HORIZON-CL4-2027-03", "opis": "", "source": "Nabór UE", "program": "", "typ": "", "slowa": [], "start": "2027-03-09", "deadlines": ["2027-09-02"], "status": "planowany", "column": "przyszle", "tematy": ["Rozwiązania cyfrowe dla autonomii systemów transportu kosmicznego: narzędzia projektowania i symulacji – cyfrowe ułatwienia i elementy składowe (partnerstwo kosmiczne)", "ISOS4I – zintegrowane badania naziemne misji pilotażowej i konsolidacja rozwiązań zgodnych z przestrzenią kosmiczną", "Cyfrowe ułatwienia i elementy składowe do wspólnej obserwacji Ziemi i satelitarnej łączności dla rozwiązań kosmicznych (partnerstwo kosmiczne)", "Przygotowanie misji demonstracyjnych dla wspólnej obserwacji Ziemi i satelitarnej łączności dla rozwiązań kosmicznych (partnerstwo kosmiczne)", "Grawimetria kosmiczna oparta na technologiach kwantowych"], "people": []}, {"id": "HORIZON-CL5-2027-05", "title": "HORIZON-CL5-2027-05", "opis": "", "source": "Nabór UE", "program": "", "typ": "", "slowa": [], "start": "2027-05-05", "deadlines": ["2027-09-15"], "status": "planowany", "column": "przyszle", "tematy": ["Demonstracje długoterminowych systemów magazynowania energii (partnerstwo BATT4EU)", "Wsparcie wdrażania ram polityki UE dla infrastruktury transportu i składowania CO2", "Robotyka i zautomatyzowane techniki na placu budowy do renowacji budynków i nowego budownictwa", "Optymalizacja ciepła i odzysk ciepła odpadowego z pomieszczeń IT o dużym zapotrzebowaniu na energię w budynkach lub małych centrach danych", "Uwzględnienie obiegowości w modelach renowacji budynków opartych na ocenie cyklu życia (partnerstwo „Built4People”)", "Wykazanie przekształcania przemysłowego ciepła odpadowego w energię mechaniczną lub elektryczną"], "people": []}, {"id": "HORIZON-CL6-2027-01", "title": "HORIZON-CL6-2027-01", "opis": "", "source": "Nabór UE", "program": "", "typ": "", "slowa": [], "start": "2027-04-20", "deadlines": ["2027-09-22"], "status": "planowany", "column": "przyszle", "tematy": ["Integracja teledetekcji i obserwacji bioróżnorodności in situ w w pełni interoperacyjne ramy obserwacji i danych", "Przyspieszenie przejścia do gospodarki pozytywnej dla przyrody: włączenie bioróżnorodności do sektora prywatnego", "Wzmocnienie konkurencyjności rolnictwa ekologicznego ze szczególnym uwzględnieniem uprawy międzyplonów odpowiednich odmian", "Innowacyjne rozwiązania obiegowe dla zużytego obuwia: zbiórka, sortowanie i recykling", "Zbliżanie się Europy do biogospodarczych miejsc", "Usprawnienie przepływów biomasy dla zrównoważonej i obiegowej biogospodarki", "Zastosowanie biotechnologii w CCU (wychwytywaniu i wykorzystaniu węgla)", "Zwiększenie obiegowości sektora biogospodarczego: upcykling i recykling o wyższej wartości i korzyściach dla środowiska", "Wzmocnienie badań leśnych na rzecz wsparcia Ukrainy", "System wartości odniesienia dla środowiska w sektorach przemysłowej biogospodarki na poziomie europejskim"], "people": []}, {"id": "HORIZON-CL6-2027-02", "title": "HORIZON-CL6-2027-02", "opis": "", "source": "Nabór UE", "program": "", "typ": "", "slowa": [], "start": "2027-04-20", "deadlines": ["2027-09-23"], "status": "planowany", "column": "przyszle", "tematy": ["Wzmocnienie opartej na dowodach polityki na rzecz odporności europejskiego rolnictwa i leśnictwa oraz powiązanych łańcuchów dostaw na kryzysy i ryzyka systemowe", "Innowacje i skalowanie rolnictwa węglowego (carbon farming)", "Odblokowanie bezpiecznej przestrzeni operacyjnej dla Antarktyki i Oceanu Południowego", "Wzmacnianie odporności społeczności wiejskich na wstrząsy", "Wzmacnianie przedsiębiorczości i innowacyjności lokalnych miejskich systemów żywnościowych", "Ograniczenie emisji gazów cieplarnianych i zwiększenie efektywności paszy dzięki dodatkom paszowym", "Mikrobiom lądowej produkcji roślinnej dla jej zrównoważoności i zdrowia zgodnie z podejściem „Jedno zdrowie”", "Lepsze zrozumienie wkładu sektora ekologicznego rolnictwa w zrównoważony rozwój", "Wykorzystanie potencjału zrównoważonej małoskalowej produkcji żywności wodnej i rekreacyjnego rybołówstwa dla dobrobytu lokalnych społeczności", "Charakterystyka produktów spożywczych na podstawie AI", "Partnerstwo Unii Afrykańskiej i UE na rzecz bezpieczeństwa żywnościowego i żywieniowego oraz zrównoważonego rolnictwa (FNSSA)"], "people": []}, {"id": "HORIZON-CL5-2027-06", "title": "HORIZON-CL5-2027-06", "opis": "", "source": "Nabór UE", "program": "", "typ": "", "slowa": [], "start": "2027-06-03", "deadlines": ["2027-10-07"], "status": "planowany", "column": "przyszle", "tematy": ["Rozwiązania holistyczne do integracji CCAM w krytyczne scenariusze (partnerstwo CCAM)", "Europejskie centrum wiedzy CCAM i narzędzia do bezpiecznego i skalowalnego wdrażania (partnerstwo CCAM)", "Mobilność dla wszystkich: przystępny cenowo, niezawodny i dostępny transport multimodalny dla integracji obszarów wiejskich i miejskich – projekt gotowości społecznej", "Zwiększenie odporności i dokładności systemów pozycjonowania, nawigacji i synchronizacji czasu (PNT) oraz rozwiązań e-widzialności", "Działania upowszechniające w badaniach nad transportem"], "people": []}, {"id": "HORIZON-CL5-2027-07", "title": "HORIZON-CL5-2027-07", "opis": "", "source": "Nabór UE", "program": "", "typ": "", "slowa": [], "start": "2027-08-04", "deadlines": ["2027-12-01"], "status": "planowany", "column": "przyszle", "tematy": ["Demonstracja technologii energetyki wodnej do efektywnej i perspektywicznej modernizacji istniejących elektrowni wodnych", "Procesy przemysłowe i urządzenia dla innowacyjnych, niezawodnych i elastycznych technologii tandemowych (partnerstwo EUPI-PV)", "Elektryfikacja gospodarki w oparciu o energię fotowoltaiczną: projektowanie i optymalizacja systemów fotowoltaicznych wspierających elektryfikację przemysłu i udział w rynkach energii (partnerstwo EUPI-PV)", "Zaawansowane centra sterowania operatorów systemów przesyłowych dla lepszej widoczności, stabilności i odporności sieci", "Zaawansowane systemy zarządzania dystrybucją (ADSM) dla wydajniejszych i bardziej elastycznych sieci dystrybucyjnych", "Zintegrowane podejścia do modernizacji infrastruktury z innowacyjnymi technologiami magazynowania energii", "Wspólnota praktyki – podejmowanie decyzji w energetyce w oparciu o dane", "Realizacja klastrów przemysłowych wychwytywania, wykorzystania i składowania węgla – projekt pilotażowy gotowości społecznej"], "people": []}, {"id": "HORIZON-CL4-2027-07", "title": "HORIZON-CL4-2027-07", "opis": "", "source": "Nabór UE", "program": "", "typ": "", "slowa": [], "start": "2027-10-07", "deadlines": ["2028-01-20"], "status": "planowany", "column": "przyszle", "tematy": ["Krytyczne z punktu widzenia przestrzeni kosmicznej komponenty EEE dla uniezależnienia UE", "Krytyczne z punktu widzenia przestrzeni kosmicznej urządzenia dla niezależności UE"], "people": []}], "people": [{"name": "Achtelik Wojciech", "color": "#4f9d74"}, {"name": "Adamiec Ewa", "color": "#9a6fb3"}, {"name": "Albrycht Izabela", "color": "#4f9d74"}, {"name": "Alda Witold", "color": "#b0566e"}, {"name": "Aleksandrowicz Maciej", "color": "#b06b9c"}, {"name": "Baliś Bartosz", "color": "#b07a55"}, {"name": "Bałamut Anna", "color": "#7a6cbf"}, {"name": "Boryczko Krzysztof", "color": "#9a6fb3"}, {"name": "Brodzicki Andrzej", "color": "#4f5f8c"}, {"name": "Bubak Marian", "color": "#b0557a"}, {"name": "Byrski Aleksander", "color": "#6f7790"}, {"name": "Capała Karol", "color": "#9a6fb3"}, {"name": "Chodak Paweł", "color": "#4f9d74"}, {"name": "Crimi Alessandro", "color": "#b07a55"}, {"name": "Czech Wojciech", "color": "#4f9d74"}, {"name": "Czekierda Łukasz", "color": "#7b7ec4"}, {"name": "Dajda Jacek", "color": "#7a6cbf"}, {"name": "Dobrowolski Grzegorz", "color": "#4f9d74"}, {"name": "Dreżewski Rafał", "color": "#6f7790"}, {"name": "Duda Piotr", "color": "#5f9e80"}, {"name": "Dyduch Tadeusz", "color": "#9a6fb3"}, {"name": "Dzwinel Witold", "color": "#5f8fc4"}, {"name": "Dębski Roman", "color": "#9a6f96"}, {"name": "Długopolski Jacek", "color": "#4f9d74"}, {"name": "Eckes Maria", "color": "#b35f62"}, {"name": "Faber Kamil", "color": "#6f7790"}, {"name": "Faliszewski Piotr", "color": "#7a6cbf"}, {"name": "Friebe Michael", "color": "#b38a4c"}, {"name": "Funika Włodzimierz", "color": "#5f96bf"}, {"name": "Gajewski Paweł", "color": "#a8944c"}, {"name": "Gajęcki Marek", "color": "#b06b9c"}, {"name": "Gaska Krzysztof", "color": "#b35f62"}, {"name": "Grzanka Leszek", "color": "#5f9e80"}, {"name": "Guzowski Hubert", "color": "#b35f62"}, {"name": "Głut Barbara", "color": "#b0566e"}, {"name": "Heller Krzysztof", "color": "#b06b9c"}, {"name": "Heryan Katarzyna", "color": "#a8944c"}, {"name": "Idzik Michał", "color": "#4f5f8c"}, {"name": "Janeczko Łukasz", "color": "#5f9e80"}, {"name": "Jarosz Mateusz", "color": "#7a6cbf"}, {"name": "Jaworek-Korjakowska Joanna", "color": "#4f9d95"}, {"name": "Kacprzyk Janusz", "color": "#b06b9c"}, {"name": "Kapica Karolina", "color": "#7a6cbf"}, {"name": "Kica Piotr", "color": "#6f7790"}, {"name": "Kitowski Jacek", "color": "#9a6f96"}, {"name": "Knapik Ida", "color": "#5f96bf"}, {"name": "Konieczny Marek", "color": "#7a6cbf"}, {"name": "Kosińska Joanna", "color": "#5f8fc4"}, {"name": "Kościółek Tomasz", "color": "#5f96bf"}, {"name": "Kryza Bartosz", "color": "#8a74bd"}, {"name": "Kurdziel Marcin", "color": "#a8944c"}, {"name": "Kuta Marcin", "color": "#5f9fa8"}, {"name": "Kwolek Bogdan", "color": "#b38a4c"}, {"name": "Liput Jakub", "color": "#9a6f96"}, {"name": "Maczuga Paweł", "color": "#4f5f8c"}, {"name": "Majerz Emilia", "color": "#7a6cbf"}, {"name": "Majewska Marta", "color": "#b07a55"}, {"name": "Majewski Janusz", "color": "#8a74bd"}, {"name": "Malawski Maciej", "color": "#b06b9c"}, {"name": "Mańdziuk Jacek", "color": "#4f5f8c"}, {"name": "Micek Dorota", "color": "#6a8fbd"}, {"name": "Mirowski Paweł", "color": "#5f96bf"}, {"name": "Nawrocki Piotr", "color": "#5f96bf"}, {"name": "Nawrot Jacek", "color": "#4f9d74"}, {"name": "Nejranowska Kornelia", "color": "#b38a4c"}, {"name": "Nowicki Robert", "color": "#6a8fbd"}, {"name": "Ogiela Lidia", "color": "#5f9e80"}, {"name": "Ogiela Urszula", "color": "#8c7cbf"}, {"name": "Orzechowski Michał", "color": "#5f96bf"}, {"name": "Paszyńska Anna", "color": "#b07a55"}, {"name": "Paszyński Maciej", "color": "#b08a4a"}, {"name": "Pełech-Pilichowski Tomasz", "color": "#b38a4c"}, {"name": "Piętak Kamil", "color": "#b38a4c"}, {"name": "Polak Stanisław", "color": "#9a6f96"}, {"name": "Rakoczy Witold", "color": "#8a74bd"}, {"name": "Rycerz Katarzyna", "color": "#a8944c"}, {"name": "Schaefer Robert", "color": "#8c7cbf"}, {"name": "Scherer Rafał", "color": "#b07a55"}, {"name": "Sieciński Szymon", "color": "#b07a55"}, {"name": "Smołka Maciej", "color": "#8a74bd"}, {"name": "Smywiński-Pohl Aleksander", "color": "#6f7790"}, {"name": "Sornat Krzysztof", "color": "#b35f62"}, {"name": "Straś Robert", "color": "#9a6f96"}, {"name": "Szydło Tomasz", "color": "#4f9d74"}, {"name": "Słota Renata", "color": "#5f96bf"}, {"name": "Służalec Tomasz", "color": "#9a6fb3"}, {"name": "Topa Paweł", "color": "#b08a4a"}, {"name": "Turek Paulina", "color": "#b0566e"}, {"name": "Turek Wojciech", "color": "#4f5f8c"}, {"name": "Urbańczyk Aleksandra", "color": "#b35f62"}, {"name": "Vilkha Askold", "color": "#b0566e"}, {"name": "Wcisło Rafał", "color": "#6fa06f"}, {"name": "Woźniak Maciej", "color": "#5f9e80"}, {"name": "Wójcicka Anna", "color": "#b0557a"}, {"name": "Wójcik Daria", "color": "#a8944c"}, {"name": "Zaborowski Wojciech", "color": "#8c7cbf"}, {"name": "Zajęcka-Bebel Małgorzata", "color": "#5f96bf"}, {"name": "Zasada Mikołaj", "color": "#4f9d74"}, {"name": "Zieliński Krzysztof", "color": "#8a74bd"}, {"name": "Zieliński Sławomir", "color": "#5f96bf"}, {"name": "Ziółko Bartosz", "color": "#4f5f8c"}, {"name": "Zygmunt Anna", "color": "#5f9e80"}, {"name": "Łazarz Radosław", "color": "#5f9e80"}, {"name": "Łoś Marcin", "color": "#b0566e"}, {"name": "Śnieżyński Bartłomiej", "color": "#b0566e"}], "columns": [["przyszle", "Przyszłe", "#4f7fb0"], ["otwarte", "Otwarte", "#5f9e80"], ["realizacja", "W trakcie realizacji", "#b08a4a"], ["zakonczone", "Zakończone", "#8a94a6"]], "sources": ["Nabór UE", "Partner zewnętrzny", "Inne"], "programs": ["Dane i AI", "Cyfryzacja", "Przemysł", "Energia i środowisko", "Zdrowie", "Inne"], "roles": ["badawcza", "zarządcza", "wdrożeniowa", "komunikacja"]};
+  const KEY = DATA.key;
+  let st;
+  try { st = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch(e) { st = null; }
+  if (!st) st = {cards: {}, custom: []};
+  const save = () => localStorage.setItem(KEY, JSON.stringify(st));
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const initials = n => n.split(/\s+/).filter(Boolean).slice(0,2).map(p => p[0]).join('').toUpperCase();
+  const colorOf = {}; DATA.people.forEach(p => colorOf[p.name] = p.color);
+  const colById = {}; DATA.columns.forEach(c => colById[c[0]] = c[2]);
+  const $ = id => document.getElementById(id);
+
+  function allProjects(){
+    const base = DATA.projects.map(p => Object.assign({}, p, st.cards[p.id] || {}));
+    const custom = st.custom.map(p => Object.assign({}, p, st.cards[p.id] || {}));
+    return base.concat(custom);
+  }
+  function update(id, patch){
+    st.cards[id] = Object.assign({}, st.cards[id] || {}, patch);
+    save(); render();
+  }
+  function dots(people){
+    return people.map(n => '<span class="pj-dot" title="' + esc(n) + '" style="background:' + colorOf[n] + '">' + esc(initials(n)) + '</span>').join('');
+  }
+  function tagsOf(p){
+    const tags = [p.source, p.program, p.typ].concat(p.slowa || []).filter(Boolean);
+    return tags.length ? '<div class="pj-tags">' + tags.map(t => '<span class="pj-tag">' + esc(t) + '</span>').join('') + '</div>' : '';
+  }
+  function card(p){
+    const col = colById[p.column];
+    const term = p.deadlines && p.deadlines.length ? p.deadlines.join(' · ') : (p.term || 'brak terminu');
+    const chips = (p.people || []).map(n => '<span class="pj-chip"><span class="pj-dot" style="background:' + colorOf[n] + '">' + esc(initials(n)) + '</span>' + esc(n) + ' <button data-remove="' + esc(p.id) + '" data-name="' + esc(n) + '" type="button">×</button></span>').join('');
+    const peopleOpts = '<option value="">+ dodaj osobę</option>' + DATA.people.filter(x => !(p.people || []).includes(x.name)).map(x => '<option value="' + esc(x.name) + '">' + esc(x.name) + '</option>').join('');
+    const colOpts = DATA.columns.map(c => '<option value="' + c[0] + '"' + (c[0] === p.column ? ' selected' : '') + '>' + c[1] + '</option>').join('');
+    const topics = (p.tematy || []).length ? '<ul>' + p.tematy.map(t => '<li>' + esc(t) + '</li>').join('') + '</ul>' : '<p>Brak tematów.</p>';
+    return '<details class="pj-card" style="--c:' + col + '"' + (p.open ? ' open' : '') + '>' +
+      '<summary><div class="pj-title">' + esc(p.title) + '</div>' +
+      '<div class="pj-meta">' + esc(p.status || '') + ' · termin: ' + esc(term) + '</div>' + tagsOf(p) +
+      '<div class="pj-dots">' + dots(p.people || []) + '</div></summary>' +
+      '<div class="pj-body">' +
+        (p.opis ? '<div class="pj-section"><div class="pj-label">Opis</div><p>' + esc(p.opis) + '</p></div>' : '') +
+        '<div class="pj-section"><div class="pj-label">Tematy naboru</div>' + topics + '</div>' +
+        '<div class="pj-section"><div class="pj-label">Zespół</div>' + (chips || '<div class="pj-empty">Brak osób. Dodaj z listy poniżej.</div>') +
+        '<select data-add="' + esc(p.id) + '">' + peopleOpts + '</select></div>' +
+        '<div class="pj-section"><div class="pj-label">Etap</div><select data-move="' + esc(p.id) + '">' + colOpts + '</select></div>' +
+        '<button class="btn" type="button" data-card="' + esc(p.id) + '">Wizytówka do wysłania</button>' +
+      '</div></details>';
+  }
+  function passes(p){
+    const q = $('pj-q').value.trim().toLowerCase();
+    const cols = Array.from(document.querySelectorAll('.pj-col-cb:checked')).map(x => x.value);
+    if (!cols.includes(p.column)) return false;
+    if (q) {
+      const text = [p.title, p.opis, p.id, p.source, p.program, p.typ].concat(p.slowa || [], p.tematy || []).join(' ').toLowerCase();
+      if (!text.includes(q)) return false;
+    }
+    if ($('pj-status').value && p.status !== $('pj-status').value) return false;
+    if ($('pj-source').value && p.source !== $('pj-source').value) return false;
+    if ($('pj-program').value && p.program !== $('pj-program').value) return false;
+    if ($('pj-role').value && p.typ !== $('pj-role').value) return false;
+    if ($('pj-person').value && !(p.people || []).includes($('pj-person').value)) return false;
+    if ($('pj-deadline').value) {
+      const d = (p.deadlines && p.deadlines.length) ? p.deadlines[p.deadlines.length - 1] : (p.term || '');
+      if (!d || d > $('pj-deadline').value) return false;
+    }
+    return true;
+  }
+  function stats(projects){
+    const people = new Set(); projects.forEach(p => (p.people || []).forEach(n => people.add(n)));
+    const cols = DATA.columns.map(c => '<div class="pj-stat" style="--c:' + c[2] + '"><b>' + projects.filter(p => p.column === c[0]).length + '</b><span>' + esc(c[1]) + '</span></div>').join('');
+    const extra = '<div class="pj-stat" style="--c:#4f7fb0"><b>' + projects.length + '</b><span>projektów łącznie</span></div>' +
+      '<div class="pj-stat" style="--c:#5f9e80"><b>' + people.size + '</b><span>osób w zespołach</span></div>';
+    $('pj-stats').innerHTML = cols + extra;
+  }
+  function wizytowka(p){
+    const term = p.deadlines && p.deadlines.length ? p.deadlines.join(' · ') : (p.term || 'brak terminu');
+    const team = (p.people || []).length ? (p.people || []).map(n => '<li>' + esc(n) + '</li>').join('') : '<li>zespół w przygotowaniu</li>';
+    const topics = (p.tematy || []).map(t => '<li>' + esc(t) + '</li>').join('');
+    const subject = encodeURIComponent('Zaproszenie do projektu: ' + p.title);
+    const body = encodeURIComponent('Dzień dobry,\n\nzapraszamy do udziału w projekcie: ' + p.title + '.\nTermin: ' + term + '.\n\nProsimy o odpowiedź: czy jest Pan/Pani zainteresowana/y udziałem i w jakiej roli?\n\nPozdrawiamy,\nBiuro projektowe Wydziału Informatyki AGH');
+    const w = window.open('', '_blank');
+    w.document.write('<!doctype html><html lang="pl"><head><meta charset="utf-8"><title>Wizytówka: ' + esc(p.title) + '</title><style>body{font-family:-apple-system,Segoe UI,sans-serif;max-width:720px;margin:2rem auto;color:#1c2736;line-height:1.5}h1{font-size:1.4rem}h2{font-size:1rem;margin-top:1.2rem}.meta{color:#5a6679}ul{padding-left:1.2rem}.btn{display:inline-block;margin-top:1rem;padding:.5rem 1rem;border-radius:8px;background:#2c64a0;color:#fff;text-decoration:none}@media print{.btn{display:none}}</style></head><body>' +
+      '<h1>' + esc(p.title) + '</h1><div class="meta">' + esc(p.status || '') + ' · termin: ' + esc(term) + '</div>' +
+      (p.opis ? '<h2>Opis</h2><p>' + esc(p.opis) + '</p>' : '') +
+      '<h2>Tematy naboru</h2><ul>' + (topics || '<li>brak</li>') + '</ul>' +
+      '<h2>Zespół</h2><ul>' + team + '</ul>' +
+      '<p>Czy chce Pan/Pani dołączyć do projektu? Proszę odpowiedzieć na wiadomość lub skontaktować się z biurem projektowym.</p>' +
+      '<a class="btn" href="mailto:?subject=' + subject + '&body=' + body + '">Otwórz wiadomość e-mail</a> ' +
+      '<a class="btn" href="javascript:window.print()">Zapisz jako PDF</a></body></html>');
+    w.document.close();
+  }
+  function render(){
+    const all = allProjects();
+    const people = new Set(); all.forEach(p => (p.people || []).forEach(n => people.add(n)));
+    const sel = $('pj-person'), cur = sel.value;
+    sel.innerHTML = '<option value="">wszystkie</option>' + Array.from(people).sort().map(n => '<option value="' + esc(n) + '">' + esc(n) + '</option>').join('');
+    sel.value = cur;
+    const shown = all.filter(passes);
+    const board = $('pj-board');
+    board.innerHTML = DATA.columns.map(c => {
+      const items = shown.filter(p => p.column === c[0]);
+      return '<div class="pj-col" style="--c:' + c[2] + '"><div class="pj-col-head"><h3>' + esc(c[1]) + '</h3><span class="pj-count">' + items.length + '</span></div>' +
+        (items.map(card).join('') || '<div class="pj-empty">Brak projektów</div>') + '</div>';
+    }).join('');
+    board.querySelectorAll('[data-add]').forEach(s => s.addEventListener('change', e => {
+      const id = e.target.dataset.add; const name = e.target.value; if (!name) return;
+      const p = all.find(x => x.id === id);
+      update(id, {people: (p.people || []).concat([name]), open: true});
+    }));
+    board.querySelectorAll('[data-remove]').forEach(b => b.addEventListener('click', e => {
+      const id = e.currentTarget.dataset.remove; const name = e.currentTarget.dataset.name;
+      const p = all.find(x => x.id === id);
+      update(id, {people: (p.people || []).filter(n => n !== name), open: true});
+    }));
+    board.querySelectorAll('[data-move]').forEach(s => s.addEventListener('change', e => {
+      update(e.target.dataset.move, {column: e.target.value, open: true});
+    }));
+    board.querySelectorAll('[data-card]').forEach(b => b.addEventListener('click', e => {
+      e.preventDefault();
+      wizytowka(all.find(x => x.id === e.currentTarget.dataset.card));
+    }));
+    board.querySelectorAll('details').forEach(d => d.addEventListener('toggle', () => {
+      const m = d.querySelector('[data-move]'); if (!m) return;
+      st.cards[m.dataset.move] = Object.assign({}, st.cards[m.dataset.move] || {}, {open: d.open});
+      save();
+    }));
+    stats(all);
+  }
+  const newCall = $('pj-new-call');
+  DATA.projects.forEach(p => { const o = document.createElement('option'); o.value = p.id; o.textContent = p.id; newCall.appendChild(o); });
+  $('pj-new-btn').addEventListener('click', () => {
+    const title = $('pj-new-title').value.trim();
+    if (!title) return;
+    const call = newCall.value;
+    const base = DATA.projects.find(p => p.id === call);
+    const slowa = $('pj-new-slowa').value.split(',').map(s => s.trim()).filter(Boolean);
+    const term = $('pj-new-term').value;
+    st.custom.push({
+      id: 'custom-' + Date.now(), title: title,
+      opis: $('pj-new-opis').value.trim(),
+      source: $('pj-new-source').value, program: $('pj-new-program').value, typ: $('pj-new-role').value,
+      slowa: slowa, term: term,
+      start: '', deadlines: base ? base.deadlines : (term ? [term] : []),
+      status: call ? 'nabór ' + call : 'bez naboru',
+      column: 'przyszle', tematy: base ? base.tematy : [], people: []
+    });
+    ['pj-new-title', 'pj-new-opis', 'pj-new-slowa', 'pj-new-term'].forEach(id => $(id).value = '');
+    save(); render();
+  });
+  ['pj-q', 'pj-status', 'pj-source', 'pj-program', 'pj-role', 'pj-person', 'pj-deadline'].forEach(id => $(id).addEventListener('input', render));
+  document.querySelectorAll('.pj-col-cb').forEach(c => c.addEventListener('change', render));
+  $('pj-reset').addEventListener('click', () => {
+    ['pj-q', 'pj-deadline'].forEach(id => $(id).value = '');
+    ['pj-status', 'pj-source', 'pj-program', 'pj-role', 'pj-person'].forEach(id => $(id).value = '');
+    document.querySelectorAll('.pj-col-cb').forEach(c => c.checked = true);
+    render();
+  });
+  $('pj-print').addEventListener('click', () => window.print());
+  render();
+})();
+</script>
+<script>
+(function(){
+  var KEY='bm-theme';
+  var btn=document.getElementById('theme-toggle');
+  var lbl=btn.querySelector('.lbl');
+  function apply(t){
+    document.documentElement.dataset.theme=t;
+    lbl.textContent=t==='dark'?'Tryb jasny':'Tryb ciemny';
+    try{localStorage.setItem(KEY,t);}catch(e){}
+  }
+  apply(document.documentElement.dataset.theme==='light'?'light':'dark');
+  btn.addEventListener('click',function(){
+    apply(document.documentElement.dataset.theme==='light'?'dark':'light');
+  });
+})();
+</script>
+</body>
+</html>

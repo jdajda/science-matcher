@@ -163,6 +163,15 @@ def section(call_id, nabor, out):
   </section>"""
 
 
+CONCEPT_PL = {
+    "digital twin": "cyfrowy bliźniak",
+    "early warning": "wczesne ostrzeganie",
+    "disaster risk": "ryzyko katastrof",
+    "machine learning": "uczenie maszynowe",
+    "urban planning": "planowanie miejskie",
+}
+
+
 def topic_section(path):
     if not Path(path).exists():
         return ""
@@ -177,7 +186,7 @@ def topic_section(path):
         for x in r["pojecia"]:
             d = x.get("dowod")
             if d:
-                ev.append(f"<li><b>{h.escape(x['pojecie'])}</b> ← {h.escape(d['temat'])}</li>")
+                ev.append(f"<li><b>{h.escape(CONCEPT_PL.get(x['pojecie'], x['pojecie']))}</b> ← {h.escape(d['temat'])}</li>")
         text = " ".join([r["wi_name"]] + [x["pojecie"] for x in r["pojecia"] if x.get("dowod")]).lower()
         cards.append(f"""
     <article class="staff-card" data-text="{h.escape(text)}">
@@ -277,6 +286,49 @@ OWN_JS = """
 """
 
 
+def calendar_section():
+    import collections
+    import datetime
+    today = datetime.date(2026, 10, 26).isoformat()
+    items = json.loads((ROOT / "data/nabory_sedia.json").read_text(encoding="utf-8"))
+    groups = collections.defaultdict(list)
+    for t in items:
+        groups[t["call"]].append(t)
+    rows = []
+    for call, topics in groups.items():
+        starts = [t["start"][:10] for t in topics if t.get("start")]
+        start = min(starts) if starts else ""
+        deadlines = sorted({d for t in topics for d in (t.get("terminy") or [])})
+        last = deadlines[-1] if deadlines else ""
+        if last and last < today:
+            status = "zamknięty"
+        elif start and start > today:
+            status = "planowany"
+        elif start and last and start <= today <= last:
+            status = "otwarty"
+        else:
+            status = "sprawdzić"
+        rows.append((status != "otwarty", deadlines[0] if deadlines else "9999", call, start, deadlines, status, len(topics)))
+    rows.sort()
+    cards = []
+    for _, _, call, start, deadlines, status, n in rows:
+        term = " · ".join(deadlines) if deadlines else "brak danych"
+        cards.append(
+            f'<div class="member-row"><div class="m-info"><div class="m-name">{h.escape(call)}</div>'
+            f'<div class="m-pubs">otwarcie: {h.escape(start or "brak")} · tematów: {n}</div></div>'
+            f'<div class="m-score-num">{h.escape(status)} · termin: {h.escape(term)}</div></div>'
+        )
+    return (
+        '<div class="sec" data-sec="kalendarz" data-method="kalendarz">'
+        '<section class="call-section" id="kalendarz" style="margin-bottom:2.2rem">'
+        '<div class="eyebrow">Kalendarz naborów</div>'
+        '<h2 class="hero-title" style="font-size:1.35rem">Nabory 2027</h2>'
+        '<p class="hero-sub">Dane z SEDIA, stan na 26.10.2026. Przy naborach dwuetapowych podano dwa terminy.</p>'
+        + "".join(cards) +
+        '</section></div>'
+    )
+
+
 def render_html(sections):
     head, header, theme_js = site_parts()
     tabs = """
@@ -285,11 +337,12 @@ def render_html(sections):
     <a class="tab" href="index.html#staff">Naukowcy</a>
     <a class="tab" href="index.html#areas">Obszary badawcze</a>
     <a class="tab active" href="dopasowanie.html">Nabory i dopasowanie</a>
+    <a class="tab" href="biuro.html">Projekty</a>
     <a class="tab" href="index.html#graph">Graf współpracy</a>
   </div>
 </nav>"""
     topic_html = topic_section(ROOT / "data/dopasowanie_tematy_HORIZON-CL4-2026-04-DIGITAL-EMERGING-09.json")
-    blocks = []
+    blocks = [calendar_section()]
     if topic_html:
         blocks.append(f'<div class="sec" data-sec="tematy" data-method="tematy">{topic_html}</div>')
     blocks += [f'<div class="sec" data-sec="{h.escape(sec[0])}" data-method="slowa">{section(*sec)}</div>' for sec in sections]
@@ -311,6 +364,7 @@ def render_html(sections):
         <label class="f-check"><input type="checkbox" class="m-cb" value="slowa" checked> Słowa z projektu i publikacji</label>
         <label class="f-check"><input type="checkbox" class="m-cb" value="tematy" checked> Tematy OpenAlex</label>
         <label class="f-check"><input type="checkbox" class="m-cb" value="wlasny" checked> Wpisz projekt</label>
+        <label class="f-check"><input type="checkbox" class="m-cb" value="kalendarz" checked> Kalendarz naborów</label>
       </div>
       <div class="side-block">
         <span class="side-label">Wpisz projekt</span>
