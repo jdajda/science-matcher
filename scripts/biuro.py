@@ -27,8 +27,11 @@ ROLES = ["badawcza", "zarządcza", "wdrożeniowa", "komunikacja"]
 TITLES_PL = json.loads((ROOT / "data/tytuly_pl.json").read_text(encoding="utf-8"))
 
 
+AREA_COLORS = dp.person_area_colors()
+
+
 def color_for(name):
-    return dp.PALETTE[sum(ord(c) for c in name) % len(dp.PALETTE)]
+    return AREA_COLORS.get(name) or dp.PALETTE[sum(ord(c) for c in name) % len(dp.PALETTE)]
 
 
 def call_projects():
@@ -87,22 +90,16 @@ def demo_people(projects, people):
 def render(demo=False):
     head, header, theme_js = dp.site_parts()
     head = head.replace("Dopasowanie do naboru · Mapa badawcza WI AGH", "Projekty · Mapa badawcza WI AGH")
-    tabs = f"""
-<nav class="tabs">
-  <div class="container tabs-row">
-    <a class="tab" href="index.html#staff">Naukowcy</a>
-    <a class="tab" href="index.html#areas">Obszary badawcze</a>
-    <a class="tab" href="dopasowanie.html">Nabory i dopasowanie</a>
-    <a class="tab active" href="biuro.html">{TAB_NAME}</a>
-    <a class="tab" href="index.html#graph">Graf współpracy</a>
-  </div>
-</nav>"""
+    local = dp.local_nav([("pj-board", "Tablica etapów"), ("pj-report", "Statystyki")])
+    local = local.replace('</div></div>', '<a class="tab seg-btn" href="biuro_przyklad.html">Przykład z zespołem</a></div></div>')
+    tabs = dp.nav_html("projekty") + local
     projects = call_projects()
     people = people_list()
     if demo:
         demo_people(projects, people)
     payload = {
         "key": "bm-projekty-demo" if demo else "bm-projekty-v1",
+        "today": TODAY,
         "projects": projects,
         "people": people,
         "columns": [[c, l, col] for c, l, col in COLUMNS],
@@ -118,7 +115,7 @@ def render(demo=False):
         for c, l, _ in COLUMNS
     )
     return f"""{head}
-<style>a.tab, a.tab:hover {{ text-decoration: none; }} .tabs-row {{ flex-wrap: wrap; }} .tab {{ white-space: normal; }}
+<style>a.tab, a.tab:hover {{ text-decoration: none; }} 
 .pj-layout {{ display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 1.2rem; align-items: start; }}
 .pj-side {{ font-size: .88rem; min-width: 0; box-sizing: border-box; }}
 .pj-side .side-block {{ display: flex; flex-direction: column; gap: .35rem; }}
@@ -239,7 +236,7 @@ def render(demo=False):
   </div>
 
   <div id="pj-report">
-    <div class="pj-actions"><button id="pj-print" class="btn btn-primary" type="button">Pobierz statystyki (PDF)</button></div>
+    <div class="pj-actions"><button id="pj-print" class="btn btn-primary" type="button">Pobierz statystyki (PDF)</button> <button id="pj-csv" class="btn" type="button">Pobierz projekty (CSV)</button></div>
     <div class="pj-stats" id="pj-stats"></div>
   </div>
 </main>
@@ -252,13 +249,27 @@ def render(demo=False):
 
 SCRIPT = """
 <script>
-(function(){
+  const STORE_API = location.protocol.indexOf('http') === 0;
+  async function loadRemote(key){
+    if (!STORE_API) return null;
+    try { const r = await fetch('/api/kv/' + encodeURIComponent(key), {cache: 'no-store'}); if (!r.ok) return null; return await r.json(); } catch(e) { return null; }
+  }
+  async function loadState(key, fallback){
+    const v = await loadRemote(key);
+    if (v) return v;
+    try { const l = JSON.parse(localStorage.getItem(key) || 'null'); if (l) return l; } catch(e) {}
+    return fallback;
+  }
+  function saveState(key, v){
+    try { localStorage.setItem(key, JSON.stringify(v)); } catch(e) {}
+    if (STORE_API) fetch('/api/kv/' + encodeURIComponent(key), {method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(v)}).catch(() => {});
+  }
+
+(async function(){
   const DATA = __DATA__;
   const KEY = DATA.key;
-  let st;
-  try { st = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch(e) { st = null; }
-  if (!st) st = {cards: {}, custom: []};
-  const save = () => localStorage.setItem(KEY, JSON.stringify(st));
+  let st = await loadState(KEY, {cards: {}, custom: []});
+  const save = () => saveState(KEY, st);
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const initials = n => n.split(/\\s+/).filter(Boolean).slice(0,2).map(p => p[0]).join('').toUpperCase();
   const colorOf = {}; DATA.people.forEach(p => colorOf[p.name] = p.color);
@@ -411,7 +422,27 @@ SCRIPT = """
     render();
   });
   $('pj-print').addEventListener('click', () => window.print());
+  $('pj-csv').addEventListener('click', () => {
+    const cols = ['nazwa', 'nabór', 'etap', 'status', 'termin', 'źródło', 'program', 'typ roli', 'słowa kluczowe', 'osoby w zespole'];
+    const colName = c => (DATA.columns.find(x => x[0] === c) || [c, c])[1];
+    const q = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+    const rows = allProjects().map(p => [
+      p.title, p.id, colName(p.column), p.status || '',
+      (p.deadlines && p.deadlines.length ? p.deadlines.join(' | ') : (p.term || '')),
+      p.source || '', p.program || '', p.typ || '',
+      (p.slowa || []).join(', '), (p.people || []).join(', ')
+    ].map(q).join(';'));
+    const csv = '\\ufeff' + cols.map(q).join(';') + '\\r\\n' + rows.join('\\r\\n');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([csv], {type: 'text/csv;charset=utf-8'}));
+    a.download = 'projekty_' + DATA.today + '.csv';
+    document.body.appendChild(a); a.click(); a.remove();
+  });
   render();
+  setInterval(async () => {
+    const v = await loadRemote(KEY);
+    if (v && JSON.stringify(v) !== JSON.stringify(st)) { st = v; render(); }
+  }, 15000);
 })();
 </script>"""
 

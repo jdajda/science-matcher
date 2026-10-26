@@ -83,6 +83,37 @@ def initials(name):
     return "".join(p[0] for p in parts[:2]).upper()
 
 
+NAV = [
+    ("Naukowcy", "index.html", "naukowcy"),
+    ("Wyszukiwarka", "wyszukiwarka.html", "wyszukiwarka"),
+    ("Nabory", "dopasowanie.html", "nabory"),
+    ("Projekty", "biuro.html", "projekty"),
+    ("Panel", "panel.html", "panel"),
+]
+
+
+def local_nav(items, mode="link"):
+    if mode == "button":
+        btns = "".join(
+            f'<button class="tab seg-btn{" active" if i == 0 else ""}" type="button" data-view="{h.escape(key)}">{h.escape(label)}</button>'
+            for i, (key, label) in enumerate(items)
+        )
+    else:
+        btns = "".join(
+            f'<a class="tab seg-btn{" active" if i == 0 else ""}" href="#{h.escape(key)}">{h.escape(label)}</a>'
+            for i, (key, label) in enumerate(items)
+        )
+    return f'<div class="seg-bar"><div class="container seg-row">{btns}</div></div>'
+
+
+def nav_html(active):
+    items = "".join(
+        f'<a class="tab{" active" if key == active else ""}" href="{href}">{label}</a>'
+        for label, href, key in NAV
+    )
+    return f'<nav class="tabs"><div class="container tabs-row">{items}</div></nav>'
+
+
 def site_parts():
     src = (ROOT / "index.html").read_text(encoding="utf-8")
     head_end = src.index("</style>") + len("</style>")
@@ -92,7 +123,7 @@ def site_parts():
     header_start = src.index('<header class="site-header">')
     header_end = src.index("</header>", header_start) + len("</header>")
     header = src[header_start:header_end]
-    theme_start = src.index("var KEY='bm-theme';")
+    theme_start = src.index("var KEY='bm-theme-v2';")
     theme_start = src.rindex("<script>", 0, theme_start)
     theme_end = src.index("</script>", theme_start) + len("</script>")
     theme_js = src[theme_start:theme_end]
@@ -100,6 +131,8 @@ def site_parts():
     head = head.replace("localStorage.getItem('bm-theme')||'light'", "localStorage.getItem('bm-theme')||'dark'", 1)
     head = head.replace("document.documentElement.dataset.theme='light';}", "document.documentElement.dataset.theme='dark';}", 1)
     header = re.sub(r"<nav class=\"tabs\">.*?</nav>", "", header, flags=re.S)
+    header = re.sub(r"<nav class=\"subtabs\">.*?</nav>", "", header, flags=re.S)
+    header = re.sub(r'<div class="seg-bar">.*?(?=</header>)', "", header, flags=re.S)
     return head, header, theme_js
 
 
@@ -144,7 +177,9 @@ def section(call_id, nabor, out):
     )
     cards = "".join(card(i, r) for i, r in enumerate(out["top"], 1))
     return f"""
-  <section class="call-section" id="{h.escape(call_id)}" style="margin-bottom:2.2rem">
+  <details class="call-fold" id="{h.escape(call_id)}" open style="margin-bottom:2.2rem">
+  <summary class="call-sum">{h.escape(call_id)} · {out['matched_people']} osób</summary>
+  <section class="call-section" style="margin-top:.8rem">
     <div class="eyebrow">Słowa z projektu i publikacji · nabór</div>
     <h2 class="hero-title" style="font-size:1.35rem">{h.escape(call_id)}</h2>
     <p class="hero-sub">{h.escape(nabor)}</p>
@@ -160,8 +195,27 @@ def section(call_id, nabor, out):
     </div>
     <div class="staff-list">{cards}
     </div>
-  </section>"""
+  </section>
+  </details>"""
 
+
+TOPIC_PL = {
+    "Machine Learning and Data Classification": "Uczenie maszynowe i klasyfikacja danych",
+    "Machine Learning and Algorithms": "Uczenie maszynowe i algorytmy",
+    "Digital Transformation in Industry": "Cyfrowa transformacja przemysłu",
+    "Smart Cities and Technologies": "Inteligentne miasta i technologie",
+    "Disaster Management and Resilience": "Zarządzanie kryzysowe i odporność",
+    "Flood Risk Assessment and Management": "Ocena i zarządzanie ryzykiem powodziowym",
+    "Seismology and Earthquake Studies": "Sejsmologia i badania trzęsień ziemi",
+    "Urban Planning and Governance": "Planowanie i zarządzanie miastem",
+    "Metaheuristic Optimization Algorithms Research": "Badania nad metaheurystykami optymalizacji",
+    "Evolutionary Algorithms and Applications": "Algorytmy ewolucyjne i ich zastosowania",
+    "Artificial Intelligence in Healthcare": "Sztuczna inteligencja w medycynie",
+    "Explainable Artificial Intelligence (XAI)": "Wyjaśnialna sztuczna inteligencja (XAI)",
+    "Bayesian Methods and Mixture Models": "Metody bayesowskie i modele mieszane",
+    "Time Series Analysis and Forecasting": "Analiza i prognozowanie szeregów czasowych",
+    "Neural Networks and Applications": "Sieci neuronowe i ich zastosowania",
+}
 
 CONCEPT_PL = {
     "digital twin": "cyfrowy bliźniak",
@@ -170,6 +224,22 @@ CONCEPT_PL = {
     "machine learning": "uczenie maszynowe",
     "urban planning": "planowanie miejskie",
 }
+
+
+def person_area_colors():
+    html = (ROOT / "index.html").read_text(encoding="utf-8")
+    m = re.search(r'<script id="app-data" type="application/json">(.*?)</script>', html, re.S)
+    if not m:
+        return {}
+    data = json.loads(m.group(1))
+    area_ids = [a["id"] for a in data.get("areas", [])]
+    area_color = {aid: PALETTE[i % len(PALETTE)] for i, aid in enumerate(area_ids)}
+    out = {}
+    for st in data.get("staff", []):
+        areas = st.get("areas") or []
+        if areas and areas[0].get("id") in area_color:
+            out[st["name"]] = area_color[areas[0]["id"]]
+    return out
 
 
 def topic_section(path):
@@ -186,7 +256,7 @@ def topic_section(path):
         for x in r["pojecia"]:
             d = x.get("dowod")
             if d:
-                ev.append(f"<li><b>{h.escape(CONCEPT_PL.get(x['pojecie'], x['pojecie']))}</b> ← {h.escape(d['temat'])}</li>")
+                ev.append(f"<li><b>{h.escape(CONCEPT_PL.get(x['pojecie'], x['pojecie']))}</b> ← {h.escape(TOPIC_PL.get(d['temat'], d['temat']))}</li>")
         text = " ".join([r["wi_name"]] + [x["pojecie"] for x in r["pojecia"] if x.get("dowod")]).lower()
         cards.append(f"""
     <article class="staff-card" data-text="{h.escape(text)}">
@@ -331,16 +401,7 @@ def calendar_section():
 
 def render_html(sections):
     head, header, theme_js = site_parts()
-    tabs = """
-<nav class="tabs">
-  <div class="container tabs-row">
-    <a class="tab" href="index.html#staff">Naukowcy</a>
-    <a class="tab" href="index.html#areas">Obszary badawcze</a>
-    <a class="tab active" href="dopasowanie.html">Nabory i dopasowanie</a>
-    <a class="tab" href="biuro.html">Projekty</a>
-    <a class="tab" href="index.html#graph">Graf współpracy</a>
-  </div>
-</nav>"""
+    tabs = nav_html("nabory") + local_nav([("kalendarz", "Kalendarz"), ("tematy", "Tematy OpenAlex"), ("HORIZON-CL4-2026-04-DIGITAL-EMERGING-09", "Osoby do naboru"), ("wlasny", "Wpisz projekt")])
     topic_html = topic_section(ROOT / "data/dopasowanie_tematy_HORIZON-CL4-2026-04-DIGITAL-EMERGING-09.json")
     blocks = [calendar_section()]
     if topic_html:
@@ -389,7 +450,7 @@ def render_html(sections):
     js = OWN_JS.replace("__STOP__", json.dumps(sorted(STOP), ensure_ascii=False)).replace("__PROFILES__", blob)
     script = "<script>" + js + "</script>"
     return f"""{head}
-<style>a.tab, a.tab:hover {{ text-decoration: none; }} .tabs-row {{ flex-wrap: wrap; }} .tab {{ white-space: normal; }} .m-info, .m-name, .s-id h3, .s-pill, .s-kw, .s-sub, .hero-title, .hero-sub, .stat, .side-note {{ overflow-wrap: anywhere; min-width: 0; }} .hero-title, h1, h2, h3 {{ line-height: 1.25; letter-spacing: 0; }} body, p, li {{ line-height: 1.5; }} .s-pill, .kw {{ line-height: 1.3; white-space: normal; }} .hero-sub {{ max-width: 70ch; }}</style>
+<style>a.tab, a.tab:hover {{ text-decoration: none; }}  .m-info, .m-name, .s-id h3, .s-pill, .s-kw, .s-sub, .hero-title, .hero-sub, .stat, .side-note {{ overflow-wrap: anywhere; min-width: 0; }} .hero-title, h1, h2, h3 {{ line-height: 1.25; letter-spacing: 0; }} body, p, li {{ line-height: 1.5; }} .s-pill, .kw {{ line-height: 1.3; white-space: normal; }} .hero-sub {{ max-width: 70ch; }}</style>
 </head>
 <body>
 {header}

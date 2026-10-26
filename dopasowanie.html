@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dopasowanie do naboru · Mapa badawcza WI AGH</title>
-<script>(function(){try{var t=localStorage.getItem('bm-theme')||'dark';document.documentElement.dataset.theme=t;}catch(e){document.documentElement.dataset.theme='dark';}})();</script>
+<script>(function(){try{var t=localStorage.getItem('bm-theme-v2')||'dark';document.documentElement.dataset.theme=t;}catch(e){document.documentElement.dataset.theme='dark';}})();</script>
 <style>
 :root {
   --radius: 12px;
@@ -406,8 +406,6 @@ body { transition: background-color .25s ease, color .25s ease; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .6s !important; scroll-behavior: auto !important; }
 }
-.tabs-row { flex-wrap: wrap; }
-.tab { white-space: normal; }
 .m-info, .m-name, .count, .hero-title, .hero-sub, .match-sub, .s-id h3, .s-pill, .m-pubs, .m-terms { overflow-wrap: anywhere; min-width: 0; }
 .match-top { flex-wrap: wrap; gap: .5rem; }
 .hero-title, h1, h2, h3 { line-height: 1.25; letter-spacing: 0; }
@@ -446,15 +444,27 @@ body, p, li { line-height: 1.5; }
 .ad-more summary { cursor: pointer; font-weight: 600; font-size: .9rem; color: var(--accent); }
 
 a.tab, a.tab:hover { text-decoration: none; }
+
+/* ===== Menu górne: jeden wzorzec dla wszystkich stron ===== */
+.tabs { background: var(--header-bg); border-bottom: none; padding: 0; overflow-x: auto; white-space: nowrap; }
+.tabs-row { display: flex; flex-wrap: nowrap; gap: 1.4rem; align-items: stretch; }
+.tabs a.tab, .tabs button.tab { display: inline-flex; align-items: center; padding: .9rem .1rem; margin: 0; border: none; border-bottom: 2px solid transparent; border-radius: 0; background: transparent; color: var(--text2); font: inherit; font-size: .9rem; font-weight: 500; line-height: 1; cursor: pointer; white-space: nowrap; text-decoration: none; transition: color .15s, border-color .15s; }
+.tabs a.tab, .tabs button.tab { color: rgba(232, 237, 245, .72); }
+.tabs a.tab:hover, .tabs button.tab:hover { color: #ffffff; text-decoration: none; }
+.tabs a.tab.active, .tabs button.tab.active { color: #ffffff; border-bottom-color: #ffffff; font-weight: 600; }
+.seg-bar { background: transparent; padding: .9rem 0 .2rem; }
+.seg-row { display: flex; flex-wrap: wrap; gap: .5rem; }
+.seg-row .tab.seg-btn { padding: .35rem .95rem; margin: 0; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text2); font-size: .85rem; font-weight: 500; line-height: 1.2; }
+.seg-row .tab.seg-btn.active { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 600; }
+
 </style>
-<style>a.tab, a.tab:hover { text-decoration: none; } .tabs-row { flex-wrap: wrap; } .tab { white-space: normal; } .m-info, .m-name, .s-id h3, .s-pill, .s-kw, .s-sub, .hero-title, .hero-sub, .stat, .side-note { overflow-wrap: anywhere; min-width: 0; } .hero-title, h1, h2, h3 { line-height: 1.25; letter-spacing: 0; } body, p, li { line-height: 1.5; } .s-pill, .kw { line-height: 1.3; white-space: normal; } .hero-sub { max-width: 70ch; }</style>
+<style>a.tab, a.tab:hover { text-decoration: none; }  .m-info, .m-name, .s-id h3, .s-pill, .s-kw, .s-sub, .hero-title, .hero-sub, .stat, .side-note { overflow-wrap: anywhere; min-width: 0; } .hero-title, h1, h2, h3 { line-height: 1.25; letter-spacing: 0; } body, p, li { line-height: 1.5; } .s-pill, .kw { line-height: 1.3; white-space: normal; } .hero-sub { max-width: 70ch; }</style>
 </head>
 <body>
 <header class="site-header">
   <div class="container header-row">
     <img class="brand-logo" alt="Logo Wydziału Informatyki AGH" src="data:image/svg+xml;base64,77u/CjxzdmcgaWQ9IldhcnN0d2FfMiIgZGF0YS1uYW1lPSJXYXJzdHdhIDIiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDI1My41OCA2MC4wMSI+CiAgPGRlZnM+CiAgICA8c3R5bGU+CiAgICAgIC5jbHMtMSB7CiAgICAgICAgZmlsbDogI2ZmZmZmZjsKICAgICAgfQoKICAgICAgLmNscy0yIHsKICAgICAgICBmaWxsOiAjZmZmZmZmOwogICAgICB9CgogICAgICAuY2xzLTMgewogICAgICAgIGZpbGw6ICNmZmZmZmY7CiAgICAgIH0KCiAgICAgIC5jbHMtNCB7CiAgICAgICAgZmlsbDogI2ZmZmZmZjsKICAgICAgfQoKICAgICAgLmNscy01IHsKICAgICAgICBmaWxsOiAjZmZmZmZmOwogICAgICB9CgogICAgICAuY2xzLTYgewogICAgICAgIGZpbGw6ICNmZmZmZmY7CiAgICAgIH0KCiAgICAgIC5jbHMtNyB7CiAgICAgICAgZmlsbDogI2ZmZmZmZjsKICAgICAgfQoKICAgICAgLmNscy04IHsKICAgICAgICBmaWxsOiAjZmZmZmZmOwogICAgICB9CgogICAgICAuY2xzLTkgewogICAgICAgIGZpbGw6ICNmZmZmZmY7CiAgICAgIH0KICAgIDwvc3R5bGU+CiAgPC9kZWZzPgogIDxnIGlkPSJXYXJzdHdhXzEtMiIgZGF0YS1uYW1lPSJXYXJzdHdhIDEiPgogICAgPGc+CiAgICAgIDxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTI5LjE4LDE3Ljc5aDQuOTFsOS4xNywxNC4zMXYtMTQuMzFoNS4xMXYyNC4xaC00LjkxbC05LjE3LTE0LjI3djE0LjI3aC01LjExVjE3Ljc5WiIvPgogICAgICA8cGF0aCBjbGFzcz0iY2xzLTMiIGQ9Ik01My44OSwxNy43OWgxMy43MnY1LjA0aC04LjI4djQuNTJoOC4wOXY1LjA0aC04LjA5djkuNDloLTUuNDNWMTcuNzlaIi8+CiAgICAgIDxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTcwLjQyLDI5Ljg0YzAtNy4zNyw1LjM3LTEyLjU0LDEyLjU3LTEyLjU0czEyLjYsNS4xNywxMi42LDEyLjU0LTUuNCwxMi41NC0xMi42LDEyLjU0LTEyLjU3LTUuMTctMTIuNTctMTIuNTRabTEyLjU3LDcuMzdjMy45NiwwLDYuOTctMi45NSw2Ljk3LTcuMzdzLTMuMDEtNy4zNy02Ljk3LTcuMzctNi45NCwyLjk1LTYuOTQsNy4zNywyLjk4LDcuMzcsNi45NCw3LjM3WiIvPgogICAgICA8cGF0aCBjbGFzcz0iY2xzLTMiIGQ9Ik0xMDUuMTksMzIuNDZ2OS40M2gtNS40M1YxNy43OWg4LjE4YzUuMTEsMCw4LjI1LDIuNTUsOC4yNSw3LjUsMCwzLjMxLTIsNS43OS01LjQsNi42NWw2LjkxLDkuOTVoLTYuNTVsLTUuOTYtOS40M1ptMi40OS00LjM1YzEuODMsMCwyLjk4LTEuMDgsMi45OC0yLjgycy0xLjE1LTIuODItMi45OC0yLjgyaC0yLjQ5djUuNjNoMi40OVoiLz4KICAgICAgPHBhdGggY2xhc3M9ImNscy0zIiBkPSJNMTIxLjU5LDE3Ljc5aDUuMzRsNy4wNCwxMS44NSw2Ljk0LTExLjg1aDUuMjR2MjQuMWgtNS4xMXYtMTQuOGwtNS41LDkuNDNoLTMuMjdsLTUuNTctOS40OXYxNC44NmgtNS4xMVYxNy43OVoiLz4KICAgICAgPHBhdGggY2xhc3M9ImNscy0zIiBkPSJNMTU3LjczLDE3Ljc5aDUuM2w4LjE4LDI0LjFoLTUuNjZsLTEuMTEtMy42M2gtOC4xMmwtMS4xMSwzLjYzaC01LjZsOC4xMi0yNC4xWm01LjI3LDE1LjgxbC0yLjY1LTguNTQtMi42Miw4LjU0aDUuMjdaIi8+CiAgICAgIDxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTE3Ni41NSwyMi44M2gtNS40M3YtNS4wNGgxNi4zdjUuMDRoLTUuNDN2MTkuMDVoLTUuNDNWMjIuODNaIi8+CiAgICAgIDxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTE5Ny40LDMyLjQ5bC03LjY5LTE0LjdoNi4xMmw0LjMyLDguODcsNC4yOS04Ljg3aDUuN2wtNy4zLDE0Ljd2OS40aC01LjQzdi05LjRaIi8+CiAgICAgIDxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTIxOC4wMywzMS44N3YxMC4wMmgtNS40M1YxNy43OWg1LjQzdjkuMzNsNi41OC05LjEzaDYuMzhsLTguMjgsMTEuMjksOC43NCwxMi42aC02LjYxbC02LjgxLTEwLjAyWiIvPgogICAgICA8cGF0aCBjbGFzcz0iY2xzLTMiIGQ9Ik0yNDAuMDksMTcuNzloNS4zbDguMTgsMjQuMWgtNS42NmwtMS4xMS0zLjYzaC04LjEybC0xLjExLDMuNjNoLTUuNmw4LjEyLTI0LjFabTUuMjcsMTUuODFsLTIuNjUtOC41NC0yLjYyLDguNTRoNS4yN1oiLz4KICAgICAgPHJlY3QgY2xhc3M9ImNscy03IiB4PSI4Ljg2IiB5PSIxNy43OCIgd2lkdGg9IjYuMzIiIGhlaWdodD0iNi4zMiIvPgogICAgICA8cmVjdCBjbGFzcz0iY2xzLTQiIHg9IjguODkiIHk9IjguODkiIHdpZHRoPSI2LjMyIiBoZWlnaHQ9IjYuMzIiLz4KICAgICAgPHJlY3QgY2xhc3M9ImNscy01IiB4PSI4Ljg2IiB5PSI0NC40NiIgd2lkdGg9IjYuMzIiIGhlaWdodD0iNi4zMiIvPgogICAgICA8cmVjdCBjbGFzcz0iY2xzLTgiIHg9IjguODYiIHk9IjI2LjY2IiB3aWR0aD0iNi4zMiIgaGVpZ2h0PSI2LjMyIi8+CiAgICAgIDxyZWN0IGNsYXNzPSJjbHMtNiIgeD0iOC44NiIgeT0iMzUuNTYiIHdpZHRoPSI2LjMyIiBoZWlnaHQ9IjYuMzIiLz4KICAgICAgPHJlY3QgY2xhc3M9ImNscy0xIiB4PSIxNy44MiIgd2lkdGg9IjYuMzIiIGhlaWdodD0iNi4zMiIvPgogICAgICA8cmVjdCBjbGFzcz0iY2xzLTciIHk9IjI2LjY3IiB3aWR0aD0iNi4zMiIgaGVpZ2h0PSI2LjMyIi8+CiAgICAgIDxyZWN0IGNsYXNzPSJjbHMtNCIgeT0iMTcuNzciIHdpZHRoPSI2LjMyIiBoZWlnaHQ9IjYuMzIiLz4KICAgICAgPHJlY3QgY2xhc3M9ImNscy01IiB5PSI1My4zNCIgd2lkdGg9IjYuMzIiIGhlaWdodD0iNi4zMiIvPgogICAgICA8cmVjdCBjbGFzcz0iY2xzLTgiIHk9IjM1LjU2IiB3aWR0aD0iNi4zMiIgaGVpZ2h0PSI2LjMyIi8+CiAgICAgIDxyZWN0IGNsYXNzPSJjbHMtNiIgeT0iNDQuNDkiIHdpZHRoPSI2LjMyIiBoZWlnaHQ9IjYuMzIiLz4KICAgICAgPHJlY3QgY2xhc3M9ImNscy0yIiB4PSIxNy45NyIgeT0iMTcuNzkiIHdpZHRoPSI2LjE2IiBoZWlnaHQ9IjI0LjEiLz4KICAgICAgPGc+CiAgICAgICAgPHBhdGggY2xhc3M9ImNscy05IiBkPSJNMjAuNDgsNTcuMjdsLS45MywyLjZoLTEuMTRsMy4wOC04LjY1aDEuNDFsMy4yMSw4LjY1aC0xLjIybC0uOTYtMi42aC0zLjQ1Wm0zLjE2LS45OGMtLjgyLTIuMjctMS4yOC0zLjQ4LTEuNDYtNC4xNGgtLjAxYy0uMjEsLjczLS43MiwyLjItMS4zOCw0LjE0aDIuODZaIi8+CiAgICAgICAgPHBhdGggY2xhc3M9ImNscy05IiBkPSJNMjguNjQsNTYuNTdjLjUzLS42MiwxLjkyLTIuMDgsMi43Ny0zLjAxaDEuM2wtMi4zNywyLjQ2LDIuNjUsMy44NWgtMS4yN2wtMi4xMi0zLjE1LS45NSwuOTJ2Mi4yNGgtMS4wOXYtOS4xM2gxLjA5djUuODNaIi8+CiAgICAgICAgPHBhdGggY2xhc3M9ImNscy05IiBkPSJNMzguOTMsNTguNDljMCwuNTcsLjA1LDEuMTksLjA5LDEuMzhoLTEuMDRjLS4wNS0uMTQtLjA5LS40NC0uMS0uODMtLjIyLC40Mi0uNzIsLjk4LTEuOTUsLjk4LTEuNDksMC0yLjEyLS45Ny0yLjEyLTEuOTMsMC0xLjQxLDEuMTEtMi4wNSwyLjk4LTIuMDVoMS4wOHYtLjU0YzAtLjU2LS4xOC0xLjIzLTEuMzYtMS4yMy0xLjA1LDAtMS4yMywuNTItMS4zNSwxLjAyaC0xLjA1Yy4wOC0uODcsLjYyLTEuODcsMi40My0xLjg3LDEuNTQsMCwyLjM5LC42MywyLjM5LDIuMDd2My4wMVptLTEuMDYtMS43aC0xLjAyYy0xLjI2LDAtMS45MywuMzUtMS45MywxLjI0LDAsLjY2LC40NSwxLjEzLDEuMjMsMS4xMywxLjUyLDAsMS43Mi0xLjAyLDEuNzItMi4xN3YtLjJaIi8+CiAgICAgICAgPHBhdGggY2xhc3M9ImNscy05IiBkPSJNNDYuMjksNTAuNzN2Ny4zNWMwLC41OSwwLDEuMTcsLjAxLDEuNzhoLTEuMDVjLS4wMy0uMTctLjA1LS42NS0uMDUtLjktLjMxLC42Ni0uOTUsMS4wNC0xLjk4LDEuMDQtMS42MiwwLTIuNjItMS4zMS0yLjYyLTMuMjRzMS4wNy0zLjM3LDIuODItMy4zN2MxLjEyLDAsMS42MSwuNDUsMS43OCwuOHYtMy40OGgxLjA5Wm0tNC41Niw2LjAxYzAsMS41MiwuNzIsMi4zNSwxLjcxLDIuMzUsMS40NywwLDEuOC0xLjA5LDEuOC0yLjQ3cy0uMjktMi4yOS0xLjcxLTIuMjljLTEuMTEsMC0xLjgsLjg4LTEuOCwyLjQxWiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtOSIgZD0iTTQ5LjA1LDU2LjkxYzAsMS4yOCwuNjUsMi4xOSwxLjcyLDIuMTksMSwwLDEuMzItLjUxLDEuNTItLjk4aDEuMWMtLjI1LC44MS0uOTIsMS44OS0yLjY1LDEuODktMS45OCwwLTIuNzktMS42MS0yLjc5LTMuMjMsMC0xLjg4LC45NS0zLjM3LDIuODYtMy4zNywyLjAzLDAsMi43LDEuNjMsMi43LDIuOTgsMCwuMTksMCwuMzUtLjAyLC41MmgtNC40NFptMy4zNi0uNzdjLS4wMS0xLjA0LS41My0xLjg3LTEuNjEtMS44N3MtMS42LC43Ny0xLjcxLDEuODdoMy4zMloiLz4KICAgICAgICA8cGF0aCBjbGFzcz0iY2xzLTkiIGQ9Ik01NS4xNyw1NS4xOGMwLS41NCwwLTEuMTEtLjAxLTEuNjNoMS4wNWMuMDIsLjE5LC4wNSwuNjUsLjA0LC45NywuMjktLjU2LC44NC0xLjEyLDEuODMtMS4xMiwuODksMCwxLjUxLC40NSwxLjc1LDEuMTMsLjM0LS42LC45My0xLjEzLDIuMDEtMS4xM3MxLjk5LC42LDEuOTksMi4zMXY0LjE0aC0xLjA3di00LjAxYzAtLjczLS4yNi0xLjUtMS4yNS0xLjVzLTEuNDcsLjc4LTEuNDcsMS44OXYzLjYyaC0xLjA3di0zLjk4YzAtLjgxLS4yMy0xLjUzLTEuMjItMS41M3MtMS41LC44Mi0xLjUsMi4wMnYzLjQ5aC0xLjA4di00LjY4WiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtOSIgZD0iTTY1Ljk0LDUwLjczaDEuMDl2MS4zNmgtMS4wOXYtMS4zNlptMCwyLjgyaDEuMDl2Ni4zMWgtMS4wOXYtNi4zMVoiLz4KICAgICAgICA8cGF0aCBjbGFzcz0iY2xzLTkiIGQ9Ik03My43Niw1OC40OWMwLC41NywuMDUsMS4xOSwuMDksMS4zOGgtMS4wNGMtLjA1LS4xNC0uMDktLjQ0LS4xLS44My0uMjIsLjQyLS43MiwuOTgtMS45NSwuOTgtMS40OSwwLTIuMTItLjk3LTIuMTItMS45MywwLTEuNDEsMS4xMS0yLjA1LDIuOTgtMi4wNWgxLjA4di0uNTRjMC0uNTYtLjE4LTEuMjMtMS4zNi0xLjIzLTEuMDUsMC0xLjIzLC41Mi0xLjM1LDEuMDJoLTEuMDVjLjA4LS44NywuNjItMS44NywyLjQzLTEuODcsMS41NCwwLDIuMzksLjYzLDIuMzksMi4wN3YzLjAxWm0tMS4wNi0xLjdoLTEuMDJjLTEuMjYsMC0xLjkzLC4zNS0xLjkzLDEuMjQsMCwuNjYsLjQ1LDEuMTMsMS4yMywxLjEzLDEuNTIsMCwxLjcyLTEuMDIsMS43Mi0yLjE3di0uMloiLz4KICAgICAgICA8cGF0aCBjbGFzcz0iY2xzLTkiIGQ9Ik04Ni41MSw1OS44NmgtLjg4Yy0uMDYtLjE3LS4wOS0uNTUtLjExLTEuMTctLjM4LC42MS0xLjEyLDEuMjktMi42OSwxLjI5LTIuNSwwLTMuODItMS44OS0zLjgyLTQuMzYsMC0yLjU5LDEuNDItNC41NCw0LjAzLTQuNTQsMi4wMSwwLDMuMjgsMS4wOSwzLjUyLDIuNjRoLTEuMTVjLS4yOS0uOTctLjk5LTEuNjgtMi40LTEuNjgtMi4wMSwwLTIuODEsMS42LTIuODEsMy41MywwLDEuNzgsLjgsMy40NSwyLjc2LDMuNDVzMi40Mi0xLjI5LDIuNDItMi43NXYtLjA5aC0yLjQ0di0uOThoMy41NXY0LjY3WiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtOSIgZD0iTTk0LjA5LDU2LjdjMCwxLjgyLTEuMDQsMy4zMS0yLjk3LDMuMzEtMS44MSwwLTIuOS0xLjQtMi45LTMuMjlzMS4wNy0zLjMxLDIuOTctMy4zMWMxLjc1LDAsMi45LDEuMzEsMi45LDMuMjlabS00Ljc1LC4wMWMwLDEuMzgsLjY5LDIuMzksMS44MiwyLjM5czEuOC0uOTYsMS44LTIuMzktLjY0LTIuNC0xLjgzLTIuNC0xLjgsLjk1LTEuOCwyLjM5Wm0zLjk5LTYuMWwtMS45MSwxLjkxaC0xLjAzbDEuNTktMS45MWgxLjM0WiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtOSIgZD0iTTk1Ljc2LDU1LjI3YzAtLjg4LDAtMS4zOC0uMDEtMS43MWgxLjA3Yy4wMiwuMTgsLjAzLC42NywuMDMsMS4yOSwuMzMtLjg1LDEuMDgtMS40LDIuMTItMS40NHYxLjA5Yy0xLjI5LC4wNC0yLjEyLC43MS0yLjEyLDIuMzF2My4wNmgtMS4wOXYtNC41OVoiLz4KICAgICAgICA8cGF0aCBjbGFzcz0iY2xzLTkiIGQ9Ik0xMDAuMjcsNTUuMTVjMC0uNTUsMC0xLjEtLjAxLTEuNTloMS4wNmMuMDMsLjE5LC4wNSwuODUsLjA0LDEuMDQsLjI1LS41NCwuNzctMS4xOSwxLjk5LTEuMTlzMi4xMSwuNzIsMi4xMSwyLjR2NC4wNmgtMS4wOXYtMy45MmMwLS45NS0uMzctMS41OS0xLjMzLTEuNTktMS4xOSwwLTEuNjcsLjkxLTEuNjcsMi4xN3YzLjM0aC0xLjA5di00LjcyWiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtOSIgZD0iTTEwNy41NSw1MC43M2gxLjA5djEuMzZoLTEuMDl2LTEuMzZabTAsMi44MmgxLjA5djYuMzFoLTEuMDl2LTYuMzFaIi8+CiAgICAgICAgPHBhdGggY2xhc3M9ImNscy05IiBkPSJNMTE1LjcyLDU3Ljk0Yy0uMjcsMS4wOS0xLDIuMDgtMi42MSwyLjA4LTEuNzQsMC0yLjgxLTEuMjUtMi44MS0zLjI3LDAtMS43OCwxLjAxLTMuMzQsMi44OS0zLjM0czIuNDUsMS4zLDIuNTMsMi4xMWgtMS4wOGMtLjE2LS42NC0uNTYtMS4yLTEuNDctMS4yLTEuMTIsMC0xLjc1LC45Ni0xLjc1LDIuMzlzLjYxLDIuNCwxLjcxLDIuNGMuNzksMCwxLjI1LS40MiwxLjUtMS4xN2gxLjA4WiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtOSIgZD0iTTExNi44MSw1OC45OGwzLjYzLTQuNTFoLTMuNDV2LS45Mmg0LjY5di45MWwtMy41OCw0LjQ4aDMuNzVsLS4xOCwuOTFoLTQuODd2LS44OFoiLz4KICAgICAgICA8cGF0aCBjbGFzcz0iY2xzLTkiIGQ9Ik0xMjguNjQsNTYuN2MwLDEuODItMS4wNCwzLjMxLTIuOTcsMy4zMS0xLjgxLDAtMi45LTEuNC0yLjktMy4yOXMxLjA3LTMuMzEsMi45Ny0zLjMxYzEuNzUsMCwyLjksMS4zMSwyLjksMy4yOVptLTQuNzUsLjAxYzAsMS4zOCwuNjksMi4zOSwxLjgyLDIuMzlzMS44LS45NiwxLjgtMi4zOS0uNjQtMi40LTEuODMtMi40LTEuOCwuOTUtMS44LDIuMzlaIi8+CiAgICAgICAgPHBhdGggY2xhc3M9ImNscy05IiBkPSJNMTMzLjU4LDU2LjE4di45OWgtMy4yN3YtLjk5aDMuMjdaIi8+CiAgICAgICAgPHBhdGggY2xhc3M9ImNscy05IiBkPSJNMTM1LjU2LDUxLjIxaDEuMTV2My42MWg0LjUxdi0zLjYxaDEuMTV2OC42NWgtMS4xNXYtNC4wNmgtNC41MXY0LjA2aC0xLjE1di04LjY1WiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtOSIgZD0iTTE0OS41Miw1OC4wM2MwLC42MSwwLDEuNDcsLjAxLDEuODRoLTEuMDZjLS4wMi0uMTctLjA0LS41NS0uMDQtLjk1LS4zMSwuNy0uOTIsMS4wOS0xLjkxLDEuMDktMS4wNiwwLTIuMDgtLjUzLTIuMDgtMi4zMXYtNC4xNWgxLjA4djMuOTFjMCwuODMsLjI2LDEuNTksMS4zMSwxLjU5LDEuMTYsMCwxLjYxLS42NCwxLjYxLTIuMjJ2LTMuMjloMS4wOXY0LjQ3WiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtOSIgZD0iTTE1MC45Niw1My41NmgxLjA5di0xLjg2aDEuMDl2MS44NmgxLjM5di44OWgtMS4zOXYzLjY5YzAsLjYxLC4xNSwuOTMsLjcyLC45MywuMTUsMCwuMzgsMCwuNTUtLjA1di44MmMtLjI3LC4xLS42NCwuMTItLjk0LC4xMi0uOTgsMC0xLjQyLS41MS0xLjQyLTEuNTZ2LTMuOTVoLTEuMDl2LS44OVoiLz4KICAgICAgICA8cGF0aCBjbGFzcz0iY2xzLTkiIGQ9Ik0xNTUuODksNTUuMTVjMC0uNTUsMC0xLjEtLjAxLTEuNTloMS4wNmMuMDMsLjE5LC4wNSwuODUsLjA0LDEuMDQsLjI1LS41NCwuNzctMS4xOSwxLjk5LTEuMTlzMi4xMSwuNzIsMi4xMSwyLjR2NC4wNmgtMS4wOXYtMy45MmMwLS45NS0uMzctMS41OS0xLjMzLTEuNTktMS4xOSwwLTEuNjcsLjkxLTEuNjcsMi4xN3YzLjM0aC0xLjA5di00LjcyWiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtOSIgZD0iTTE2My4xOCw1MC43M2gxLjA5djEuMzZoLTEuMDl2LTEuMzZabTAsMi44MmgxLjA5djYuMzFoLTEuMDl2LTYuMzFaIi8+CiAgICAgICAgPHBhdGggY2xhc3M9ImNscy05IiBkPSJNMTcxLjM1LDU3Ljk0Yy0uMjcsMS4wOS0xLDIuMDgtMi42MSwyLjA4LTEuNzQsMC0yLjgxLTEuMjUtMi44MS0zLjI3LDAtMS43OCwxLjAxLTMuMzQsMi44OS0zLjM0czIuNDUsMS4zLDIuNTMsMi4xMWgtMS4wOGMtLjE2LS42NC0uNTYtMS4yLTEuNDctMS4yLTEuMTIsMC0xLjc1LC45Ni0xLjc1LDIuMzlzLjYxLDIuNCwxLjcxLDIuNGMuNzksMCwxLjI1LS40MiwxLjUtMS4xN2gxLjA4WiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtOSIgZD0iTTE3Mi40NCw1OC45OGwzLjYzLTQuNTFoLTMuNDV2LS45Mmg0LjY5di45MWwtMy41OCw0LjQ4aDMuNzVsLS4xOCwuOTFoLTQuODd2LS44OFoiLz4KICAgICAgICA8cGF0aCBjbGFzcz0iY2xzLTkiIGQ9Ik0xODMuNjQsNTguNDljMCwuNTcsLjA1LDEuMTksLjA5LDEuMzhoLTEuMDRjLS4wNS0uMTQtLjA5LS40NC0uMS0uODMtLjIyLC40Mi0uNzIsLjk4LTEuOTUsLjk4LTEuNDksMC0yLjEyLS45Ny0yLjEyLTEuOTMsMC0xLjQxLDEuMTEtMi4wNSwyLjk4LTIuMDVoMS4wOHYtLjU0YzAtLjU2LS4xOC0xLjIzLTEuMzYtMS4yMy0xLjA1LDAtMS4yMywuNTItMS4zNSwxLjAyaC0xLjA1Yy4wOC0uODcsLjYyLTEuODcsMi40My0xLjg3LDEuNTQsMCwyLjM5LC42MywyLjM5LDIuMDd2My4wMVptLTEuMDYtMS43aC0xLjAyYy0xLjI2LDAtMS45MywuMzUtMS45MywxLjI0LDAsLjY2LC40NSwxLjEzLDEuMjMsMS4xMywxLjUyLDAsMS43Mi0xLjAyLDEuNzItMi4xN3YtLjJaIi8+CiAgICAgICAgPHBhdGggY2xhc3M9ImNscy05IiBkPSJNMTg5LjY5LDUzLjU2Yy43OCwyLjk2LDEuMjMsNC42NSwxLjM0LDUuM2guMDJjLjExLS41OSwuNTYtMi4xNiwxLjQ1LTUuM2gxLjA3Yy45OSwzLjU3LDEuMjgsNC42MSwxLjM4LDUuMTdoLjAxYy4xNi0uNjgsLjQxLTEuNjIsMS4zOS01LjE3aDEuMWwtMS45NCw2LjMxaC0xLjE4Yy0uNjEtMi4zLTEuMjItNC40My0xLjM1LTUuMTFoLS4wMWMtLjEyLC42OS0uNjgsMi42MS0xLjM5LDUuMTFoLTEuMjJsLTEuODMtNi4zMWgxLjE1WiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtOSIgZD0iTTIwMi41Niw1MS4yMWgxLjE0djQuMjRjLjY0LS42NywyLjg0LTIuODQsNC4yMS00LjI0aDEuNDNsLTMuNzIsMy42NSwzLjksNWgtMS4zOWwtMy4zMi00LjI2LTEuMTEsMXYzLjI2aC0xLjE0di04LjY1WiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtOSIgZD0iTTIxMC42NSw1NS4yN2MwLS44OCwwLTEuMzgtLjAxLTEuNzFoMS4wN2MuMDIsLjE4LC4wMywuNjcsLjAzLDEuMjksLjMzLS44NSwxLjA4LTEuNCwyLjEyLTEuNDR2MS4wOWMtMS4yOSwuMDQtMi4xMiwuNzEtMi4xMiwyLjMxdjMuMDZoLTEuMDl2LTQuNTlaIi8+CiAgICAgICAgPHBhdGggY2xhc3M9ImNscy05IiBkPSJNMjE5Ljc2LDU4LjQ5YzAsLjU3LC4wNSwxLjE5LC4wOSwxLjM4aC0xLjA0Yy0uMDUtLjE0LS4wOS0uNDQtLjEtLjgzLS4yMiwuNDItLjcyLC45OC0xLjk1LC45OC0xLjQ5LDAtMi4xMi0uOTctMi4xMi0xLjkzLDAtMS40MSwxLjExLTIuMDUsMi45OC0yLjA1aDEuMDh2LS41NGMwLS41Ni0uMTgtMS4yMy0xLjM2LTEuMjMtMS4wNSwwLTEuMjMsLjUyLTEuMzUsMS4wMmgtMS4wNWMuMDgtLjg3LC42Mi0xLjg3LDIuNDMtMS44NywxLjU0LDAsMi4zOSwuNjMsMi4zOSwyLjA3djMuMDFabS0xLjA2LTEuN2gtMS4wMmMtMS4yNiwwLTEuOTMsLjM1LTEuOTMsMS4yNCwwLC42NiwuNDUsMS4xMywxLjIzLDEuMTMsMS41MiwwLDEuNzItMS4wMiwxLjcyLTIuMTd2LS4yWiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtOSIgZD0iTTIyMi45OCw1Ni41N2MuNTMtLjYyLDEuOTItMi4wOCwyLjc3LTMuMDFoMS4zbC0yLjM3LDIuNDYsMi42NSwzLjg1aC0xLjI3bC0yLjEyLTMuMTUtLjk1LC45MnYyLjI0aC0xLjA5di05LjEzaDEuMDl2NS44M1oiLz4KICAgICAgICA8cGF0aCBjbGFzcz0iY2xzLTkiIGQ9Ik0yMzMuNzIsNTYuN2MwLDEuODItMS4wNCwzLjMxLTIuOTcsMy4zMS0xLjgxLDAtMi45LTEuNC0yLjktMy4yOXMxLjA3LTMuMzEsMi45Ny0zLjMxYzEuNzUsMCwyLjksMS4zMSwyLjksMy4yOVptLTQuNzUsLjAxYzAsMS4zOCwuNjksMi4zOSwxLjgyLDIuMzlzMS44LS45NiwxLjgtMi4zOS0uNjQtMi40LTEuODMtMi40LTEuOCwuOTUtMS44LDIuMzlaIi8+CiAgICAgICAgPHBhdGggY2xhc3M9ImNscy05IiBkPSJNMjM1Ljg2LDUzLjU2Yy43OCwyLjk2LDEuMjMsNC42NSwxLjM0LDUuM2guMDJjLjExLS41OSwuNTYtMi4xNiwxLjQ1LTUuM2gxLjA3Yy45OSwzLjU3LDEuMjgsNC42MSwxLjM4LDUuMTdoLjAxYy4xNi0uNjgsLjQxLTEuNjIsMS4zOS01LjE3aDEuMWwtMS45NCw2LjMxaC0xLjE4Yy0uNjEtMi4zLTEuMjItNC40My0xLjM1LTUuMTFoLS4wMWMtLjEyLC42OS0uNjgsMi42MS0xLjM5LDUuMTFoLTEuMjJsLTEuODMtNi4zMWgxLjE1WiIvPgogICAgICAgIDxwYXRoIGNsYXNzPSJjbHMtOSIgZD0iTTI0NS4wNyw1MC43M2gxLjA5djEuMzZoLTEuMDl2LTEuMzZabTAsMi44MmgxLjA5djYuMzFoLTEuMDl2LTYuMzFaIi8+CiAgICAgICAgPHBhdGggY2xhc3M9ImNscy05IiBkPSJNMjQ4LjkyLDU2LjkxYzAsMS4yOCwuNjUsMi4xOSwxLjcyLDIuMTksMSwwLDEuMzItLjUxLDEuNTItLjk4aDEuMWMtLjI1LC44MS0uOTIsMS44OS0yLjY1LDEuODktMS45OCwwLTIuNzktMS42MS0yLjc5LTMuMjMsMC0xLjg4LC45NS0zLjM3LDIuODYtMy4zNywyLjAzLDAsMi43LDEuNjMsMi43LDIuOTgsMCwuMTksMCwuMzUtLjAyLC41MmgtNC40NFptMy4zNi0uNzdjLS4wMS0xLjA0LS41My0xLjg3LTEuNjEtMS44N3MtMS42LC43Ny0xLjcxLDEuODdoMy4zMloiLz4KICAgICAgPC9nPgogICAgPC9nPgogIDwvZz4KPC9zdmc+">
     <div class="faculty">Wydział Informatyki AGH<b>Mapa badawcza</b></div>
-
         <button class="theme-toggle" id="theme-toggle" type="button" title="Zmień tryb wyświetlania">
     <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
     <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
@@ -462,16 +472,7 @@ a.tab, a.tab:hover { text-decoration: none; }
   </button>
   </div>
 </header>
-
-<nav class="tabs">
-  <div class="container tabs-row">
-    <a class="tab" href="index.html#staff">Naukowcy</a>
-    <a class="tab" href="index.html#areas">Obszary badawcze</a>
-    <a class="tab active" href="dopasowanie.html">Nabory i dopasowanie</a>
-    <a class="tab" href="biuro.html">Projekty</a>
-    <a class="tab" href="index.html#graph">Graf współpracy</a>
-  </div>
-</nav>
+<nav class="tabs"><div class="container tabs-row"><a class="tab" href="index.html">Naukowcy</a><a class="tab" href="wyszukiwarka.html">Wyszukiwarka</a><a class="tab active" href="dopasowanie.html">Nabory</a><a class="tab" href="biuro.html">Projekty</a><a class="tab" href="panel.html">Panel</a></div></nav><div class="seg-bar"><div class="container seg-row"><a class="tab seg-btn active" href="#kalendarz">Kalendarz</a><a class="tab seg-btn" href="#tematy">Tematy OpenAlex</a><a class="tab seg-btn" href="#HORIZON-CL4-2026-04-DIGITAL-EMERGING-09">Osoby do naboru</a><a class="tab seg-btn" href="#wlasny">Wpisz projekt</a></div></div>
 
 <main class="container">
   <section class="hero-simple">
@@ -520,7 +521,7 @@ a.tab, a.tab:hover { text-decoration: none; }
         <span class="s-pill">wynik 100%</span>
         <span class="s-pill">pokrycie 20%</span>
       </div>
-      <ul class="s-kw" style="padding-left:1.1rem"><li><b>uczenie maszynowe</b> ← Machine Learning and Data Classification</li></ul>
+      <ul class="s-kw" style="padding-left:1.1rem"><li><b>uczenie maszynowe</b> ← Uczenie maszynowe i klasyfikacja danych</li></ul>
     </article>
     <article class="staff-card" data-text="duda piotr machine learning">
       <div class="s-head">
@@ -531,7 +532,7 @@ a.tab, a.tab:hover { text-decoration: none; }
         <span class="s-pill">wynik 97%</span>
         <span class="s-pill">pokrycie 20%</span>
       </div>
-      <ul class="s-kw" style="padding-left:1.1rem"><li><b>uczenie maszynowe</b> ← Machine Learning and Data Classification</li></ul>
+      <ul class="s-kw" style="padding-left:1.1rem"><li><b>uczenie maszynowe</b> ← Uczenie maszynowe i klasyfikacja danych</li></ul>
     </article>
     <article class="staff-card" data-text="bałamut anna disaster risk">
       <div class="s-head">
@@ -542,7 +543,7 @@ a.tab, a.tab:hover { text-decoration: none; }
         <span class="s-pill">wynik 61%</span>
         <span class="s-pill">pokrycie 20%</span>
       </div>
-      <ul class="s-kw" style="padding-left:1.1rem"><li><b>ryzyko katastrof</b> ← Disaster Management and Resilience</li></ul>
+      <ul class="s-kw" style="padding-left:1.1rem"><li><b>ryzyko katastrof</b> ← Zarządzanie kryzysowe i odporność</li></ul>
     </article>
     <article class="staff-card" data-text="kacprzyk janusz digital twin">
       <div class="s-head">
@@ -553,7 +554,7 @@ a.tab, a.tab:hover { text-decoration: none; }
         <span class="s-pill">wynik 56%</span>
         <span class="s-pill">pokrycie 20%</span>
       </div>
-      <ul class="s-kw" style="padding-left:1.1rem"><li><b>cyfrowy bliźniak</b> ← Digital Transformation in Industry</li></ul>
+      <ul class="s-kw" style="padding-left:1.1rem"><li><b>cyfrowy bliźniak</b> ← Cyfrowa transformacja przemysłu</li></ul>
     </article>
     <article class="staff-card" data-text="piętak kamil machine learning">
       <div class="s-head">
@@ -564,7 +565,7 @@ a.tab, a.tab:hover { text-decoration: none; }
         <span class="s-pill">wynik 56%</span>
         <span class="s-pill">pokrycie 20%</span>
       </div>
-      <ul class="s-kw" style="padding-left:1.1rem"><li><b>uczenie maszynowe</b> ← Machine Learning and Algorithms</li></ul>
+      <ul class="s-kw" style="padding-left:1.1rem"><li><b>uczenie maszynowe</b> ← Uczenie maszynowe i algorytmy</li></ul>
     </article>
     <article class="staff-card" data-text="bubak marian digital twin">
       <div class="s-head">
@@ -575,7 +576,7 @@ a.tab, a.tab:hover { text-decoration: none; }
         <span class="s-pill">wynik 36%</span>
         <span class="s-pill">pokrycie 20%</span>
       </div>
-      <ul class="s-kw" style="padding-left:1.1rem"><li><b>cyfrowy bliźniak</b> ← Digital Transformation in Industry</li></ul>
+      <ul class="s-kw" style="padding-left:1.1rem"><li><b>cyfrowy bliźniak</b> ← Cyfrowa transformacja przemysłu</li></ul>
     </article>
     <article class="staff-card" data-text="achtelik wojciech machine learning">
       <div class="s-head">
@@ -586,7 +587,7 @@ a.tab, a.tab:hover { text-decoration: none; }
         <span class="s-pill">wynik 31%</span>
         <span class="s-pill">pokrycie 20%</span>
       </div>
-      <ul class="s-kw" style="padding-left:1.1rem"><li><b>uczenie maszynowe</b> ← Machine Learning and Data Classification</li></ul>
+      <ul class="s-kw" style="padding-left:1.1rem"><li><b>uczenie maszynowe</b> ← Uczenie maszynowe i klasyfikacja danych</li></ul>
     </article>
     <article class="staff-card" data-text="scherer rafał machine learning">
       <div class="s-head">
@@ -597,7 +598,7 @@ a.tab, a.tab:hover { text-decoration: none; }
         <span class="s-pill">wynik 31%</span>
         <span class="s-pill">pokrycie 20%</span>
       </div>
-      <ul class="s-kw" style="padding-left:1.1rem"><li><b>uczenie maszynowe</b> ← Machine Learning and Data Classification</li></ul>
+      <ul class="s-kw" style="padding-left:1.1rem"><li><b>uczenie maszynowe</b> ← Uczenie maszynowe i klasyfikacja danych</li></ul>
     </article>
     <article class="staff-card" data-text="nowicki robert machine learning">
       <div class="s-head">
@@ -608,7 +609,7 @@ a.tab, a.tab:hover { text-decoration: none; }
         <span class="s-pill">wynik 28%</span>
         <span class="s-pill">pokrycie 0%</span>
       </div>
-      <ul class="s-kw" style="padding-left:1.1rem"><li><b>uczenie maszynowe</b> ← Machine Learning and Data Classification</li></ul>
+      <ul class="s-kw" style="padding-left:1.1rem"><li><b>uczenie maszynowe</b> ← Uczenie maszynowe i klasyfikacja danych</li></ul>
     </article>
     <article class="staff-card" data-text="smołka maciej machine learning">
       <div class="s-head">
@@ -619,11 +620,13 @@ a.tab, a.tab:hover { text-decoration: none; }
         <span class="s-pill">wynik 14%</span>
         <span class="s-pill">pokrycie 0%</span>
       </div>
-      <ul class="s-kw" style="padding-left:1.1rem"><li><b>uczenie maszynowe</b> ← Machine Learning and Data Classification</li></ul>
+      <ul class="s-kw" style="padding-left:1.1rem"><li><b>uczenie maszynowe</b> ← Uczenie maszynowe i klasyfikacja danych</li></ul>
     </article>
     </div>
   </section></div><div class="sec" data-sec="HORIZON-CL4-2026-04-DIGITAL-EMERGING-09" data-method="slowa">
-  <section class="call-section" id="HORIZON-CL4-2026-04-DIGITAL-EMERGING-09" style="margin-bottom:2.2rem">
+  <details class="call-fold" id="HORIZON-CL4-2026-04-DIGITAL-EMERGING-09" open style="margin-bottom:2.2rem">
+  <summary class="call-sum">HORIZON-CL4-2026-04-DIGITAL-EMERGING-09 · 29 osób</summary>
+  <section class="call-section" style="margin-top:.8rem">
     <div class="eyebrow">Słowa z projektu i publikacji · nabór</div>
     <h2 class="hero-title" style="font-size:1.35rem">HORIZON-CL4-2026-04-DIGITAL-EMERGING-09</h2>
     <p class="hero-sub">Call HORIZON-CL4-2026-04 · zamknięty 15.04.2026</p>
@@ -809,8 +812,11 @@ a.tab, a.tab:hover { text-decoration: none; }
       <div class="s-foot"><span>2 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0001-7713-526X' target='_blank' rel='noopener'>ORCID →</a></div>
     </article>
     </div>
-  </section></div><div class="sec" data-sec="HORIZON-CL4-2026-05-DIGITAL-EMERGING-02" data-method="slowa">
-  <section class="call-section" id="HORIZON-CL4-2026-05-DIGITAL-EMERGING-02" style="margin-bottom:2.2rem">
+  </section>
+  </details></div><div class="sec" data-sec="HORIZON-CL4-2026-05-DIGITAL-EMERGING-02" data-method="slowa">
+  <details class="call-fold" id="HORIZON-CL4-2026-05-DIGITAL-EMERGING-02" open style="margin-bottom:2.2rem">
+  <summary class="call-sum">HORIZON-CL4-2026-05-DIGITAL-EMERGING-02 · 42 osób</summary>
+  <section class="call-section" style="margin-top:.8rem">
     <div class="eyebrow">Słowa z projektu i publikacji · nabór</div>
     <h2 class="hero-title" style="font-size:1.35rem">HORIZON-CL4-2026-05-DIGITAL-EMERGING-02</h2>
     <p class="hero-sub">Call HORIZON-CL4-2026-05 · zamknięty 15.04.2026</p>
@@ -996,8 +1002,11 @@ a.tab, a.tab:hover { text-decoration: none; }
       <div class="s-foot"><span>4 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0002-4206-9052' target='_blank' rel='noopener'>ORCID →</a></div>
     </article>
     </div>
-  </section></div><div class="sec" data-sec="HORIZON-CL4-2026-05-DIGITAL-EMERGING-03" data-method="slowa">
-  <section class="call-section" id="HORIZON-CL4-2026-05-DIGITAL-EMERGING-03" style="margin-bottom:2.2rem">
+  </section>
+  </details></div><div class="sec" data-sec="HORIZON-CL4-2026-05-DIGITAL-EMERGING-03" data-method="slowa">
+  <details class="call-fold" id="HORIZON-CL4-2026-05-DIGITAL-EMERGING-03" open style="margin-bottom:2.2rem">
+  <summary class="call-sum">HORIZON-CL4-2026-05-DIGITAL-EMERGING-03 · 56 osób</summary>
+  <section class="call-section" style="margin-top:.8rem">
     <div class="eyebrow">Słowa z projektu i publikacji · nabór</div>
     <h2 class="hero-title" style="font-size:1.35rem">HORIZON-CL4-2026-05-DIGITAL-EMERGING-03</h2>
     <p class="hero-sub">Call HORIZON-CL4-2026-05 · zamknięty 15.04.2026</p>
@@ -1183,7 +1192,8 @@ a.tab, a.tab:hover { text-decoration: none; }
       <div class="s-foot"><span>4 trafień z tematu</span><a class='s-link' href='https://orcid.org/0000-0003-2212-7806' target='_blank' rel='noopener'>ORCID →</a></div>
     </article>
     </div>
-  </section></div></div>
+  </section>
+  </details></div></div>
   </div>
 </main>
 <script>
@@ -1262,7 +1272,7 @@ a.tab, a.tab:hover { text-decoration: none; }
 </script>
 <script>
 (function(){
-  var KEY='bm-theme';
+  var KEY='bm-theme-v2';
   var btn=document.getElementById('theme-toggle');
   var lbl=btn.querySelector('.lbl');
   function apply(t){
