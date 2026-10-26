@@ -103,15 +103,16 @@ def local_nav(items, mode="link"):
             f'<a class="tab seg-btn{" active" if i == 0 else ""}" href="#{h.escape(key)}">{h.escape(label)}</a>'
             for i, (key, label) in enumerate(items)
         )
-    return f'<div class="seg-bar"><div class="container seg-row">{btns}</div></div>'
+    return f'<div class="seg-bar" role="navigation" aria-label="Widoki strony"><div class="container seg-row">{btns}</div></div>'
 
 
 def nav_html(active):
     items = "".join(
-        f'<a class="tab{" active" if key == active else ""}" href="{href}">{label}</a>'
+        f'<a class="tab{cur_cls}" href="{href}"{cur_attr}>{label}</a>'
         for label, href, key in NAV
+        for cur_cls, cur_attr in [((" active", ' aria-current="page"') if key == active else ("", ""))]
     )
-    return f'<nav class="tabs"><div class="container tabs-row">{items}</div></nav>'
+    return f'<nav class="tabs" aria-label="Menu główne"><div class="container tabs-row">{items}</div></nav>'
 
 
 def site_parts():
@@ -180,7 +181,7 @@ def section(call_id, nabor, out):
   <details class="call-fold" id="{h.escape(call_id)}" open style="margin-bottom:2.2rem">
   <summary class="call-sum">{h.escape(call_id)} · {out['matched_people']} osób</summary>
   <section class="call-section" style="margin-top:.8rem">
-    <div class="eyebrow">Słowa z projektu i publikacji · nabór</div>
+    <div class="eyebrow">Dobierz zespół · na podstawie publikacji</div>
     <h2 class="hero-title" style="font-size:1.35rem">{h.escape(call_id)}</h2>
     <p class="hero-sub">{h.escape(nabor)}</p>
     <div class="stats-bar" style="margin:1rem 0">
@@ -359,7 +360,7 @@ OWN_JS = """
 def calendar_section():
     import collections
     import datetime
-    today = datetime.date(2026, 10, 26).isoformat()
+    today = datetime.date.today().isoformat()
     items = json.loads((ROOT / "data/nabory_sedia.json").read_text(encoding="utf-8"))
     groups = collections.defaultdict(list)
     for t in items:
@@ -401,13 +402,13 @@ def calendar_section():
 
 def render_html(sections):
     head, header, theme_js = site_parts()
-    tabs = nav_html("nabory") + local_nav([("kalendarz", "Kalendarz"), ("tematy", "Tematy OpenAlex"), ("HORIZON-CL4-2026-04-DIGITAL-EMERGING-09", "Osoby do naboru"), ("wlasny", "Wpisz projekt")])
+    tabs = nav_html("nabory") + local_nav([("kalendarz", "Kalendarz"), ("tematy", "Tematy OpenAlex"), ("HORIZON-CL4-2026-04-DIGITAL-EMERGING-09", "Osoby do naboru"), ("wlasny", "Dobierz zespół")])
     topic_html = topic_section(ROOT / "data/dopasowanie_tematy_HORIZON-CL4-2026-04-DIGITAL-EMERGING-09.json")
     blocks = [calendar_section()]
     if topic_html:
         blocks.append(f'<div class="sec" data-sec="tematy" data-method="tematy">{topic_html}</div>')
     blocks += [f'<div class="sec" data-sec="{h.escape(sec[0])}" data-method="slowa">{section(*sec)}</div>' for sec in sections]
-    blocks.insert(0, '<div class="sec" data-sec="wlasny" data-method="wlasny"><section class="call-section" id="wlasny" style="margin-bottom:2.2rem"><div class="eyebrow">Wpisz projekt · słowa z publikacji</div><h2 class="hero-title" style="font-size:1.35rem">Wpisz projekt</h2><div id="own-results"><p class="hero-sub">Wpisz opis po lewej i kliknij „Dopasuj”.</p></div></section></div>')
+    blocks.insert(0, '<div class="sec" data-sec="wlasny" data-method="wlasny"><section class="call-section" id="wlasny" style="margin-bottom:2.2rem"><div class="eyebrow">Dobierz zespół</div><h2 class="hero-title" style="font-size:1.35rem">Dobierz zespół</h2><div id="own-results"><p class="hero-sub">Wpisz opis po lewej i kliknij „Dopasuj”.</p></div></section></div>')
     body = "".join(blocks)
     calls_filter = "".join(
         f'<label class="f-check"><input type="checkbox" class="sec-cb" value="{h.escape(cid)}" checked> {h.escape(cid)}</label>'
@@ -422,13 +423,13 @@ def render_html(sections):
       </div>
       <div class="side-block">
         <span class="side-label">Metoda dopasowania</span>
-        <label class="f-check"><input type="checkbox" class="m-cb" value="slowa" checked> Słowa z projektu i publikacji</label>
+        <label class="f-check"><input type="checkbox" class="m-cb" value="slowa" checked> Dopasowanie po nazwach tematów</label>
         <label class="f-check"><input type="checkbox" class="m-cb" value="tematy" checked> Tematy OpenAlex</label>
-        <label class="f-check"><input type="checkbox" class="m-cb" value="wlasny" checked> Wpisz projekt</label>
+        <label class="f-check"><input type="checkbox" class="m-cb" value="wlasny" checked> Dobierz zespół</label>
         <label class="f-check"><input type="checkbox" class="m-cb" value="kalendarz" checked> Kalendarz naborów</label>
       </div>
       <div class="side-block">
-        <span class="side-label">Wpisz projekt</span>
+        <span class="side-label">Dobierz zespół</span>
         <textarea id="own-text" rows="4" placeholder="Krótko: czego potrzebuje projekt (1–3 zdania)" style="width:100%;margin-top:.5rem;padding:.55rem .7rem;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font:inherit;font-size:.9rem"></textarea>
         <button id="own-btn" class="btn btn-primary" type="button" style="margin-top:.5rem;width:100%">Dopasuj</button>
       </div>

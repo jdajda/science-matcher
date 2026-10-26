@@ -231,7 +231,7 @@ SCRIPT = """
       .filter(r => (!fld || r.p.field === fld) && r.p.works_count >= minW && (!needOrcid || r.p.orcid));
     rows.sort((a, b) => (b.cov - a.cov) || (b.p.last_year - a.p.last_year) || a.p.name.localeCompare(b.p.name));
     lastRows = rows.slice(0, 60);
-    if (!lastRows.length) { $('ws-results').innerHTML = '<p class="ws-small">Brak osób spełniających kryteria. Zmień potrzeby albo filtry.</p>'; renderTeam(needs); return; }
+    if (!lastRows.length) { $('ws-results').innerHTML = '<p class="ws-small">Brak osób spełniających kryteria. Spróbuj krótszej potrzeby albo zdejmij jeden filtr (np. minimalną liczbę prac).</p>'; renderTeam(needs); return; }
     $('ws-results').innerHTML = '<p class="ws-small" style="margin-bottom:.6rem">Pokazano ' + lastRows.length + ' osób. Kolejność: pokrycie potrzeb, potem aktualność.</p>' + lastRows.map((r, i) => {
       const pct = Math.round(r.cov * 100);
       const tops = r.p.topics.slice(0, 4).map(t => '<span class="ws-chip">' + esc(t.name) + '</span>').join('');

@@ -471,18 +471,18 @@ a.tab, a.tab:hover { text-decoration: none; }
   </button>
   </div>
 </header>
-<nav class="tabs">
+<nav class="tabs" aria-label="Menu główne">
       <div class="container tabs-row">
-        <a class="tab active" href="index.html">Naukowcy</a>
+        <a class="tab active" href="index.html" aria-current="page">Naukowcy</a>
         <a class="tab" href="wyszukiwarka.html">Wyszukiwarka</a>
         <a class="tab" href="dopasowanie.html">Nabory</a>
         <a class="tab" href="biuro.html">Projekty</a>
         <a class="tab" href="panel.html">Panel</a>
       </div>
     </nav>
-    <div class="seg-bar">
+    <div class="seg-bar" role="navigation" aria-label="Widoki strony">
       <div class="container seg-row">
-        <button class="tab seg-btn active" data-tab="staff">Lista</button>
+        <button class="tab seg-btn active" data-tab="staff" aria-pressed="true">Lista</button>
         <button class="tab seg-btn" data-tab="areas">Obszary badawcze</button>
         <button class="tab seg-btn" data-tab="match">Dobierz zespół</button>
         <button class="tab seg-btn" data-tab="graph">Graf współpracy</button>
@@ -501,7 +501,7 @@ a.tab, a.tab:hover { text-decoration: none; }
         <button class="btn btn-primary" id="staff-search-btn" type="button">Szukaj</button>
       </div>
       <p class="search-hint">Np. obliczenia rozproszone, CMS lub nazwisko naukowca.
-        <button class="link-btn" type="button" onclick="location.href='dopasowanie.html'">Masz opis projektu? Dopasuj do naboru →</button>
+        <button class="link-btn" type="button" onclick="switchTab('match')">Masz opis projektu? Dobierz zespół →</button>
       </p>
     </section>
 
@@ -588,11 +588,11 @@ a.tab, a.tab:hover { text-decoration: none; }
 <div id="tab-match" class="tab-pane">
   <div class="container">
     <div class="match-head">
-      <h2>Nabory i dopasowanie</h2>
+      <h2>Dobierz zespół</h2>
       <p class="match-sub">Wybierz nabór Horyzont Europa, aby zobaczyć osoby z Wydziału Informatyki dopasowane do jego tematu. Dopasowanie opiera się na tytułach tematów i publikacjach; wyniki są wstępne i wymagają weryfikacji.</p>
     </div>
     <details class="own-match" open style="margin-bottom:1.2rem">
-      <summary>Dopasuj własny opis projektu</summary>
+      <summary>Opisz projekt, a dostaniesz listę osób</summary>
       <textarea id="match-input" class="match-textarea" placeholder="np. Kwantowe algorytmy optymalizacyjne do harmonogramowania workflow HPC: rozproszone systemy, obliczenia kwantowe, optymalizacja mieszana…"></textarea>
     <div class="match-actions">
       <button class="btn" id="match-btn">Sugeruj osoby</button>
@@ -666,6 +666,7 @@ const NOW_YEAR = new Date().getFullYear();
 
 document.querySelectorAll('button.seg-btn').forEach(btn=>btn.addEventListener('click',()=>{
   document.querySelectorAll('button.seg-btn').forEach(b=>b.classList.toggle('active',b===btn));
+  document.querySelectorAll('button.seg-btn').forEach(b=>b.setAttribute('aria-pressed',b===btn?'true':'false'));
   document.querySelectorAll('.tab-pane').forEach(p=>p.classList.toggle('active',p.id==='tab-'+btn.dataset.tab));
   if(btn.dataset.tab==='graph'){
     requestAnimationFrame(()=>{

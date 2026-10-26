@@ -509,7 +509,7 @@ table.pn-table th { color: var(--text2); font-weight: 600; font-size: .78rem; }
   </button>
   </div>
 </header>
-<nav class="tabs"><div class="container tabs-row"><a class="tab" href="index.html">Naukowcy</a><a class="tab" href="wyszukiwarka.html">Wyszukiwarka</a><a class="tab" href="dopasowanie.html">Nabory</a><a class="tab" href="biuro.html">Projekty</a><a class="tab active" href="panel.html">Panel</a></div></nav><div class="seg-bar"><div class="container seg-row"><button class="tab seg-btn active" type="button" data-view="nauk">Naukowiec</button><button class="tab seg-btn" type="button" data-view="biuro">Biuro projektowe</button></div></div>
+<nav class="tabs" aria-label="Menu główne"><div class="container tabs-row"><a class="tab" href="index.html">Naukowcy</a><a class="tab" href="wyszukiwarka.html">Wyszukiwarka</a><a class="tab" href="dopasowanie.html">Nabory</a><a class="tab" href="biuro.html">Projekty</a><a class="tab active" href="panel.html" aria-current="page">Panel</a></div></nav><div class="seg-bar" role="navigation" aria-label="Widoki strony"><div class="container seg-row"><button class="tab seg-btn active" type="button" data-view="nauk">Naukowiec</button><button class="tab seg-btn" type="button" data-view="biuro">Biuro projektowe</button></div></div>
 
 <main class="container">
   <section class="hero-simple">
@@ -619,6 +619,14 @@ table.pn-table th { color: var(--text2); font-weight: 600; font-size: .78rem; }
   const save = () => saveState(KEY, st);
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const $ = id => document.getElementById(id);
+  function toast(msg){
+    let t = document.getElementById('toast');
+    if (!t) { t = document.createElement('div'); t.id = 'toast'; t.setAttribute('role', 'status'); t.setAttribute('aria-live', 'polite');
+      t.style.cssText = 'position:fixed;bottom:1.2rem;left:50%;transform:translateX(-50%);background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:.6rem 1rem;box-shadow:var(--shadow);z-index:99;font-size:.88rem;display:none;';
+      document.body.appendChild(t); }
+    t.textContent = msg; t.style.display = 'block';
+    clearTimeout(t._h); t._h = setTimeout(() => { t.style.display = 'none'; }, 2600);
+  }
   const initials = n => n.split(/\s+/).filter(Boolean).slice(0,2).map(p => p[0]).join('').toUpperCase();
   const FLOW = ['szkic', 'zatwierdzone', 'wysłane'];
   const ANSWERS = ['odpowiedź: tak', 'odpowiedź: nie', 'brak odpowiedzi'];
@@ -732,6 +740,7 @@ table.pn-table th { color: var(--text2); font-weight: 600; font-size: .78rem; }
       const i = st.invites[+b.dataset.send];
       const subj = encodeURIComponent('Zaproszenie do udziału: ' + i.nabor);
       const body = encodeURIComponent('Dzień dobry ' + i.person + ',\n\nzapraszamy do udziału w zespole dla naboru ' + i.nabor + ' w roli: ' + i.rola + '.\n' + (i.uzas ? 'Uzasadnienie: ' + i.uzas + '.\n' : '') + '\nProsimy o odpowiedź, czy jest Pan/Pani zainteresowana/y.\n\nPozdrawiamy,\nBiuro projektowe Wydziału Informatyki AGH');
+      if (!confirm('Otworzyć wiadomość do ' + i.person + '? Status zaproszenia zmieni się na „wysłane”.')) return;
       i.status = 'wysłane'; i.sent = new Date().toISOString().slice(0, 10); save();
       window.location.href = 'mailto:?subject=' + subj + '&body=' + body;
       refresh();
@@ -744,6 +753,7 @@ table.pn-table th { color: var(--text2); font-weight: 600; font-size: .78rem; }
     const person = $('zp-osoba').value, nabor = $('zp-nabor').value;
     if (!person || !nabor) return;
     st.invites.push({person: person, nabor: nabor, rola: $('zp-rola').value, uzas: $('zp-uzas').value.trim(), status: 'szkic', created: DATA.today});
+    toast('Szkic zapisany. Zatwierdź go, zanim wyślesz.');
     $('zp-uzas').value = '';
     save(); refresh();
     document.querySelector('.pn-sub button[data-pane="nabory"]').click();
@@ -753,7 +763,7 @@ table.pn-table th { color: var(--text2); font-weight: 600; font-size: .78rem; }
   $('pf-save').addEventListener('click', () => {
     const name = $('pn-person').value;
     st.profiles[name] = {wnosze: $('pf-wnosze').value.trim(), szukam: $('pf-szukam').value.trim(), dost: $('pf-dost').value, zain: $('pf-zain').value, zaktualizowano: DATA.today};
-    save(); $('pf-saved').textContent = 'Zapisano lokalnie'; refresh();
+    save(); $('pf-saved').textContent = 'Zapisano lokalnie'; toast('Profil zapisany'); refresh();
   });
 
   function refresh(){ renderNaukInvites(); renderBiuroKpi(); renderBiuroCalls(); }

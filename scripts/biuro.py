@@ -11,7 +11,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import dopasowanie as dp  # noqa: E402
 
 TAB_NAME = "Projekty"
-TODAY = datetime.date(2026, 10, 26).isoformat()
+TODAY = datetime.date.today().isoformat()
 COLUMNS = [
     ("przyszle", "Przyszłe", "#4f7fb0"),
     ("otwarte", "Otwarte", "#5f9e80"),
@@ -275,6 +275,14 @@ SCRIPT = """
   const colorOf = {}; DATA.people.forEach(p => colorOf[p.name] = p.color);
   const colById = {}; DATA.columns.forEach(c => colById[c[0]] = c[2]);
   const $ = id => document.getElementById(id);
+  function toast(msg){
+    let t = document.getElementById('toast');
+    if (!t) { t = document.createElement('div'); t.id = 'toast'; t.setAttribute('role', 'status'); t.setAttribute('aria-live', 'polite');
+      t.style.cssText = 'position:fixed;bottom:1.2rem;left:50%;transform:translateX(-50%);background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:.6rem 1rem;box-shadow:var(--shadow);z-index:99;font-size:.88rem;display:none;';
+      document.body.appendChild(t); }
+    t.textContent = msg; t.style.display = 'block';
+    clearTimeout(t._h); t._h = setTimeout(() => { t.style.display = 'none'; }, 2600);
+  }
 
   function allProjects(){
     const base = DATA.projects.map(p => Object.assign({}, p, st.cards[p.id] || {}));
@@ -366,7 +374,7 @@ SCRIPT = """
     board.innerHTML = DATA.columns.map(c => {
       const items = shown.filter(p => p.column === c[0]);
       return '<div class="pj-col" style="--c:' + c[2] + '"><div class="pj-col-head"><h3>' + esc(c[1]) + '</h3><span class="pj-count">' + items.length + '</span></div>' +
-        (items.map(card).join('') || '<div class="pj-empty">Brak projektów</div>') + '</div>';
+        (items.map(card).join('') || '<div class="pj-empty">Brak projektów w tym etapie. Dodaj nowy formularzem powyżej albo zdejmij filtry.</div>') + '</div>';
     }).join('');
     board.querySelectorAll('[data-add]').forEach(s => s.addEventListener('change', e => {
       const id = e.target.dataset.add; const name = e.target.value; if (!name) return;
@@ -375,6 +383,7 @@ SCRIPT = """
     }));
     board.querySelectorAll('[data-remove]').forEach(b => b.addEventListener('click', e => {
       const id = e.currentTarget.dataset.remove; const name = e.currentTarget.dataset.name;
+      if (!confirm('Usunąć osobę „' + name + '” z zespołu?')) return;
       const p = all.find(x => x.id === id);
       update(id, {people: (p.people || []).filter(n => n !== name), open: true});
     }));
@@ -401,6 +410,7 @@ SCRIPT = """
     const base = DATA.projects.find(p => p.id === call);
     const slowa = $('pj-new-slowa').value.split(',').map(s => s.trim()).filter(Boolean);
     const term = $('pj-new-term').value;
+    toast('Dodano projekt do etapu Przyszłe');
     st.custom.push({
       id: 'custom-' + Date.now(), title: title,
       opis: $('pj-new-opis').value.trim(),

@@ -7,7 +7,8 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 import dopasowanie as dp  # noqa: E402
 
-TODAY = "2026-10-26"
+import datetime
+TODAY = datetime.date.today().isoformat()
 
 
 AREA_COLORS = dp.person_area_colors()
@@ -226,6 +227,14 @@ SCRIPT = """
   const save = () => saveState(KEY, st);
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const $ = id => document.getElementById(id);
+  function toast(msg){
+    let t = document.getElementById('toast');
+    if (!t) { t = document.createElement('div'); t.id = 'toast'; t.setAttribute('role', 'status'); t.setAttribute('aria-live', 'polite');
+      t.style.cssText = 'position:fixed;bottom:1.2rem;left:50%;transform:translateX(-50%);background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:.6rem 1rem;box-shadow:var(--shadow);z-index:99;font-size:.88rem;display:none;';
+      document.body.appendChild(t); }
+    t.textContent = msg; t.style.display = 'block';
+    clearTimeout(t._h); t._h = setTimeout(() => { t.style.display = 'none'; }, 2600);
+  }
   const initials = n => n.split(/\\s+/).filter(Boolean).slice(0,2).map(p => p[0]).join('').toUpperCase();
   const FLOW = ['szkic', 'zatwierdzone', 'wysłane'];
   const ANSWERS = ['odpowiedź: tak', 'odpowiedź: nie', 'brak odpowiedzi'];
@@ -339,6 +348,7 @@ SCRIPT = """
       const i = st.invites[+b.dataset.send];
       const subj = encodeURIComponent('Zaproszenie do udziału: ' + i.nabor);
       const body = encodeURIComponent('Dzień dobry ' + i.person + ',\\n\\nzapraszamy do udziału w zespole dla naboru ' + i.nabor + ' w roli: ' + i.rola + '.\\n' + (i.uzas ? 'Uzasadnienie: ' + i.uzas + '.\\n' : '') + '\\nProsimy o odpowiedź, czy jest Pan/Pani zainteresowana/y.\\n\\nPozdrawiamy,\\nBiuro projektowe Wydziału Informatyki AGH');
+      if (!confirm('Otworzyć wiadomość do ' + i.person + '? Status zaproszenia zmieni się na „wysłane”.')) return;
       i.status = 'wysłane'; i.sent = new Date().toISOString().slice(0, 10); save();
       window.location.href = 'mailto:?subject=' + subj + '&body=' + body;
       refresh();
@@ -351,6 +361,7 @@ SCRIPT = """
     const person = $('zp-osoba').value, nabor = $('zp-nabor').value;
     if (!person || !nabor) return;
     st.invites.push({person: person, nabor: nabor, rola: $('zp-rola').value, uzas: $('zp-uzas').value.trim(), status: 'szkic', created: DATA.today});
+    toast('Szkic zapisany. Zatwierdź go, zanim wyślesz.');
     $('zp-uzas').value = '';
     save(); refresh();
     document.querySelector('.pn-sub button[data-pane="nabory"]').click();
@@ -360,7 +371,7 @@ SCRIPT = """
   $('pf-save').addEventListener('click', () => {
     const name = $('pn-person').value;
     st.profiles[name] = {wnosze: $('pf-wnosze').value.trim(), szukam: $('pf-szukam').value.trim(), dost: $('pf-dost').value, zain: $('pf-zain').value, zaktualizowano: DATA.today};
-    save(); $('pf-saved').textContent = 'Zapisano lokalnie'; refresh();
+    save(); $('pf-saved').textContent = 'Zapisano lokalnie'; toast('Profil zapisany'); refresh();
   });
 
   function refresh(){ renderNaukInvites(); renderBiuroKpi(); renderBiuroCalls(); }
