@@ -64,7 +64,7 @@ def calls():
 def render():
     head, header, theme_js = dp.site_parts()
     head = head.replace("Dopasowanie do naboru · Mapa badawcza WI AGH", "Panel · Mapa badawcza WI AGH")
-    tabs = dp.nav_html("panel") + dp.local_nav([("nauk", "Naukowiec"), ("biuro", "Biuro projektowe")], mode="button")
+    tabs = dp.nav_html("panel")
     payload = {"people": people(), "calls": calls(), "today": TODAY}
     data = json.dumps(payload, ensure_ascii=False).replace("</", "<\\/")
     script = SCRIPT.replace("__DATA__", data)
@@ -122,13 +122,13 @@ table.pn-table th {{ color: var(--text2); font-weight: 600; font-size: .78rem; }
 
 
   <!-- NAUKOWIEC -->
-  <div class="pn-view active" id="view-nauk">
+  <div class="pn-view active" id="view-nauk" data-role-only="naukowiec">
     <div class="pn-grid2">
       <div class="pn-stack">
         <div class="pn-card">
-          <h3>Kto korzysta</h3>
-          <input id="pn-search" class="pn-pick" type="search" placeholder="Szukaj osoby po nazwisku…" style="margin-bottom:.5rem">
-          <select id="pn-person" class="pn-pick"></select>
+          <h3 id="pn-who">Moje dane</h3>
+          <input id="pn-search" class="pn-pick" type="search" placeholder="Szukaj osoby po nazwisku…" style="margin-bottom:.5rem" hidden>
+          <select id="pn-person" class="pn-pick" hidden></select>
           <div id="pn-person-card" style="margin-top:1rem"></div>
         </div>
         <div class="pn-card">
@@ -153,7 +153,7 @@ table.pn-table th {{ color: var(--text2); font-weight: 600; font-size: .78rem; }
   </div>
 
   <!-- BIURO -->
-  <div class="pn-view" id="view-biuro">
+  <div class="pn-view" id="view-biuro" data-role-only="biuro">
     <div class="pn-sub">
       <button class="active" data-pane="przeglad">Przegląd</button>
       <button data-pane="nabory">Nabory i zaproszenia</button>

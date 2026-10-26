@@ -83,6 +83,7 @@ def initials(name):
     return "".join(p[0] for p in parts[:2]).upper()
 
 
+BIURO_ONLY = {"nabory", "projekty", "wyszukiwarka"}
 NAV = [
     ("Naukowcy", "index.html", "naukowcy"),
     ("Wyszukiwarka", "wyszukiwarka.html", "wyszukiwarka"),
@@ -106,13 +107,21 @@ def local_nav(items, mode="link"):
     return f'<div class="seg-bar" role="navigation" aria-label="Widoki strony"><div class="container seg-row">{btns}</div></div>'
 
 
+def toggle_html():
+    src = (ROOT / "index.html").read_text(encoding="utf-8")
+    m = re.search(r'<button class="theme-toggle".*?</button>', src, flags=re.S)
+    return m.group(0) if m else ""
+
+
 def nav_html(active):
-    items = "".join(
-        f'<a class="tab{cur_cls}" href="{href}"{cur_attr}>{label}</a>'
-        for label, href, key in NAV
-        for cur_cls, cur_attr in [((" active", ' aria-current="page"') if key == active else ("", ""))]
-    )
-    return f'<nav class="tabs" aria-label="Menu główne"><div class="container tabs-row">{items}</div></nav>'
+    items = []
+    for label, href, key in NAV:
+        cur_cls = " active" if key == active else ""
+        cur_attr = ' aria-current="page"' if key == active else ""
+        role_attr = ' data-role-only="biuro"' if key in BIURO_ONLY else ""
+        items.append(f'<a class="tab{cur_cls}" href="{href}"{cur_attr}{role_attr}>{label}</a>')
+    items.append('<a class="tab" href="profil.html" data-role-only="naukowiec">Mój profil</a>')
+    return f'<nav class="tabs" aria-label="Menu główne"><div class="container tabs-row">{"".join(items)}</div></nav>'
 
 
 def site_parts():
@@ -134,6 +143,7 @@ def site_parts():
     header = re.sub(r"<nav class=\"tabs\">.*?</nav>", "", header, flags=re.S)
     header = re.sub(r"<nav class=\"subtabs\">.*?</nav>", "", header, flags=re.S)
     header = re.sub(r'<div class="seg-bar">.*?(?=</header>)', "", header, flags=re.S)
+    theme_js = theme_js + '\n<script src="assets/app.js"></script>'
     return head, header, theme_js
 
 
