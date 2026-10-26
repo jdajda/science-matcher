@@ -145,7 +145,7 @@ def section(call_id, nabor, out):
     cards = "".join(card(i, r) for i, r in enumerate(out["top"], 1))
     return f"""
   <section class="call-section" id="{h.escape(call_id)}" style="margin-bottom:2.2rem">
-    <div class="eyebrow">Nabór Horyzont Europa</div>
+    <div class="eyebrow">Słowa z projektu i publikacji · nabór</div>
     <h2 class="hero-title" style="font-size:1.35rem">{h.escape(call_id)}</h2>
     <p class="hero-sub">{h.escape(nabor)}</p>
     <div class="stats-bar" style="margin:1rem 0">
@@ -163,35 +163,177 @@ def section(call_id, nabor, out):
   </section>"""
 
 
+def topic_section(path):
+    if not Path(path).exists():
+        return ""
+    res = json.loads(Path(path).read_text(encoding="utf-8"))
+    top = res.get("top", [])[:10]
+    if not top:
+        return ""
+    best = top[0]["wynik"] or 1
+    cards = []
+    for i, r in enumerate(top, 1):
+        ev = []
+        for x in r["pojecia"]:
+            d = x.get("dowod")
+            if d:
+                ev.append(f"<li><b>{h.escape(x['pojecie'])}</b> ← {h.escape(d['temat'])}</li>")
+        text = " ".join([r["wi_name"]] + [x["pojecie"] for x in r["pojecia"] if x.get("dowod")]).lower()
+        cards.append(f"""
+    <article class="staff-card" data-text="{h.escape(text)}">
+      <div class="s-head">
+        <div class="s-av">{h.escape(initials(r['wi_name']))}</div>
+        <div class="s-id"><h3>{i}. {h.escape(r['wi_name'])}</h3></div>
+      </div>
+      <div class="s-pills">
+        <span class="s-pill">wynik {round(r['wynik'] / best * 100)}%</span>
+        <span class="s-pill">pokrycie {round(r['pokrycie'] * 100)}%</span>
+      </div>
+      <ul class="s-kw" style="padding-left:1.1rem">{''.join(ev) or '<li>brak dowodów</li>'}</ul>
+    </article>""")
+    return f"""
+  <section class="call-section" id="tematy" style="margin-bottom:2.2rem">
+    <div class="eyebrow">Dopasowanie po tematach OpenAlex</div>
+    <h2 class="hero-title" style="font-size:1.35rem">{h.escape(res.get('nabor') or '')}</h2>
+    <p class="hero-sub">Wstępne: mapowanie pojęć wybrałam sama, do potwierdzenia przez biuro. Wyniki są względne.</p>
+    <div class="staff-list">{''.join(cards)}
+    </div>
+  </section>"""
+
+
+OWN_JS = """
+(function(){
+  const STOP = new Set(__STOP__);
+  const PROFILES = __PROFILES__;
+  const kw = document.getElementById('kw');
+  const boxes = document.querySelectorAll('.sec-cb, .m-cb');
+  function apply(){
+    const q = kw.value.trim().toLowerCase();
+    document.querySelectorAll('.sec').forEach(sec => {
+      const m = document.querySelector('.m-cb[value="' + sec.dataset.method + '"]');
+      const n = sec.dataset.method === 'slowa' ? document.querySelector('.sec-cb[value="' + sec.dataset.sec + '"]') : null;
+      const on = (!m || m.checked) && (!n || n.checked);
+      sec.style.display = on ? '' : 'none';
+      sec.querySelectorAll('.staff-card').forEach(c => {
+        c.style.display = (!q || c.dataset.text.includes(q)) ? '' : 'none';
+      });
+    });
+  }
+  function fold(s){ return s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase(); }
+  function toks(s){ return (fold(s).match(/[a-z0-9]{3,}/g) || []).filter(t => !STOP.has(t)); }
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function initials(n){ return n.split(/\s+/).filter(Boolean).slice(0,2).map(p => p[0]).join('').toUpperCase(); }
+  const W = {topic: 3, keyword: 2, work: 1};
+  function score(desc){
+    const wanted = [...new Set(toks(desc))];
+    const rows = [];
+    PROFILES.forEach(p => {
+      const terms = {};
+      const add = (tok, kind, label) => {
+        if (!terms[tok] || terms[tok].w < W[kind]) terms[tok] = {w: W[kind], kind: kind, label: label};
+      };
+      p.t.forEach(name => toks(name).forEach(tok => add(tok, 'topic', name)));
+      p.w.forEach(work => {
+        work[1].forEach(k => toks(k).forEach(tok => add(tok, 'keyword', k)));
+        toks(work[0]).forEach(tok => add(tok, 'work', work[0]));
+      });
+      let total = 0; const hits = [];
+      wanted.forEach(tok => {
+        const t = terms[tok];
+        if (t) { total += t.w; hits.push({token: tok, source: t.kind, evidence: t.label}); }
+      });
+      if (total > 0) rows.push({p: p, total: total, hits: hits});
+    });
+    rows.sort((a, b) => b.total - a.total);
+    return rows.slice(0, 10);
+  }
+  function render(desc){
+    const box = document.getElementById('own-results');
+    if (!desc.trim()) { box.innerHTML = '<p class="hero-sub">Wpisz opis po lewej i kliknij „Dopasuj”.</p>'; apply(); return; }
+    const rows = score(desc);
+    if (!rows.length) { box.innerHTML = '<p class="hero-sub">Brak trafień. Spróbuj innych słów kluczowych.</p>'; apply(); return; }
+    const best = rows[0].total;
+    box.innerHTML = '<div class="staff-list">' + rows.map((r, i) => {
+      const pct = Math.round(r.total / best * 100);
+      const kws = r.hits.slice(0, 6).map(h => "<span class='kw'>" + esc(h.token) + "</span>").join('');
+      const text = [r.p.n, r.p.o, r.p.f].concat(r.hits.map(h => h.token)).join(' ').toLowerCase();
+      const link = r.p.r ? "<a class='s-link' href='" + esc(r.p.r) + "' target='_blank' rel='noopener'>ORCID →</a>" : "<span class='s-link'>ORCID brak</span>";
+      return "<article class='staff-card' data-text='" + esc(text) + "'>" +
+        "<div class='s-head'><div class='s-av'>" + esc(initials(r.p.n)) + "</div>" +
+        "<div class='s-id'><h3>" + (i + 1) + ". " + esc(r.p.n) + "</h3><div class='s-sub'>" + esc(r.p.o || '') + "</div>" +
+        "<div class='s-sub'>" + esc(r.p.f || '') + "</div></div></div>" +
+        "<div class='s-pills'><span class='s-pill'>wynik " + pct + "%</span></div>" +
+        "<div class='s-kw'>" + kws + "</div>" +
+        "<div class='s-foot'>" + link + "</div></article>";
+    }).join('') + '</div>';
+    apply();
+  }
+  const ta = document.getElementById('own-text');
+  document.getElementById('own-btn').addEventListener('click', () => render(ta.value));
+  ta.addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) render(ta.value); });
+  kw.addEventListener('input', apply);
+  boxes.forEach(b => b.addEventListener('change', apply));
+})();
+"""
+
+
 def render_html(sections):
     head, header, theme_js = site_parts()
-    chips = "".join(f"<a class='s-pill' href='#{h.escape(cid)}' style='text-decoration:none'>{h.escape(cid)}</a>" for cid, _, _ in sections)
-    bar = f"""
-  <div class="side-card" style="position:static;max-height:none;margin-bottom:1.6rem">
-    <div class="side-head"><h3>Filtr</h3></div>
-    <div class="s-pills">{chips}</div>
-    <input id="kw" type="search" placeholder="Filtruj osoby: nazwisko, dziedzina, słowo kluczowe…" class="kw-input" style="width:100%;margin-top:.8rem;padding:.55rem .7rem;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font:inherit;font-size:.9rem">
-  </div>"""
-    script = """
-<script>
-document.getElementById('kw').addEventListener('input', function(){
-  const q = this.value.trim().toLowerCase();
-  document.querySelectorAll('.staff-card').forEach(c => {
-    c.style.display = (!q || c.dataset.text.includes(q)) ? '' : 'none';
-  });
-});
-</script>"""
     tabs = """
 <nav class="tabs">
   <div class="container tabs-row">
     <a class="tab" href="index.html#staff">Naukowcy</a>
     <a class="tab" href="index.html#areas">Obszary badawcze</a>
-    <a class="tab" href="index.html#match">Nabory i dopasowanie</a>
+    <a class="tab active" href="dopasowanie.html">Nabory i dopasowanie</a>
     <a class="tab" href="index.html#graph">Graf współpracy</a>
-    <a class="tab active" href="dopasowanie.html">Dopasowanie do naboru</a>
   </div>
 </nav>"""
-    body = "".join(section(*sec) for sec in sections)
+    topic_html = topic_section(ROOT / "data/dopasowanie_tematy_HORIZON-CL4-2026-04-DIGITAL-EMERGING-09.json")
+    blocks = []
+    if topic_html:
+        blocks.append(f'<div class="sec" data-sec="tematy" data-method="tematy">{topic_html}</div>')
+    blocks += [f'<div class="sec" data-sec="{h.escape(sec[0])}" data-method="slowa">{section(*sec)}</div>' for sec in sections]
+    blocks.insert(0, '<div class="sec" data-sec="wlasny" data-method="wlasny"><section class="call-section" id="wlasny" style="margin-bottom:2.2rem"><div class="eyebrow">Wpisz projekt · słowa z publikacji</div><h2 class="hero-title" style="font-size:1.35rem">Wpisz projekt</h2><div id="own-results"><p class="hero-sub">Wpisz opis po lewej i kliknij „Dopasuj”.</p></div></section></div>')
+    body = "".join(blocks)
+    calls_filter = "".join(
+        f'<label class="f-check"><input type="checkbox" class="sec-cb" value="{h.escape(cid)}" checked> {h.escape(cid)}</label>'
+        for cid, _, _ in sections
+    )
+    side = f"""
+    <aside class="side-card">
+      <div class="side-head"><h3>Filtry</h3></div>
+      <div class="side-block">
+        <span class="side-label">Szukaj</span>
+        <input id="kw" type="search" placeholder="Nazwisko, dziedzina, słowo…" style="width:100%;margin-top:.5rem;padding:.55rem .7rem;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font:inherit;font-size:.9rem">
+      </div>
+      <div class="side-block">
+        <span class="side-label">Metoda dopasowania</span>
+        <label class="f-check"><input type="checkbox" class="m-cb" value="slowa" checked> Słowa z projektu i publikacji</label>
+        <label class="f-check"><input type="checkbox" class="m-cb" value="tematy" checked> Tematy OpenAlex</label>
+        <label class="f-check"><input type="checkbox" class="m-cb" value="wlasny" checked> Wpisz projekt</label>
+      </div>
+      <div class="side-block">
+        <span class="side-label">Wpisz projekt</span>
+        <textarea id="own-text" rows="4" placeholder="Krótko: czego potrzebuje projekt (1–3 zdania)" style="width:100%;margin-top:.5rem;padding:.55rem .7rem;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font:inherit;font-size:.9rem"></textarea>
+        <button id="own-btn" class="btn btn-primary" type="button" style="margin-top:.5rem;width:100%">Dopasuj</button>
+      </div>
+      <div class="side-block">
+        <span class="side-label">Nabór</span>
+        {calls_filter}
+      </div>
+      <p class="side-note">Wyniki są wstępne. Weryfikuje biuro.</p>
+    </aside>"""
+    profiles = json.loads((ROOT / "data/wi_profiles.json").read_text(encoding="utf-8"))
+    payload = [
+        {"n": p.get("wi_name"), "o": p.get("name") or "", "r": p.get("orcid") or "",
+         "f": ((p.get("topics") or [{}])[0].get("field") or ""),
+         "t": [t.get("name", "") for t in (p.get("topics") or [])],
+         "w": [[w.get("title") or "", w.get("keywords") or []] for w in (p.get("works") or [])]}
+        for p in profiles
+    ]
+    blob = json.dumps(payload, ensure_ascii=False).replace("</", "<\\/")
+    js = OWN_JS.replace("__STOP__", json.dumps(sorted(STOP), ensure_ascii=False)).replace("__PROFILES__", blob)
+    script = "<script>" + js + "</script>"
     return f"""{head}
 <style>a.tab, a.tab:hover {{ text-decoration: none; }} .tabs-row {{ flex-wrap: wrap; }} .tab {{ white-space: normal; }} .m-info, .m-name, .s-id h3, .s-pill, .s-kw, .s-sub, .hero-title, .hero-sub, .stat, .side-note {{ overflow-wrap: anywhere; min-width: 0; }} .hero-title, h1, h2, h3 {{ line-height: 1.25; letter-spacing: 0; }} body, p, li {{ line-height: 1.5; }} .s-pill, .kw {{ line-height: 1.3; white-space: normal; }} .hero-sub {{ max-width: 70ch; }}</style>
 </head>
@@ -205,8 +347,10 @@ document.getElementById('kw').addEventListener('input', function(){
     <h1 class="hero-title">Dopasowanie osób do naborów</h1>
     <p class="hero-sub">Dopasowanie na podstawie tytułów tematów; pełne opisy do uzupełnienia.</p>
   </section>
-{bar}
-{body}
+  <div class="staff-layout" style="margin-top:1.2rem">
+    {side}
+    <div>{body}</div>
+  </div>
 </main>
 {script}
 {theme_js}

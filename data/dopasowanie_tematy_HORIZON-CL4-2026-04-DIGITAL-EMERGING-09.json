@@ -1,0 +1,456 @@
+{
+ "nabor": "HORIZON-CL4-2026-04-DIGITAL-EMERGING-09",
+ "nieopisane_pojecia": [],
+ "osob_z_trafieniem": 16,
+ "top": [
+  {
+   "wi_name": "Mańdziuk Jacek",
+   "openalex_id": "https://openalex.org/A5073814691",
+   "wynik": 0.036,
+   "pokrycie": 0.2,
+   "pojecia": [
+    {
+     "pojecie": "digital twin",
+     "wynik": 0.0,
+     "dowod": null
+    },
+    {
+     "pojecie": "early warning",
+     "wynik": 0.0,
+     "dowod": null
+    },
+    {
+     "pojecie": "disaster risk",
+     "wynik": 0.0,
+     "dowod": null
+    },
+    {
+     "pojecie": "machine learning",
+     "wynik": 0.18,
+     "dowod": {
+      "temat": "Machine Learning and Data Classification",
+      "weight": 0.1798,
+      "prace": [
+       {
+        "title": "An overview of mixing augmentation methods and augmentation strategies",
+        "year": 2022
+       },
+       {
+        "title": "Duo-LDL method for Label Distribution Learning based on pairwise class dependencies",
+        "year": 2021
+       },
+       {
+        "title": "StatMix: Data Augmentation Method that Relies on Image Statistics in Federated Learning",
+        "year": 2023
+       }
+      ]
+     }
+    },
+    {
+     "pojecie": "urban planning",
+     "wynik": 0.0,
+     "dowod": null
+    }
+   ]
+  },
+  {
+   "wi_name": "Duda Piotr",
+   "openalex_id": "https://openalex.org/A5085197012",
+   "wynik": 0.035,
+   "pokrycie": 0.2,
+   "pojecia": [
+    {
+     "pojecie": "digital twin",
+     "wynik": 0.0,
+     "dowod": null
+    },
+    {
+     "pojecie": "early warning",
+     "wynik": 0.0,
+     "dowod": null
+    },
+    {
+     "pojecie": "disaster risk",
+     "wynik": 0.0,
+     "dowod": null
+    },
+    {
+     "pojecie": "machine learning",
+     "wynik": 0.177,
+     "dowod": {
+      "temat": "Machine Learning and Data Classification",
+      "weight": 0.1775,
+      "prace": [
+       {
+        "title": "Splitting Criteria with the Bias Term",
+        "year": 2019
+       },
+       {
+        "title": "On a Streaming Approach for Training Denoising Auto-encoders",
+        "year": 2020
+       },
+       {
+        "title": "Misclassification Error Impurity Measure",
+        "year": 2019
+       }
+      ]
+     }
+    },
+    {
+     "pojecie": "urban planning",
+     "wynik": 0.0,
+     "dowod": null
+    }
+   ]
+  },
+  {
+   "wi_name": "Bałamut Anna",
+   "openalex_id": "https://openalex.org/A5002260098",
+   "wynik": 0.022,
+   "pokrycie": 0.2,
+   "pojecia": [
+    {
+     "pojecie": "digital twin",
+     "wynik": 0.0,
+     "dowod": null
+    },
+    {
+     "pojecie": "early warning",
+     "wynik": 0.0,
+     "dowod": null
+    },
+    {
+     "pojecie": "disaster risk",
+     "wynik": 0.112,
+     "dowod": {
+      "temat": "Disaster Management and Resilience",
+      "weight": 0.1122,
+      "prace": [
+       {
+        "title": "Managing organisational resilience in the onshore wind energy sector in Poland",
+        "year": 2026
+       }
+      ]
+     }
+    },
+    {
+     "pojecie": "machine learning",
+     "wynik": 0.0,
+     "dowod": null
+    },
+    {
+     "pojecie": "urban planning",
+     "wynik": 0.0,
+     "dowod": null
+    }
+   ]
+  },
+  {
+   "wi_name": "Kacprzyk Janusz",
+   "openalex_id": "https://openalex.org/A5005837856",
+   "wynik": 0.02,
+   "pokrycie": 0.2,
+   "pojecia": [
+    {
+     "pojecie": "digital twin",
+     "wynik": 0.101,
+     "dowod": {
+      "temat": "Digital Transformation in Industry",
+      "weight": 0.1013,
+      "prace": [
+       {
+        "title": "Agri-food 4.0: A survey of the supply chains and technologies for the future agriculture",
+        "year": 2020
+       },
+       {
+        "title": "The Internet of Things and AI-based optimization within the Industry 4.0 paradigm",
+        "year": 2023
+       },
+       {
+        "title": "12th World Conference “Intelligent System for Industrial Automation” (WCIS-2022)",
+        "year": 2024
+       }
+      ]
+     }
+    },
+    {
+     "pojecie": "early warning",
+     "wynik": 0.0,
+     "dowod": null
+    },
+    {
+     "pojecie": "disaster risk",
+     "wynik": 0.0,
+     "dowod": null
+    },
+    {
+     "pojecie": "machine learning",
+     "wynik": 0.0,
+     "dowod": null
+    },
+    {
+     "pojecie": "urban planning",
+     "wynik": 0.0,
+     "dowod": null
+    }
+   ]
+  },
+  {
+   "wi_name": "Piętak Kamil",
+   "openalex_id": "https://openalex.org/A5046644747",
+   "wynik": 0.02,
+   "pokrycie": 0.2,
+   "pojecia": [
+    {
+     "pojecie": "digital twin",
+     "wynik": 0.0,
+     "dowod": null
+    },
+    {
+     "pojecie": "early warning",
+     "wynik": 0.0,
+     "dowod": null
+    },
+    {
+     "pojecie": "disaster risk",
+     "wynik": 0.0,
+     "dowod": null
+    },
+    {
+     "pojecie": "machine learning",
+     "wynik": 0.102,
+     "dowod": {
+      "temat": "Machine Learning and Algorithms",
+      "weight": 0.1024,
+      "prace": [
+       {
+        "title": "NLP Semi-supervised PU Learning with Reduced Number of Labeled Examples",
+        "year": 2021
+       }
+      ]
+     }
+    },
+    {
+     "pojecie": "urban planning",
+     "wynik": 0.0,
+     "dowod": null
+    }
+   ]
+  },
+  {
+   "wi_name": "Bubak Marian",
+   "openalex_id": "https://openalex.org/A5004326594",
+   "wynik": 0.013,
+   "pokrycie": 0.2,
+   "pojecia": [
+    {
+     "pojecie": "digital twin",
+     "wynik": 0.063,
+     "dowod": {
+      "temat": "Digital Transformation in Industry",
+      "weight": 0.0628,
+      "prace": [
+       {
+        "title": "Digital Twin Simulation Development and Execution on HPC Infrastructures",
+        "year": 2023
+       }
+      ]
+     }
+    },
+    {
+     "pojecie": "early warning",
+     "wynik": 0.0,
+     "dowod": null
+    },
+    {
+     "pojecie": "disaster risk",
+     "wynik": 0.0,
+     "dowod": null
+    },
+    {
+     "pojecie": "machine learning",
+     "wynik": 0.0,
+     "dowod": null
+    },
+    {
+     "pojecie": "urban planning",
+     "wynik": 0.0,
+     "dowod": null
+    }
+   ]
+  },
+  {
+   "wi_name": "Achtelik Wojciech",
+   "openalex_id": "https://openalex.org/A5099101411",
+   "wynik": 0.011,
+   "pokrycie": 0.2,
+   "pojecia": [
+    {
+     "pojecie": "digital twin",
+     "wynik": 0.0,
+     "dowod": null
+    },
+    {
+     "pojecie": "early warning",
+     "wynik": 0.0,
+     "dowod": null
+    },
+    {
+     "pojecie": "disaster risk",
+     "wynik": 0.0,
+     "dowod": null
+    },
+    {
+     "pojecie": "machine learning",
+     "wynik": 0.057,
+     "dowod": {
+      "temat": "Machine Learning and Data Classification",
+      "weight": 0.0569,
+      "prace": [
+       {
+        "title": "Enhancing Gaussian Mixture Model Fitting via Equiprobable Binning and Adaptive Differential Evolution",
+        "year": 2025
+       }
+      ]
+     }
+    },
+    {
+     "pojecie": "urban planning",
+     "wynik": 0.0,
+     "dowod": null
+    }
+   ]
+  },
+  {
+   "wi_name": "Scherer Rafał",
+   "openalex_id": "https://openalex.org/A5036573895",
+   "wynik": 0.011,
+   "pokrycie": 0.2,
+   "pojecia": [
+    {
+     "pojecie": "digital twin",
+     "wynik": 0.0,
+     "dowod": null
+    },
+    {
+     "pojecie": "early warning",
+     "wynik": 0.0,
+     "dowod": null
+    },
+    {
+     "pojecie": "disaster risk",
+     "wynik": 0.0,
+     "dowod": null
+    },
+    {
+     "pojecie": "machine learning",
+     "wynik": 0.055,
+     "dowod": {
+      "temat": "Machine Learning and Data Classification",
+      "weight": 0.0554,
+      "prace": [
+       {
+        "title": "Fuzzy clustering decomposition of genetic algorithm-based instance selection for regression problems",
+        "year": 2021
+       },
+       {
+        "title": "A Quantum-inspired Approach to Estimate Optimum-Path Forest Prototypes based on the Traveling Salesman Problem",
+        "year": 2024
+       }
+      ]
+     }
+    },
+    {
+     "pojecie": "urban planning",
+     "wynik": 0.0,
+     "dowod": null
+    }
+   ]
+  },
+  {
+   "wi_name": "Nowicki Robert",
+   "openalex_id": "https://openalex.org/A5080246635",
+   "wynik": 0.01,
+   "pokrycie": 0.0,
+   "pojecia": [
+    {
+     "pojecie": "digital twin",
+     "wynik": 0.0,
+     "dowod": null
+    },
+    {
+     "pojecie": "early warning",
+     "wynik": 0.0,
+     "dowod": null
+    },
+    {
+     "pojecie": "disaster risk",
+     "wynik": 0.0,
+     "dowod": null
+    },
+    {
+     "pojecie": "machine learning",
+     "wynik": 0.05,
+     "dowod": {
+      "temat": "Machine Learning and Data Classification",
+      "weight": 0.0498,
+      "prace": [
+       {
+        "title": "Rough Support Vector Machine for Classification with Interval and Incomplete Data",
+        "year": 2019
+       }
+      ]
+     }
+    },
+    {
+     "pojecie": "urban planning",
+     "wynik": 0.0,
+     "dowod": null
+    }
+   ]
+  },
+  {
+   "wi_name": "Smołka Maciej",
+   "openalex_id": "https://openalex.org/A5027877891",
+   "wynik": 0.005,
+   "pokrycie": 0.0,
+   "pojecia": [
+    {
+     "pojecie": "digital twin",
+     "wynik": 0.0,
+     "dowod": null
+    },
+    {
+     "pojecie": "early warning",
+     "wynik": 0.0,
+     "dowod": null
+    },
+    {
+     "pojecie": "disaster risk",
+     "wynik": 0.0,
+     "dowod": null
+    },
+    {
+     "pojecie": "machine learning",
+     "wynik": 0.027,
+     "dowod": {
+      "temat": "Machine Learning and Data Classification",
+      "weight": 0.0268,
+      "prace": [
+       {
+        "title": "Enhancing Gaussian Mixture Model Fitting via Equiprobable Binning and Adaptive Differential Evolution",
+        "year": 2025
+       }
+      ]
+     }
+    },
+    {
+     "pojecie": "urban planning",
+     "wynik": 0.0,
+     "dowod": null
+    }
+   ]
+  }
+ ],
+ "uwaga": "Wynik to dowód z tematów OpenAlex, nie ocena kompetencji. Weryfikuje biuro."
+}

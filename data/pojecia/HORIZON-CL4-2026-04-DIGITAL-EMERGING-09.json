@@ -1,0 +1,132 @@
+{
+ "call": "HORIZON-CL4-2026-04-DIGITAL-EMERGING-09",
+ "pojecia": [
+  {
+   "pojecie": "digital twin",
+   "waga": 1.0,
+   "tematy": [
+    {
+     "id": "T10763",
+     "name": "Digital Transformation in Industry",
+     "subfield": "Industrial and Manufacturing Engineering",
+     "zatwierdzone": true,
+     "zatwierdzil": "wstępnie (asystent) – do potwierdzenia przez biuro"
+    },
+    {
+     "id": "T11479",
+     "name": "Smart Cities and Technologies",
+     "subfield": "Media Technology",
+     "zatwierdzone": true,
+     "zatwierdzil": "wstępnie (asystent) – do potwierdzenia przez biuro"
+    },
+    {
+     "id": "T13027",
+     "name": "Applied Advanced Technologies",
+     "subfield": "Industrial and Manufacturing Engineering",
+     "zatwierdzone": false
+    }
+   ]
+  },
+  {
+   "pojecie": "early warning",
+   "waga": 1.0,
+   "tematy": [
+    {
+     "id": "T13377",
+     "name": "Ecosystem dynamics and resilience",
+     "subfield": "Global and Planetary Change",
+     "zatwierdzone": false
+    },
+    {
+     "id": "T13018",
+     "name": "Seismology and Earthquake Studies",
+     "subfield": "Artificial Intelligence",
+     "zatwierdzone": true,
+     "zatwierdzil": "wstępnie (asystent) – do potwierdzenia przez biuro"
+    },
+    {
+     "id": "T10535",
+     "name": "Landslides and related hazards",
+     "subfield": "Management, Monitoring, Policy and Law",
+     "zatwierdzone": false
+    }
+   ]
+  },
+  {
+   "pojecie": "disaster risk",
+   "waga": 1.0,
+   "tematy": [
+    {
+     "id": "T10747",
+     "name": "Disaster Management and Resilience",
+     "subfield": "Sociology and Political Science",
+     "zatwierdzone": true,
+     "zatwierdzil": "wstępnie (asystent) – do potwierdzenia przez biuro"
+    },
+    {
+     "id": "T10930",
+     "name": "Flood Risk Assessment and Management",
+     "subfield": "Global and Planetary Change",
+     "zatwierdzone": false
+    },
+    {
+     "id": "T12865",
+     "name": "Tailings Management and Properties",
+     "subfield": "Civil and Structural Engineering",
+     "zatwierdzone": false
+    }
+   ]
+  },
+  {
+   "pojecie": "machine learning",
+   "waga": 1.0,
+   "tematy": [
+    {
+     "id": "T12072",
+     "name": "Machine Learning and Algorithms",
+     "subfield": "Artificial Intelligence",
+     "zatwierdzone": true,
+     "zatwierdzil": "wstępnie (asystent) – do potwierdzenia przez biuro"
+    },
+    {
+     "id": "T11948",
+     "name": "Machine Learning in Materials Science",
+     "subfield": "Materials Chemistry",
+     "zatwierdzone": false
+    },
+    {
+     "id": "T12535",
+     "name": "Machine Learning and Data Classification",
+     "subfield": "Artificial Intelligence",
+     "zatwierdzone": true,
+     "zatwierdzil": "wstępnie (asystent) – do potwierdzenia przez biuro"
+    }
+   ]
+  },
+  {
+   "pojecie": "urban planning",
+   "waga": 1.0,
+   "tematy": [
+    {
+     "id": "T10239",
+     "name": "Urban Planning and Governance",
+     "subfield": "Urban Studies",
+     "zatwierdzone": true,
+     "zatwierdzil": "wstępnie (asystent) – do potwierdzenia przez biuro"
+    },
+    {
+     "id": "T13654",
+     "name": "Urban Planning and Landscape Design",
+     "subfield": "Management, Monitoring, Policy and Law",
+     "zatwierdzone": false
+    },
+    {
+     "id": "T13920",
+     "name": "Urban Planning and Valuation",
+     "subfield": "Management, Monitoring, Policy and Law",
+     "zatwierdzone": false
+    }
+   ]
+  }
+ ]
+}
