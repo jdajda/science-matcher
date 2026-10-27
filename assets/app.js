@@ -68,7 +68,7 @@
         }).join('') : '<div class="acc-empty">Brak nowych powiadomień.</div>') +
       '</div>' +
       '<button class="acc-me" type="button" aria-label="Konto: ' + esc(label) + '" aria-expanded="false" aria-controls="acc-menu">' +
-        '<span class="acc-av">' + esc(initials(user.role === 'naukowiec' ? user.name : 'BP')) + '</span>' +
+        '<span class="acc-av">' + esc(user.role === 'naukowiec' ? (user.name ? initials(user.name) : 'N') : 'BP') + '</span>' +
         '<span class="acc-name">' + esc(label) + '</span>' +
       '</button>' +
       '<div class="acc-menu" id="acc-menu" hidden>' +
@@ -145,12 +145,24 @@
     });
     if (naukowiec) {
       document.querySelectorAll('.tabs a.tab[href="panel.html"]').forEach(function (a) { a.textContent = 'Zaproszenia'; });
-      document.querySelectorAll('.tabs a.tab[href="index.html"]').forEach(function (a) { a.textContent = 'Kadra naukowa'; });
+      document.querySelectorAll('.tabs a.tab[href="index.html"]').forEach(function (a) { a.textContent = 'Naukowcy'; });
       document.querySelectorAll('.tabs a.tab[href="profil.html"]').forEach(function (a) {
         if (user.name) a.setAttribute('href', 'profil.html?osoba=' + encodeURIComponent(user.name));
       });
     }
     var page = currentPage();
+    var heroT = document.querySelector('.hero-simple .hero-title');
+    var heroS = document.querySelector('.hero-simple .hero-sub');
+    if (page === 'index.html' && naukowiec && heroT) {
+      heroT.textContent = 'Naukowcy';
+      if (heroS) heroS.textContent = 'Przeglądaj osoby, obszary i powiązania. Swój profil i zaproszenia znajdziesz w menu.';
+    }
+    if (page === 'panel.html' && heroT) {
+      heroT.textContent = naukowiec ? 'Moje zaproszenia' : 'Panel biura';
+      if (heroS) heroS.textContent = naukowiec
+        ? 'Zaproszenia do naborów i Twoje odpowiedzi.'
+        : 'Przegląd naborów, zaproszeń i odpowiedzi. Zatwierdzenie wysyłki wymaga innej osoby niż ta, która utworzyła szkic.';
+    }
     if (naukowiec && BIURO_PAGES.indexOf(page) !== -1) {
       location.replace('profil.html' + (user.name ? '?osoba=' + encodeURIComponent(user.name) : ''));
       return;
@@ -158,6 +170,10 @@
     if (naukowiec && page === 'profil.html' && !new URLSearchParams(location.search).get('osoba') && user.name) {
       location.replace('profil.html?osoba=' + encodeURIComponent(user.name));
       return;
+    }
+    if (naukowiec && !user.name) {
+      var first = names(panel)[0];
+      if (first) { setMe({ role: 'naukowiec', name: first }); location.reload(); return; }
     }
     if (page === 'panel.html') {
       document.querySelectorAll('.pn-view').forEach(function (v) { v.classList.toggle('active', v.id === (naukowiec ? 'view-nauk' : 'view-biuro')); });
@@ -175,7 +191,7 @@
       }
     }
     if (page === 'profil.html') {
-      document.querySelectorAll('.pf-view').forEach(function (v) { v.classList.toggle('active', v.id === (naukowiec ? 'view-naukowiec' : 'view-biuro')); });
+      document.querySelectorAll('.page-view').forEach(function (v) { v.classList.toggle('active', v.id === (naukowiec ? 'view-naukowiec' : 'view-biuro')); });
       var pick = document.getElementById('pf-person');
       if (pick && naukowiec) pick.hidden = true;
     }

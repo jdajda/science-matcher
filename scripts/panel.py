@@ -104,6 +104,11 @@ table.pn-table th {{ color: var(--text2); font-weight: 600; font-size: .78rem; }
 .pn-btn {{ padding: .5rem 1rem; border-radius: 8px; border: 1px solid var(--accent); background: var(--accent); color: var(--on-accent); font: inherit; font-size: .86rem; font-weight: 600; cursor: pointer; }}
 .pn-btn.ghost {{ background: transparent; color: var(--accent); }}
 .pn-btn.bad {{ background: transparent; color: #b06464; border-color: #b06464; }}
+.pn-filter {{ display: flex; gap: .6rem; flex-wrap: wrap; align-items: center; margin-bottom: .9rem; }}
+.pn-filter .pn-pick {{ flex: 1 1 240px; }}
+.pn-chip-btn {{ font: inherit; font-size: .8rem; padding: .3rem .7rem; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); color: var(--text2); cursor: pointer; }}
+.pn-chip-btn.on {{ border-color: var(--accent); color: var(--accent); font-weight: 600; }}
+.pn-empty {{ color: var(--text2); font-size: .9rem; padding: 1rem 0; }}
 .pn-note {{ font-size: .8rem; color: var(--text2); margin-top: .8rem; line-height: 1.45; }}
 @media (max-width: 900px) {{ .pn-kpi {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }} .pn-grid2 {{ grid-template-columns: 1fr; }} }}
 </style>
@@ -156,7 +161,7 @@ table.pn-table th {{ color: var(--text2); font-weight: 600; font-size: .78rem; }
   <div class="pn-view" id="view-biuro" data-role-only="biuro">
     <div class="pn-sub">
       <button class="active" data-pane="przeglad">Przegląd</button>
-      <button data-pane="nabory">Nabory i zaproszenia</button>
+      <button data-pane="nabory">Zaproszenia</button>
       <button data-pane="nowe">Nowe zaproszenie</button>
     </div>
 
@@ -169,17 +174,13 @@ table.pn-table th {{ color: var(--text2); font-weight: 600; font-size: .78rem; }
     </div>
 
     <div class="pn-pane" id="pane-nabory">
-      <div class="pn-grid2" style="margin-bottom:.8rem">
-        <input id="bi-q" class="pn-pick" type="search" placeholder="Szukaj naboru (np. CL5-2027)…">
-        <select id="bi-status" class="pn-pick">
-          <option value="">Wszystkie statusy</option>
-          <option value="otwarty">otwarty</option>
-          <option value="planowany">planowany</option>
-          <option value="zamknięty">zamknięty</option>
-          <option value="sprawdzić">sprawdzić</option>
-        </select>
+      <div class="pn-filter">
+        <input id="bi-q" class="pn-pick" type="search" placeholder="Szukaj osoby albo naboru">
+        <div class="pn-chips" id="bi-chips" role="group" aria-label="Filtr statusu"></div>
+        <button class="pn-btn ghost" id="bi-approve-all" type="button">Zatwierdź wszystkie szkice</button>
       </div>
-      <div id="bi-calls"></div>
+      <div class="pn-card"><div id="bi-list"></div></div>
+      <p class="pn-note">Naborów bez zaproszeń nie pokazujemy. Nowe zaproszenie utworzysz w zakładce „Nowe zaproszenie”.</p>
     </div>
 
     <div class="pn-pane" id="pane-nowe">
@@ -290,10 +291,10 @@ SCRIPT = """
     $('nk-invites').innerHTML = mine.map(i => {
       const c = callsById[i.nabor];
       const answer = ANSWERS.includes(i.status) ? '' : '<div style="display:flex;gap:.4rem;margin-top:.6rem;flex-wrap:wrap"><button class="pn-btn" data-yes="' + i.idx + '" type="button">Chcę dołączyć</button><button class="pn-btn bad" data-no="' + i.idx + '" type="button">Nie w tym razie</button></div>';
-      return '<div class="pn-inv"><div class="pn-inv-head"><div><b style="color:var(--text)">' + esc(i.nabor) + '</b><div class="pn-small">' + callLine(c) + '</div><div class="pn-small">Rola: ' + esc(i.rola) + (i.uzas ? ' · ' + esc(i.uzas) : '') + '</div></div>' + pill(i.status) + '</div>' + answer + '</div>';
+      return '<div class="pn-inv"><div class="pn-inv-head"><div><b style="color:var(--text)">' + esc(i.nabor) + '</b><div class="pn-small">' + callLine(c) + '</div><div class="pn-small">Rola: ' + esc(i.rola) + (i.uzas ? ' · ' + esc(i.uzas) : '') + '</div>' + (i.answered ? '<div class="pn-small" role="status" style="color:#2f7d5b;margin-top:.3rem">✓ Odpowiedź zapisana: ' + (i.status === 'odpowiedź: tak' ? 'chcesz dołączyć' : 'nie w tym razie') + ' (' + esc(i.answered) + ')</div>' : '') + '</div>' + pill(i.status) + '</div>' + answer + '</div>';
     }).join('');
-    $('nk-invites').querySelectorAll('[data-yes]').forEach(b => b.addEventListener('click', () => { st.invites[+b.dataset.yes].status = 'odpowiedź: tak'; save(); refresh(); }));
-    $('nk-invites').querySelectorAll('[data-no]').forEach(b => b.addEventListener('click', () => { st.invites[+b.dataset.no].status = 'odpowiedź: nie'; save(); refresh(); }));
+    $('nk-invites').querySelectorAll('[data-yes]').forEach(b => b.addEventListener('click', () => { const inv = st.invites[+b.dataset.yes]; inv.status = 'odpowiedź: tak'; inv.answered = new Date().toISOString().slice(0, 10); save(); toast('Dziękujemy. Biuro zobaczy, że chcesz dołączyć do naboru ' + inv.nabor + '.'); refresh(); }));
+    $('nk-invites').querySelectorAll('[data-no]').forEach(b => b.addEventListener('click', () => { const inv = st.invites[+b.dataset.no]; inv.status = 'odpowiedź: nie'; inv.answered = new Date().toISOString().slice(0, 10); save(); toast('Dziękujemy za odpowiedź. Biuro zostanie poinformowane.'); refresh(); }));
   }
 
   /* ---------- BIURO ---------- */
@@ -317,45 +318,63 @@ SCRIPT = """
     const max = top.length ? top[0][1] : 1;
     $('bi-topics').innerHTML = top.map(([t, n]) => '<div class="pn-bar"><div><div class="pn-small" style="color:var(--text)">' + esc(t) + '</div><div class="track"><i style="width:' + Math.round(n / max * 100) + '%"></i></div></div><span>' + n + '</span></div>').join('') || '<p class="pn-small">Brak danych</p>';
   }
+  var INV_FILTERS = ['wszystkie', 'szkic', 'zatwierdzone', 'wysłane', 'odpowiedź: tak', 'odpowiedź: nie', 'brak odpowiedzi'];
+  var invFilter = 'wszystkie';
+
   function renderBiuroCalls(){
-    const q = ($('bi-q').value || '').trim().toLowerCase();
-    const sf = $('bi-status').value;
-    const calls = DATA.calls.filter(c => (!q || c.id.toLowerCase().includes(q)) && (!sf || c.status === sf));
-    const html = calls.map(c => {
-      const list = st.invites.map((i, idx) => Object.assign({}, i, {idx: idx})).filter(i => i.nabor === c.id);
-      const count = s2 => list.filter(i => i.status === s2).length;
-      const chips = '<div class="pn-chips" style="margin-top:.4rem">' + [
-        ['szkic', count('szkic')], ['zatwierdzone', count('zatwierdzone')], ['wysłane', count('wysłane')],
-        ['odpowiedź: tak', count('odpowiedź: tak')], ['odpowiedź: nie', count('odpowiedź: nie')], ['brak odpowiedzi', count('brak odpowiedzi')]
-      ].filter(x => x[1] > 0).map(x => '<span class="pn-chip">' + esc(x[0]) + ': ' + x[1] + '</span>').join('') + '</div>';
-      const rows = list.map(i => {
-        let act = '';
-        if (i.status === 'szkic') act = '<button class="pn-btn ghost" data-approve="' + i.idx + '" type="button">Zatwierdź</button>';
-        else if (i.status === 'zatwierdzone') act = '<button class="pn-btn" data-send="' + i.idx + '" type="button">Otwórz e-mail</button>';
-        return '<tr><td>' + esc(i.person) + '</td><td>' + esc(i.rola) + '</td><td>' + pill(i.status) + '</td><td>' + act + '</td></tr>';
-      }).join('');
-      const table = list.length ? '<table class="pn-table"><thead><tr><th>Osoba</th><th>Rola</th><th>Status</th><th>Akcja</th></tr></thead><tbody>' + rows + '</tbody></table>' : '<p class="pn-small">Brak zaproszeń do tego naboru.</p>';
-      const batch = count('szkic') ? '<button class="pn-btn ghost" data-batch="' + esc(c.id) + '" type="button" style="margin-top:.5rem">Zatwierdź wszystkie szkice (' + count('szkic') + ')</button>' : '';
-      return '<div class="pn-card" style="margin-bottom:.8rem"><div class="pn-inv-head"><div><b style="color:var(--text)">' + esc(c.id) + '</b><div class="pn-small">' + callLine(c) + ' · tematów: ' + c.topics + '</div></div>' + cpill(c.status) + '</div>' + chips + '<div style="margin-top:.6rem">' + table + '</div>' + batch + '</div>';
+    var q = ($('bi-q').value || '').trim().toLowerCase();
+    var all = st.invites.map(function (i, idx) { return Object.assign({}, i, {idx: idx}); });
+    var count = function (f) { return f === 'wszystkie' ? all.length : all.filter(function (i) { return i.status === f; }).length; };
+    $('bi-chips').innerHTML = INV_FILTERS.map(function (f) {
+      var on = f === invFilter;
+      return '<button type="button" class="pn-chip-btn' + (on ? ' on' : '') + '" data-f="' + esc(f) + '" aria-pressed="' + on + '">' + esc(f) + ' · ' + count(f) + '</button>';
     }).join('');
-    $('bi-calls').innerHTML = html || '<p class="pn-small">Brak naborów dla tych filtrów.</p>';
-    $('bi-calls').querySelectorAll('[data-approve]').forEach(b => b.addEventListener('click', () => { st.invites[+b.dataset.approve].status = 'zatwierdzone'; save(); refresh(); }));
-    $('bi-calls').querySelectorAll('[data-batch]').forEach(b => b.addEventListener('click', () => {
-      st.invites.forEach(i => { if (i.nabor === b.dataset.batch && i.status === 'szkic') i.status = 'zatwierdzone'; });
-      save(); refresh();
-    }));
-    $('bi-calls').querySelectorAll('[data-send]').forEach(b => b.addEventListener('click', () => {
-      const i = st.invites[+b.dataset.send];
-      const subj = encodeURIComponent('Zaproszenie do udziału: ' + i.nabor);
-      const body = encodeURIComponent('Dzień dobry ' + i.person + ',\\n\\nzapraszamy do udziału w zespole dla naboru ' + i.nabor + ' w roli: ' + i.rola + '.\\n' + (i.uzas ? 'Uzasadnienie: ' + i.uzas + '.\\n' : '') + '\\nProsimy o odpowiedź, czy jest Pan/Pani zainteresowana/y.\\n\\nPozdrawiamy,\\nBiuro projektowe Wydziału Informatyki AGH');
-      if (!confirm('Otworzyć wiadomość do ' + i.person + '? Status zaproszenia zmieni się na „wysłane”.')) return;
-      i.status = 'wysłane'; i.sent = new Date().toISOString().slice(0, 10); save();
-      window.location.href = 'mailto:?subject=' + subj + '&body=' + body;
-      refresh();
-    }));
+    $('bi-chips').querySelectorAll('[data-f]').forEach(function (b) {
+      b.addEventListener('click', function () { invFilter = b.dataset.f; renderBiuroCalls(); });
+    });
+    var rows = all.filter(function (i) {
+      if (invFilter !== 'wszystkie' && i.status !== invFilter) return false;
+      if (q && (i.person + ' ' + i.nabor).toLowerCase().indexOf(q) === -1) return false;
+      return true;
+    });
+    var callStatus = {};
+    DATA.calls.forEach(function (c) { callStatus[c.id] = c.status; });
+    if (!rows.length) {
+      $('bi-list').innerHTML = '<div class="pn-empty">Brak zaproszeń w tym filtrze. Zmień filtr albo utwórz nowe zaproszenie.</div>';
+    } else {
+      $('bi-list').innerHTML = '<table class="pn-table"><thead><tr><th>Osoba</th><th>Nabór</th><th>Rola</th><th>Status</th><th></th></tr></thead><tbody>' +
+        rows.map(function (i) {
+          var act = '';
+          if (i.status === 'szkic') act = '<button class="pn-btn ghost" data-approve="' + i.idx + '" type="button">Zatwierdź</button>';
+          else if (i.status === 'zatwierdzone') act = '<button class="pn-btn" data-send="' + i.idx + '" type="button">Otwórz e-mail</button>';
+          return '<tr><td><b>' + esc(i.person) + '</b></td>' +
+            '<td>' + esc(i.nabor) + '<div class="pn-small">' + esc(callStatus[i.nabor] || '') + '</div></td>' +
+            '<td>' + esc(i.rola) + '</td>' +
+            '<td>' + pill(i.status) + '</td>' +
+            '<td style="text-align:right">' + act + '</td></tr>';
+        }).join('') + '</tbody></table>';
+    }
+    $('bi-approve-all').hidden = !all.some(function (i) { return i.status === 'szkic'; });
+    $('bi-list').querySelectorAll('[data-approve]').forEach(function (b) {
+      b.addEventListener('click', function () { st.invites[+b.dataset.approve].status = 'zatwierdzone'; save(); toast('Zaproszenie zatwierdzone'); refresh(); });
+    });
+    $('bi-list').querySelectorAll('[data-send]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var i = st.invites[+b.dataset.send];
+        if (!confirm('Otworzyć wiadomość do ' + i.person + '? Status zaproszenia zmieni się na „wysłane”.')) return;
+        var subj = encodeURIComponent('Zaproszenie do udziału: ' + i.nabor);
+        var body = encodeURIComponent('Dzień dobry ' + i.person + ',\\n\\nzapraszamy do udziału w zespole dla naboru ' + i.nabor + ' w roli: ' + i.rola + '.\\n' + (i.uzas ? 'Uzasadnienie: ' + i.uzas + '.\\n' : '') + '\\nProsimy o odpowiedź, czy jest Pan/Pani zainteresowana/y.\\n\\nPozdrawiamy,\\nBiuro projektowe Wydziału Informatyki AGH');
+        i.status = 'wysłane'; i.sent = new Date().toISOString().slice(0, 10); save();
+        window.location.href = 'mailto:?subject=' + subj + '&body=' + body;
+        refresh();
+      });
+    });
   }
   $('bi-q').addEventListener('input', renderBiuroCalls);
-  $('bi-status').addEventListener('change', renderBiuroCalls);
+  $('bi-approve-all').addEventListener('click', function () {
+    st.invites.forEach(function (i) { if (i.status === 'szkic') i.status = 'zatwierdzone'; });
+    save(); toast('Wszystkie szkice zatwierdzone'); refresh();
+  });
 
   $('zp-add').addEventListener('click', () => {
     const person = $('zp-osoba').value, nabor = $('zp-nabor').value;

@@ -1,4 +1,5 @@
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -9,39 +10,91 @@ import dopasowanie as dp  # noqa: E402
 import panel as pn  # noqa: E402
 
 
+def badap_index():
+    src = (ROOT / "index.html").read_text(encoding="utf-8")
+    m = re.search(r'<script id="app-data" type="application/json">(.*?)</script>', src, re.S)
+    if not m:
+        return {}
+    out = {}
+    for st in json.loads(m.group(1)).get("staff", []):
+        out[st["name"]] = {
+            "degree": st.get("degree", ""), "unit": st.get("unit", ""), "email": st.get("email", ""),
+            "pubs": st.get("pubs", 0), "yearMax": st.get("yearMax", ""),
+            "keywords": [k[0] for k in st.get("keywords", [])[:10]],
+        }
+    return out
+
+
+def brand_logo():
+    """Sam znak wydziału (bez napisu), biały, wyciągnięty z logo w nagłówku."""
+    import base64
+    src = (ROOT / "index.html").read_text(encoding="utf-8")
+    m = re.search(r'<img class="brand-logo"[^>]*src="data:image/svg\+xml;base64,([^"]+)"', src)
+    if not m:
+        return ""
+    svg = base64.b64decode(m.group(1)).decode("utf-8-sig")
+    rects = re.findall(r"<rect[^>]*/>", svg)
+    if not rects:
+        return ""
+
+    def num(r, k):
+        mm = re.search(r"\s" + k + r'="([^"]+)"', r)
+        return float(mm.group(1)) if mm else 0.0
+
+    xs, ys = [], []
+    for r in rects:
+        x, y, w, h = num(r, "x"), num(r, "y"), num(r, "width"), num(r, "height")
+        xs += [x, x + w]
+        ys += [y, y + h]
+    x0, x1, y0, y1 = min(xs), max(xs), min(ys), max(ys)
+    body = "".join(re.sub(r"\sclass=\"[^\"]*\"", "", r).replace("/>", ' fill="#ffffff"/>') for r in rects)
+    icon = f'<svg class="brand-mark" xmlns="http://www.w3.org/2000/svg" viewBox="{x0:.2f} {y0:.2f} {x1-x0:.2f} {y1-y0:.2f}" aria-hidden="true">{body}</svg>'
+    return icon
+
 def render():
     head, header, theme_js = dp.site_parts()
     head = head.replace("Dopasowanie do naboru · Mapa badawcza WI AGH", "Profil osoby · Mapa badawcza WI AGH")
     tabs = dp.nav_html("naukowcy")
     local = ""
     people = pn.people()
-    data = json.dumps({"people": people}, ensure_ascii=False).replace("</", "<\\/")
+    badap = badap_index()
+    for pe in people:
+        pe["badap"] = badap.get(pe["name"], {})
+    import biuro as bz
+    projects = bz.call_projects()
+    data = json.dumps({"people": people, "projects": projects, "columns": [[c, l, col] for c, l, col in bz.COLUMNS], "default": "Eckes Maria"}, ensure_ascii=False).replace("</", "<\\/")
     script = SCRIPT.replace("__DATA__", data)
+    logo = brand_logo()
     return f"""{head}
-<style>a.tab, a.tab:hover {{ text-decoration: none; }} .tab {{ white-space: normal; }}
-.pf-top {{ display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; margin: 1rem 0; }}
-.pf-pick {{ min-width: 260px; padding: .5rem .7rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font: inherit; font-size: .9rem; }}
-.pf-view {{ display: none; }} .pf-view.active {{ display: block; }}
-.pf-grid {{ display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; align-items: start; }}
-.pf-card {{ background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1rem 1.1rem; min-width: 0; }}
-.pf-card h3 {{ font-size: .95rem; margin-bottom: .5rem; }}
-.pf-head {{ display: flex; gap: .8rem; align-items: center; }}
-.pf-av {{ width: 56px; height: 56px; border-radius: 50%; color: #fff; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }}
-.pf-name {{ font-size: 1.05rem; font-weight: 700; color: var(--text); overflow-wrap: anywhere; }}
-.pf-small {{ font-size: .82rem; color: var(--text2); line-height: 1.5; overflow-wrap: anywhere; }}
-.pf-chips {{ display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .5rem; }}
-.pf-chip {{ font-size: .78rem; background: var(--surface2); color: var(--text2); border-radius: 999px; padding: .15rem .6rem; }}
-.pf-row {{ display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .6rem; align-items: center; padding: .55rem 0; border-top: 1px solid var(--border); font-size: .88rem; }}
-.pf-row:first-child {{ border-top: none; }}
-.pf-status {{ font-size: .75rem; font-weight: 600; border-radius: 999px; padding: .15rem .6rem; border: 1px solid var(--border); color: var(--text2); white-space: nowrap; }}
-.pf-form label {{ display: block; font-size: .8rem; font-weight: 600; color: var(--text); margin: .6rem 0 .2rem; }}
-.pf-form textarea, .pf-form select {{ width: 100%; box-sizing: border-box; padding: .5rem .65rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font: inherit; font-size: .88rem; }}
-.pf-btn {{ padding: .5rem 1rem; border-radius: 8px; border: 1px solid var(--accent); background: var(--accent); color: var(--on-accent); font: inherit; font-size: .86rem; font-weight: 600; cursor: pointer; }}
-.pf-btn.ghost {{ background: transparent; color: var(--accent); }}
-.pf-timeline {{ border-left: 2px solid var(--border); margin-left: .4rem; padding-left: .9rem; }}
-.pf-tl {{ position: relative; padding: .3rem 0; font-size: .85rem; color: var(--text2); }}
-.pf-tl::before {{ content: ''; position: absolute; left: -1.23rem; top: .55rem; width: 9px; height: 9px; border-radius: 50%; background: var(--accent); }}
-@media (max-width: 900px) {{ .pf-grid {{ grid-template-columns: 1fr; }} }}
+<style>a.tab, a.tab:hover {{ text-decoration: none; }}
+.pc-wrap {{ border: 1px solid var(--border); border-radius: 14px; overflow: hidden; background: var(--surface); margin-top: 1rem; }}
+.pc-band {{ background: var(--header-bg); color: #fff; padding: 1.3rem 1.6rem; }}
+.pc-band .pc-title {{ font-size: 1.45rem; font-weight: 700; line-height: 1.2; overflow-wrap: anywhere; }}
+.pc-band {{ display: flex; align-items: center; justify-content: space-between; gap: 1rem; }}
+.pc-band-text {{ min-width: 0; }}
+.pc-progress {{ margin-top: .7rem; display: flex; align-items: center; gap: .6rem; font-size: .78rem; }}
+.pc-progress i {{ display: block; width: 160px; height: 6px; border-radius: 3px; background: rgba(255,255,255,.25); overflow: hidden; }}
+.pc-progress b {{ display: block; height: 100%; background: #fff; }}
+.pc-band .brand-mark {{ height: 56px; width: auto; flex-shrink: 0; }}
+.pc-band .pc-sub {{ font-size: .78rem; letter-spacing: .12em; text-transform: uppercase; opacity: .85; margin-top: .45rem; }}
+.pc-body {{ display: grid; grid-template-columns: 300px minmax(0, 1fr); }}
+.pc-side {{ background: var(--surface2); padding: 1.1rem 1.3rem; border-right: 1px solid var(--border); min-width: 0; }}
+.pc-main {{ padding: 1.1rem 1.6rem; min-width: 0; }}
+.pc-h {{ font-size: .76rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); border-bottom: 2px solid var(--border); padding-bottom: .3rem; margin: 1.1rem 0 .55rem; }}
+.pc-h:first-child {{ margin-top: 0; }}
+.pc-list {{ list-style: none; padding: 0; margin: 0; font-size: .88rem; color: var(--text); line-height: 1.55; }}
+.pc-list li {{ padding-left: .9rem; position: relative; overflow-wrap: anywhere; }}
+.pc-list li::before {{ content: '·'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }}
+.pc-text {{ font-size: .9rem; color: var(--text); line-height: 1.6; }}
+.pc-kv {{ font-size: .88rem; margin: .35rem 0; }}
+.pc-kv b {{ color: var(--text); }}
+.pc-kv select {{ margin-top: .25rem; width: 100%; }}
+.pc-item {{ padding: .5rem 0; border-bottom: 1px solid var(--border); }}
+.pc-item:last-child {{ border-bottom: none; }}
+.pc-item b {{ display: block; font-size: .92rem; color: var(--text); overflow-wrap: anywhere; }}
+.pc-item .pc-meta {{ font-style: italic; color: var(--text2); font-size: .8rem; margin-top: .15rem; }}
+.pc-note {{ font-size: .82rem; color: var(--text2); }}
+@media (max-width: 900px) {{ .pc-body {{ grid-template-columns: 1fr; }} .pc-side {{ border-right: none; border-bottom: 1px solid var(--border); }} }}
 </style>
 </head>
 <body>
@@ -50,66 +103,61 @@ def render():
 {local}
 
 <main class="container">
-  <section class="hero-simple">
-    <div class="eyebrow">Profil osoby</div>
-    <h1 class="hero-title">Profil osoby</h1>
-    <p class="hero-sub">Ten sam profil w dwóch widokach: naukowca (co sam widzi i zmienia) i biura (projekty, zaproszenia, historia). Dane zapisują się tak samo jak w Panelu.</p>
-  </section>
 
-  <div class="pf-top">
-    <select id="pf-person" class="pf-pick" aria-label="Wybór osoby"></select>
+
+  <div class="profile-top">
+    <select id="pf-person" class="category-filter" aria-label="Wybór osoby"></select>
   </div>
 
-  <div class="pf-view active" id="view-naukowiec" data-role-only="naukowiec">
-    <div class="pf-grid">
-      <div class="pf-card">
-        <div class="pf-head"><span class="pf-av" id="nk-av"></span><div><div class="pf-name" id="nk-name"></div><div class="pf-small" id="nk-meta"></div></div></div>
-        <h3 style="margin-top:.8rem">Obszary i tematy</h3>
-        <div class="pf-chips" id="nk-topics"></div>
-        <h3 style="margin-top:.9rem">Ostatnie prace</h3>
-        <div class="pf-small" id="nk-works"></div>
-      </div>
-      <div class="pf-stack">
-        <div class="pf-card pf-form">
-          <h3>Mój opis</h3>
-          <label for="nk-wnosze">Co wnoszę do projektu</label>
-          <textarea id="nk-wnosze" rows="3"></textarea>
-          <label for="nk-szukam">Jakich kompetencji lub partnerów szukam</label>
-          <textarea id="nk-szukam" rows="3"></textarea>
-          <label for="nk-dost">Dostępność</label>
-          <select id="nk-dost"><option>do ustalenia</option><option>tak</option><option>nie</option></select>
-          <label for="nk-zain">Zainteresowanie nowymi projektami</label>
-          <select id="nk-zain"><option>nie wiem</option><option>tak</option><option>nie</option></select>
-          <div style="margin-top:.8rem"><button class="pf-btn" id="nk-save" type="button">Zapisz</button> <span class="pf-small" id="nk-saved"></span></div>
-        </div>
-        <div class="pf-card">
-          <h3>Zaproszenia do naborów</h3>
-          <div id="nk-invites"></div>
-        </div>
+  <div class="page-view active" id="view-naukowiec" data-role-only="naukowiec">
+    <div class="pc-wrap">
+      <div class="pc-band"><div class="pc-band-text"><div class="pc-title" id="nk-name"></div><div class="pc-sub" id="nk-meta"></div><div class="pc-progress"><span id="nk-complete"></span><i><b id="nk-bar"></b></i></div></div>{logo}</div>
+      <div class="pc-body">
+        <aside class="pc-side">
+          <div class="pc-h">Obszary i tematy</div>
+          <ul class="pc-list" id="nk-topics"></ul>
+          <div class="pc-h">Słowa kluczowe</div>
+          <ul class="pc-list" id="nk-keywords"></ul>
+          <div class="pc-h">Kontakt</div>
+          <div class="pc-kv" id="nk-email"></div>
+          <div class="pc-h">Ostatnie prace</div>
+          <ul class="pc-list" id="nk-works"></ul>
+          <div class="pc-h">Profil w skrócie</div>
+          <div class="pc-kv"><b>Dostępność</b><select class="category-filter" id="nk-dost"><option>do ustalenia</option><option>tak</option><option>nie</option></select></div>
+          <div class="pc-kv"><b>Zainteresowanie nowymi projektami</b><select class="category-filter" id="nk-zain"><option>nie wiem</option><option>tak</option><option>nie</option></select></div>
+        </aside>
+        <section class="pc-main">
+          <div class="pc-h">Co wnoszę do projektu</div>
+          <textarea class="match-textarea" id="nk-wnosze" rows="3"></textarea>
+          <div class="pc-h">Szukam kompetencji lub partnerów</div>
+          <textarea class="match-textarea" id="nk-szukam" rows="3"></textarea>
+          <div style="margin-top:.8rem;display:flex;gap:.6rem;align-items:center"><button class="btn btn-primary" id="nk-save" type="button">Zapisz profil</button><span class="pc-note" id="nk-saved"></span></div>
+          <div class="pc-h">Zaproszenia do naborów</div>
+          <p class="pc-note" id="nk-invite-note"></p>
+          <a class="btn" href="panel.html">Przejdź do zaproszeń</a>
+        </section>
       </div>
     </div>
   </div>
 
-  <div class="pf-view" id="view-biuro" data-role-only="biuro">
-    <div class="pf-grid">
-      <div class="pf-card">
-        <div class="pf-head"><span class="pf-av" id="bi-av"></span><div><div class="pf-name" id="bi-name"></div><div class="pf-small" id="bi-meta"></div></div></div>
-        <h3 style="margin-top:.8rem">Opis z profilu</h3>
-        <div class="pf-small" id="bi-desc"></div>
-        <h3 style="margin-top:.9rem">Tematy</h3>
-        <div class="pf-chips" id="bi-topics"></div>
-      </div>
-      <div class="pf-stack">
-        <div class="pf-card">
-          <h3>Projekty z zespołem</h3>
+  <div class="page-view" id="view-biuro" data-role-only="biuro">
+    <div class="pc-wrap">
+      <div class="pc-band"><div class="pc-band-text"><div class="pc-title" id="bi-name"></div><div class="pc-sub" id="bi-meta"></div></div>{logo}</div>
+      <div class="pc-body">
+        <aside class="pc-side">
+          <div class="pc-h">Tematy</div>
+          <ul class="pc-list" id="bi-topics"></ul>
+        </aside>
+        <section class="pc-main">
+          <div class="pc-h">Opis z profilu</div>
+          <div class="pc-text" id="bi-desc"></div>
+          <div class="pc-h">Projekty z zespołem</div>
           <div id="bi-projects"></div>
-        </div>
-        <div class="pf-card">
-          <h3>Zaproszenia i historia</h3>
+          <div class="pc-h">Zaproszenia</div>
           <div id="bi-invites"></div>
-          <h3 style="margin-top:.9rem">Historia</h3>
-          <div class="pf-timeline" id="bi-timeline"></div>
-        </div>
+          <div class="pc-h">Historia</div>
+          <div id="bi-timeline"></div>
+        </section>
       </div>
     </div>
   </div>
@@ -134,7 +182,7 @@ SCRIPT = """
   const LABEL = {'szkic': 'szkic', 'zatwierdzone': 'zatwierdzone', 'wysłane': 'wysłane', 'odpowiedź: tak': 'dołącza', 'odpowiedź: nie': 'nie dołącza', 'brak odpowiedzi': 'brak odpowiedzi'};
   let panel = {profiles: {}, invites: []};
   let biuro = {cards: {}, custom: []};
-  let current = new URLSearchParams(location.search).get('osoba') || (people[0] && people[0].name);
+  let current = new URLSearchParams(location.search).get('osoba') || DATA.default || (people[0] && people[0].name);
 
   function saveLocal(key, v){ try { localStorage.setItem(key, JSON.stringify(v)); } catch(e) {} }
   function loadLocal(key, fb){ try { return JSON.parse(localStorage.getItem(key) || 'null') || fb; } catch(e) { return fb; } }
@@ -146,7 +194,7 @@ SCRIPT = """
 
   document.querySelectorAll('button.seg-btn[data-view]').forEach(b => b.addEventListener('click', () => {
     document.querySelectorAll('button.seg-btn[data-view]').forEach(x => { x.classList.toggle('active', x === b); x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
-    document.querySelectorAll('.pf-view').forEach(v => v.classList.toggle('active', v.id === 'view-' + b.dataset.view));
+    document.querySelectorAll('.page-view').forEach(v => v.classList.toggle('active', v.id === 'view-' + b.dataset.view));
   }));
 
   function fillPicker(){
@@ -157,22 +205,24 @@ SCRIPT = """
   function renderNaukowiec(){
     const p = people.find(x => x.name === current); if (!p) return;
     const pr = panel.profiles[current] || {};
-    $('nk-av').style.background = color(current); $('nk-av').textContent = initials(current);
     $('nk-name').textContent = current;
-    $('nk-meta').textContent = p.works + ' prac od 2019' + (p.orcid ? ' · ORCID' : ' · ORCID brak');
-    $('nk-topics').innerHTML = p.topics.map(t => '<span class="pf-chip">' + esc(t) + '</span>').join('') || '<span class="pf-small">Brak tematów</span>';
-    $('nk-works').innerHTML = p.recent.length ? p.recent.map(t => '• ' + esc(t)).join('<br>') : 'Brak prac';
+    var b = p.badap || {};
+    $('nk-meta').textContent = [b.degree, b.unit, (b.pubs || 0) + ' publikacji w BaDAP'].filter(Boolean).join(' · ');
+    $('nk-keywords').innerHTML = (b.keywords || []).map(function (k) { return '<li>' + esc(k) + '</li>'; }).join('') || '<li>Brak słów kluczowych</li>';
+    $('nk-email').textContent = b.email || 'brak';
+    $('nk-topics').innerHTML = p.topics.map(t => '<li>' + esc(t) + '</li>').join('') || '<li>Brak tematów</li>';
+    $('nk-works').innerHTML = p.recent.length ? p.recent.map(t => '<li>' + esc(t) + '</li>').join('') : '<li>Brak prac</li>';
     $('nk-wnosze').value = pr.wnosze || ''; $('nk-szukam').value = pr.szukam || '';
     $('nk-dost').value = pr.dost || 'do ustalenia'; $('nk-zain').value = pr.zain || 'nie wiem';
     $('nk-saved').textContent = '';
+    var checks = [pr.wnosze, pr.szukam, pr.dost && pr.dost !== 'do ustalenia', pr.zain && pr.zain !== 'nie wiem', p.orcid, p.topics && p.topics.length];
+    var done = checks.filter(Boolean).length;
+    $('nk-complete').textContent = 'Profil uzupełniony: ' + done + ' z ' + checks.length;
+    $('nk-bar').style.width = Math.round(done / checks.length * 100) + '%';
     const inv = panel.invites.map((i, idx) => Object.assign({}, i, {idx: idx})).filter(i => i.person === current && i.status !== 'szkic');
-    $('nk-invites').innerHTML = inv.length ? inv.map(i => '<div class="pf-row"><div><b style="color:var(--text)">' + esc(i.nabor) + '</b><div class="pf-small">rola: ' + esc(i.rola) + (i.uzas ? ' · ' + esc(i.uzas) : '') + '</div>' +
-      (ANSWERS.includes(i.status) ? '' : '<div style="display:flex;gap:.4rem;margin-top:.5rem"><button class="pf-btn" data-yes="' + i.idx + '" type="button">Chcę dołączyć</button><button class="pf-btn ghost" data-no="' + i.idx + '" type="button">Nie w tym razie</button></div>') +
-      '</div><span class="pf-status">' + esc(LABEL[i.status] || i.status) + '</span></div>').join('') : '<p class="pf-small">Brak zaproszeń. Biuro wysyła je po zatwierdzeniu.</p>';
-    $('nk-invites').querySelectorAll('[data-yes]').forEach(b => b.addEventListener('click', () => answer(+b.dataset.yes, 'odpowiedź: tak')));
-    $('nk-invites').querySelectorAll('[data-no]').forEach(b => b.addEventListener('click', () => answer(+b.dataset.no, 'odpowiedź: nie')));
+    var open = inv.filter(function (i) { return i.status !== 'odpowiedź: tak' && i.status !== 'odpowiedź: nie' && i.status !== 'brak odpowiedzi'; }).length;
+    $('nk-invite-note').textContent = open ? 'Czekają na Twoją odpowiedź: ' + open + '.' : (inv.length ? 'Wszystkie zaproszenia mają odpowiedź.' : 'Brak zaproszeń.');
   }
-  function answer(idx, status){ panel.invites[idx].status = status; persist(PANEL_KEY, panel); renderAll(); }
 
   function allProjects(){
     const base = DATA.projects.map(p => Object.assign({}, p, biuro.cards[p.id] || {}));
@@ -182,15 +232,15 @@ SCRIPT = """
   function renderBiuro(){
     const p = people.find(x => x.name === current); if (!p) return;
     const pr = panel.profiles[current] || {};
-    $('bi-av').style.background = color(current); $('bi-av').textContent = initials(current);
     $('bi-name').textContent = current;
-    $('bi-meta').textContent = (p.field || 'dziedzina nieznana') + ' · prac: ' + p.works + (p.orcid ? ' · ORCID' : '');
-    $('bi-desc').innerHTML = pr.wnosze ? esc(pr.wnosze) + '<br><br><b style="color:var(--text)">Szuka:</b> ' + esc(pr.szukam || '–') : 'Osoba nie uzupełniła profilu.';
-    $('bi-topics').innerHTML = p.topics.map(t => '<span class="pf-chip">' + esc(t) + '</span>').join('') || '<span class="pf-small">Brak tematów</span>';
+    var bb = p.badap || {};
+    $('bi-meta').textContent = [bb.degree, bb.unit, bb.email].filter(Boolean).join(' · ');
+    $('bi-desc').innerHTML = pr.wnosze ? esc(pr.wnosze) + '<br><br><b>Szuka:</b> ' + esc(pr.szukam || '–') : 'Osoba nie uzupełniła profilu.';
+    $('bi-topics').innerHTML = p.topics.map(t => '<li>' + esc(t) + '</li>').join('') || '<li>Brak tematów</li>';
     const projects = allProjects().filter(x => (x.people || []).includes(current));
-    $('bi-projects').innerHTML = projects.length ? projects.map(x => '<div class="pf-row"><div><b style="color:var(--text)">' + esc(x.title) + '</b><div class="pf-small">' + esc(x.status || '') + (x.deadlines && x.deadlines.length ? ' · termin: ' + esc(x.deadlines.join(' · ')) : '') + '</div></div><span class="pf-status">' + esc(x.column || '') + '</span></div>').join('') : '<p class="pf-small">Nie jest przypisana do żadnego projektu.</p>';
+    $('bi-projects').innerHTML = projects.length ? projects.map(x => '<div class="member-row"><div><b>' + esc(x.title) + '</b><div class="s-sub">' + esc(x.status || '') + (x.deadlines && x.deadlines.length ? ' · termin: ' + esc(x.deadlines.join(' · ')) : '') + '</div></div><span class="s-pill">' + esc(x.column || '') + '</span></div>').join('') : '<p class="s-sub">Nie jest przypisana do żadnego projektu.</p>';
     const inv = panel.invites.filter(i => i.person === current);
-    $('bi-invites').innerHTML = inv.length ? inv.map(i => '<div class="pf-row"><div><b style="color:var(--text)">' + esc(i.nabor) + '</b><div class="pf-small">rola: ' + esc(i.rola) + '</div></div><span class="pf-status">' + esc(LABEL[i.status] || i.status) + '</span></div>').join('') : '<p class="pf-small">Brak zaproszeń.</p>';
+    $('bi-invites').innerHTML = inv.length ? inv.map(i => '<div class="member-row"><div><b>' + esc(i.nabor) + '</b><div class="s-sub">rola: ' + esc(i.rola) + '</div></div><span class="s-pill">' + esc(LABEL[i.status] || i.status) + '</span></div>').join('') : '<p class="s-sub">Brak zaproszeń.</p>';
     const events = [];
     inv.forEach(i => {
       if (i.created) events.push([i.created, 'Utworzono szkic zaproszenia do ' + i.nabor]);
@@ -199,7 +249,7 @@ SCRIPT = """
     });
     if (pr.zaktualizowano) events.push([pr.zaktualizowano, 'Profil zaktualizowany przez osobę']);
     events.sort((a, b) => (b[0] || '').localeCompare(a[0] || ''));
-    $('bi-timeline').innerHTML = events.length ? events.map(e => '<div class="pf-tl">' + esc(e[0]) + ' · ' + esc(e[1]) + '</div>').join('') : '<div class="pf-small">Brak zdarzeń.</div>';
+    $('bi-timeline').innerHTML = events.length ? events.map(e => '<div class="s-sub" style="margin:.35rem 0">' + esc(e[0]) + ' · ' + esc(e[1]) + '</div>').join('') : '<div class="s-sub">Brak zdarzeń.</div>';
   }
 
   function renderAll(){ renderNaukowiec(); renderBiuro(); }

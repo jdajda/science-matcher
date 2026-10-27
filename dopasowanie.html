@@ -480,6 +480,15 @@ a.tab, a.tab:hover { text-decoration: none; }
 .acc-pick select { width: 100%; margin-top: .3rem; padding: .35rem; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font: inherit; }
 [hidden] { display: none !important; }
 
+.grid-2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; align-items: start; }
+.grid-2 > * { min-width: 0; }
+.profile-top { margin: 1rem 0; }
+.grid-2 .side-card { position: static; max-height: none; }
+@media (max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
+
+.page-view { display: none; }
+.page-view.active { display: block; }
+
 </style>
 <style>a.tab, a.tab:hover { text-decoration: none; }  .m-info, .m-name, .s-id h3, .s-pill, .s-kw, .s-sub, .hero-title, .hero-sub, .stat, .side-note { overflow-wrap: anywhere; min-width: 0; } .hero-title, h1, h2, h3 { line-height: 1.25; letter-spacing: 0; } body, p, li { line-height: 1.5; } .s-pill, .kw { line-height: 1.3; white-space: normal; } .hero-sub { max-width: 70ch; }</style>
 </head>

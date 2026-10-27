@@ -480,6 +480,15 @@ a.tab, a.tab:hover { text-decoration: none; }
 .acc-pick select { width: 100%; margin-top: .3rem; padding: .35rem; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font: inherit; }
 [hidden] { display: none !important; }
 
+.grid-2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; align-items: start; }
+.grid-2 > * { min-width: 0; }
+.profile-top { margin: 1rem 0; }
+.grid-2 .side-card { position: static; max-height: none; }
+@media (max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
+
+.page-view { display: none; }
+.page-view.active { display: block; }
+
 </style>
 <style>a.tab, a.tab:hover { text-decoration: none; } 
 .ws-layout { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 1.2rem; align-items: start; }
