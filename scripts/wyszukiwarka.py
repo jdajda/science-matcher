@@ -39,7 +39,7 @@ def field_options(people_list):
 def render():
     head, header, theme_js = dp.site_parts()
     head = head.replace("Dopasowanie do naboru · Mapa badawcza WI AGH", "Wyszukiwarka · Mapa badawcza WI AGH")
-    tabs = dp.nav_html("wyszukiwarka") + dp.local_nav([("ws-results", "Wyniki"), ("ws-team-box", "Zespół")])
+    tabs = dp.nav_html("naukowcy") + dp.local_nav([("ws-results", "Wyniki"), ("ws-team-box", "Zespół")])
     ppl = people()
     head_html = head
     field_counts = collections.Counter(p["field"] for p in ppl if p.get("field"))

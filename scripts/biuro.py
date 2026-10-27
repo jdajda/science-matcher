@@ -91,7 +91,6 @@ def render(demo=False):
     head, header, theme_js = dp.site_parts()
     head = head.replace("Dopasowanie do naboru · Mapa badawcza WI AGH", "Projekty · Mapa badawcza WI AGH")
     local = dp.local_nav([("pj-board", "Tablica etapów"), ("pj-report", "Statystyki")])
-    local = local.replace('</div></div>', '<a class="tab seg-btn" href="biuro_przyklad.html">Przykład z zespołem</a></div></div>')
     tabs = dp.nav_html("projekty") + local
     projects = call_projects()
     people = people_list()

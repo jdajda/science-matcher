@@ -83,13 +83,12 @@ def initials(name):
     return "".join(p[0] for p in parts[:2]).upper()
 
 
-BIURO_ONLY = {"nabory", "projekty", "wyszukiwarka"}
+BIURO_ONLY = {"nabory", "projekty"}
 NAV = [
     ("Naukowcy", "index.html", "naukowcy"),
-    ("Wyszukiwarka", "wyszukiwarka.html", "wyszukiwarka"),
     ("Nabory", "dopasowanie.html", "nabory"),
     ("Projekty", "biuro.html", "projekty"),
-    ("Panel", "panel.html", "panel"),
+    ("Zaproszenia", "panel.html", "panel"),
 ]
 
 

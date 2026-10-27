@@ -160,12 +160,12 @@ table.pn-table th {{ color: var(--text2); font-weight: 600; font-size: .78rem; }
   <!-- BIURO -->
   <div class="pn-view" id="view-biuro" data-role-only="biuro">
     <div class="pn-sub">
-      <button class="active" data-pane="przeglad">Przegląd</button>
-      <button data-pane="nabory">Zaproszenia</button>
+      <button class="active" data-pane="nabory">Zaproszenia</button>
       <button data-pane="nowe">Nowe zaproszenie</button>
+      <button data-pane="przeglad">Przegląd</button>
     </div>
 
-    <div class="pn-pane active" id="pane-przeglad">
+    <div class="pn-pane" id="pane-przeglad">
       <div class="pn-kpi" id="bi-kpi"></div>
       <div class="pn-grid2">
         <div class="pn-card"><h3>Zaproszenia wg statusu</h3><div id="bi-status"></div></div>
@@ -173,7 +173,7 @@ table.pn-table th {{ color: var(--text2); font-weight: 600; font-size: .78rem; }
       </div>
     </div>
 
-    <div class="pn-pane" id="pane-nabory">
+    <div class="pn-pane active" id="pane-nabory">
       <div class="pn-filter">
         <input id="bi-q" class="pn-pick" type="search" placeholder="Szukaj osoby albo naboru">
         <div class="pn-chips" id="bi-chips" role="group" aria-label="Filtr statusu"></div>

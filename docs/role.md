@@ -1,6 +1,6 @@
 # Role i dostęp: podział widoków
 
-Stan na 26.10.2026. Decyzje: logowanie przez SSO AGH, ok. 6 użytkowników biura (w tym 1 koordynator), naukowiec nie loguje się, chyba że przez SSO.
+Stan na 27.10.2026 (po uproszczeniu menu). Decyzje: logowanie przez SSO AGH, ok. 6 użytkowników biura (w tym 1 koordynator), naukowiec nie loguje się, chyba że przez SSO.
 
 ## Role
 
@@ -14,11 +14,11 @@ Stan na 26.10.2026. Decyzje: logowanie przez SSO AGH, ok. 6 użytkowników biura
 
 ## Menu według roli
 
-**Gość:** Katalog · Oferta zespołów
+**Gość:** Naukowcy (publiczny katalog) · Oferta zespołów
 
-**Naukowiec:** Mój profil · Zaproszenia · Katalog
+**Naukowiec:** Naukowcy · Zaproszenia · Mój profil
 
-**Biuro:** Nabory · Dobierz zespół · Wyszukiwarka · Projekty · Zaproszenia · Statystyki
+**Biuro:** Naukowcy (z podzakładkami: Lista, Obszary, Dobierz zespół, Graf; z linkiem do Wyszukiwarki) · Nabory · Projekty (z tablicą, CSV i statystykami na dole) · Zaproszenia
 
 **Koordynator:** jak biuro, plus Zatwierdzanie · Użytkownicy biura · Dziennik zmian
 

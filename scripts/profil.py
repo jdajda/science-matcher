@@ -15,12 +15,16 @@ def badap_index():
     m = re.search(r'<script id="app-data" type="application/json">(.*?)</script>', src, re.S)
     if not m:
         return {}
+    data = json.loads(m.group(1))
+    labels = {a["id"]: a.get("label", a["id"]) for a in data.get("areas", [])}
     out = {}
-    for st in json.loads(m.group(1)).get("staff", []):
+    for st in data.get("staff", []):
         out[st["name"]] = {
             "degree": st.get("degree", ""), "unit": st.get("unit", ""), "email": st.get("email", ""),
+            "category": st.get("category", ""), "badap": st.get("badap", ""), "skos": st.get("skos", ""),
             "pubs": st.get("pubs", 0), "yearMax": st.get("yearMax", ""),
             "keywords": [k[0] for k in st.get("keywords", [])[:10]],
+            "areas": [labels.get(a.get("id"), a.get("id")) for a in st.get("areas", [])],
         }
     return out
 
@@ -114,24 +118,41 @@ def render():
       <div class="pc-band"><div class="pc-band-text"><div class="pc-title" id="nk-name"></div><div class="pc-sub" id="nk-meta"></div><div class="pc-progress"><span id="nk-complete"></span><i><b id="nk-bar"></b></i></div></div>{logo}</div>
       <div class="pc-body">
         <aside class="pc-side">
-          <div class="pc-h">Obszary i tematy</div>
-          <ul class="pc-list" id="nk-topics"></ul>
-          <div class="pc-h">Słowa kluczowe</div>
-          <ul class="pc-list" id="nk-keywords"></ul>
-          <div class="pc-h">Kontakt</div>
+          <div class="pc-h">Afiliacja</div>
+          <div class="pc-kv" id="nk-affil"></div>
+          <div class="pc-h">Identyfikatory</div>
+          <div class="pc-kv" id="nk-ids"></div>
+          <div class="pc-h">Kontakt służbowy</div>
           <div class="pc-kv" id="nk-email"></div>
-          <div class="pc-h">Ostatnie prace</div>
+          <div class="pc-h">Obszary i branże</div>
+          <ul class="pc-list" id="nk-areas"></ul>
+          <div class="pc-h">Tematy (OpenAlex)</div>
+          <ul class="pc-list" id="nk-topics"></ul>
+          <div class="pc-h">Technologie i metody</div>
+          <ul class="pc-list" id="nk-keywords"></ul>
+          <div class="pc-h">Wybrane publikacje</div>
           <ul class="pc-list" id="nk-works"></ul>
-          <div class="pc-h">Profil w skrócie</div>
+          <div class="pc-h">Projekty</div>
+          <ul class="pc-list" id="nk-projects"></ul>
+          <div class="pc-h">Certyfikaty</div>
+          <p class="pc-note">Brak danych. Rejestr szkoleń nie jest jeszcze podłączony.</p>
+          <div class="pc-h">Dostępność i zainteresowanie</div>
           <div class="pc-kv"><b>Dostępność</b><select class="category-filter" id="nk-dost"><option>do ustalenia</option><option>tak</option><option>nie</option></select></div>
           <div class="pc-kv"><b>Zainteresowanie nowymi projektami</b><select class="category-filter" id="nk-zain"><option>nie wiem</option><option>tak</option><option>nie</option></select></div>
+          <div class="pc-note" id="nk-confirmed"></div>
         </aside>
         <section class="pc-main">
           <div class="pc-h">Co wnoszę do projektu</div>
           <textarea class="match-textarea" id="nk-wnosze" rows="3"></textarea>
           <div class="pc-h">Szukam kompetencji lub partnerów</div>
           <textarea class="match-textarea" id="nk-szukam" rows="3"></textarea>
-          <div style="margin-top:.8rem;display:flex;gap:.6rem;align-items:center"><button class="btn btn-primary" id="nk-save" type="button">Zapisz profil</button><span class="pc-note" id="nk-saved"></span></div>
+          <div style="margin-top:.8rem;display:flex;gap:.6rem;align-items:center;flex-wrap:wrap"><button class="btn btn-primary" id="nk-save" type="button">Zapisz opis</button><button class="btn" id="nk-confirm" type="button">Potwierdzam, że dane są aktualne</button><span class="pc-note" id="nk-saved"></span></div>
+          <div class="pc-h">Zgłoś korektę danych</div>
+          <p class="pc-note">Widzisz błąd w danych z BaDAP albo OpenAlex? Opisz go, a biuro zobaczy zgłoszenie.</p>
+          <textarea class="match-textarea" id="nk-correction" rows="2" placeholder="np. brakuje publikacji z 2026 r."></textarea>
+          <div style="margin-top:.6rem;display:flex;gap:.6rem;align-items:center"><button class="btn" id="nk-correct" type="button">Wyślij korektę</button><span class="pc-note" id="nk-corr-saved"></span></div>
+          <div class="pc-h">Moje zgłoszenia korekt</div>
+          <div id="nk-corrections"></div>
           <div class="pc-h">Zaproszenia do naborów</div>
           <p class="pc-note" id="nk-invite-note"></p>
           <a class="btn" href="panel.html">Przejdź do zaproszeń</a>
@@ -153,6 +174,8 @@ def render():
           <div class="pc-text" id="bi-desc"></div>
           <div class="pc-h">Projekty z zespołem</div>
           <div id="bi-projects"></div>
+          <div class="pc-h">Korekty od osoby</div>
+          <div id="bi-corrections"></div>
           <div class="pc-h">Zaproszenia</div>
           <div id="bi-invites"></div>
           <div class="pc-h">Historia</div>
@@ -176,6 +199,14 @@ SCRIPT = """
   const PANEL_KEY = 'bm-panel-v2', BIURO_KEY = 'bm-projekty-v1';
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const $ = id => document.getElementById(id);
+  function toast(msg){
+    let t = document.getElementById('toast');
+    if (!t) { t = document.createElement('div'); t.id = 'toast'; t.setAttribute('role', 'status'); t.setAttribute('aria-live', 'polite');
+      t.style.cssText = 'position:fixed;bottom:1.2rem;left:50%;transform:translateX(-50%);background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:.6rem 1rem;box-shadow:var(--shadow);z-index:99;font-size:.88rem;display:none;';
+      document.body.appendChild(t); }
+    t.textContent = msg; t.style.display = 'block';
+    clearTimeout(t._h); t._h = setTimeout(function () { t.style.display = 'none'; }, 2600);
+  }
   const initials = n => n.split(/\\s+/).filter(Boolean).slice(0,2).map(p => p[0]).join('').toUpperCase();
   const people = DATA.people;
   const ANSWERS = ['odpowiedź: tak', 'odpowiedź: nie', 'brak odpowiedzi'];
@@ -210,6 +241,19 @@ SCRIPT = """
     $('nk-meta').textContent = [b.degree, b.unit, (b.pubs || 0) + ' publikacji w BaDAP'].filter(Boolean).join(' · ');
     $('nk-keywords').innerHTML = (b.keywords || []).map(function (k) { return '<li>' + esc(k) + '</li>'; }).join('') || '<li>Brak słów kluczowych</li>';
     $('nk-email').textContent = b.email || 'brak';
+    $('nk-affil').innerHTML = [b.degree, b.unit, b.category].filter(Boolean).map(function (x) { return '<div>' + esc(x) + '</div>'; }).join('') || 'brak danych';
+    $('nk-ids').innerHTML = [
+      p.orcid ? '<a href="' + esc(p.orcid) + '" target="_blank" rel="noopener">ORCID</a>' : 'ORCID: brak',
+      b.badap ? '<a href="' + esc(b.badap) + '" target="_blank" rel="noopener">BaDAP</a>' : '',
+      b.skos ? '<a href="' + esc(b.skos) + '" target="_blank" rel="noopener">SKOS</a>' : ''
+    ].filter(Boolean).join(' · ');
+    $('nk-areas').innerHTML = (b.areas || []).map(function (a) { return '<li>' + esc(a) + '</li>'; }).join('') || '<li>Brak obszarów</li>';
+    var projs = allProjects().filter(function (x) { return (x.people || []).indexOf(current) !== -1; });
+    $('nk-projects').innerHTML = projs.map(function (x) { return '<li>' + esc(x.title) + ' · ' + esc(x.column || '') + '</li>'; }).join('') || '<li>Brak przypisanych projektów</li>';
+    var pr0 = panel.profiles[current] || {};
+    $('nk-confirmed').textContent = pr0.potwierdzono ? 'Dane potwierdzone: ' + pr0.potwierdzono + ' (potwierdzenie tożsamości przez SSO – po wdrożeniu)' : 'Dane nie zostały jeszcze potwierdzone przez właściciela.';
+    var corr = (panel.korekty || []).filter(function (k) { return k.person === current; });
+    $('nk-corrections').innerHTML = corr.length ? corr.map(function (k) { return '<div class="pc-item"><b>' + esc(k.text) + '</b><div class="pc-meta">' + esc(k.date) + ' · ' + esc(k.status) + '</div></div>'; }).join('') : '<p class="pc-note">Brak zgłoszeń.</p>';
     $('nk-topics').innerHTML = p.topics.map(t => '<li>' + esc(t) + '</li>').join('') || '<li>Brak tematów</li>';
     $('nk-works').innerHTML = p.recent.length ? p.recent.map(t => '<li>' + esc(t) + '</li>').join('') : '<li>Brak prac</li>';
     $('nk-wnosze').value = pr.wnosze || ''; $('nk-szukam').value = pr.szukam || '';
@@ -235,6 +279,15 @@ SCRIPT = """
     $('bi-name').textContent = current;
     var bb = p.badap || {};
     $('bi-meta').textContent = [bb.degree, bb.unit, bb.email].filter(Boolean).join(' · ');
+    var bcorr = (panel.korekty || []).map(function (k, idx) { return Object.assign({}, k, {idx: idx}); }).filter(function (k) { return k.person === current; });
+    $('bi-corrections').innerHTML = bcorr.length ? bcorr.map(function (k) {
+      var done = k.status === 'rozpatrzone';
+      return '<div class="pc-item"><b>' + esc(k.text) + '</b><div class="pc-meta">' + esc(k.date) + ' · ' + esc(k.status) + '</div>' +
+        (done ? '' : '<button class="btn" data-done="' + k.idx + '" type="button" style="margin-top:.4rem">Oznacz jako rozpatrzone</button>') + '</div>';
+    }).join('') : '<p class="pc-note">Brak zgłoszeń korekt.</p>';
+    $('bi-corrections').querySelectorAll('[data-done]').forEach(function (b) {
+      b.addEventListener('click', function () { panel.korekty[+b.dataset.done].status = 'rozpatrzone'; persist(PANEL_KEY, panel); toast('Oznaczono jako rozpatrzone'); renderAll(); });
+    });
     $('bi-desc').innerHTML = pr.wnosze ? esc(pr.wnosze) + '<br><br><b>Szuka:</b> ' + esc(pr.szukam || '–') : 'Osoba nie uzupełniła profilu.';
     $('bi-topics').innerHTML = p.topics.map(t => '<li>' + esc(t) + '</li>').join('') || '<li>Brak tematów</li>';
     const projects = allProjects().filter(x => (x.people || []).includes(current));
@@ -255,6 +308,17 @@ SCRIPT = """
   function renderAll(){ renderNaukowiec(); renderBiuro(); }
 
   $('pf-person').addEventListener('change', e => { current = e.target.value; history.replaceState(null, '', '?osoba=' + encodeURIComponent(current)); renderAll(); });
+  $('nk-confirm').addEventListener('click', () => {
+    panel.profiles[current] = Object.assign({}, panel.profiles[current] || {}, {potwierdzono: new Date().toISOString().slice(0, 10)});
+    persist(PANEL_KEY, panel); renderAll(); $('nk-saved').textContent = 'Potwierdzono'; toast('Dziękujemy. Data potwierdzenia została zapisana.');
+  });
+  $('nk-correct').addEventListener('click', () => {
+    const text = $('nk-correction').value.trim();
+    if (!text) { $('nk-corr-saved').textContent = 'Opisz, co wymaga poprawy.'; return; }
+    panel.korekty = (panel.korekty || []).concat([{person: current, text: text, date: new Date().toISOString().slice(0, 10), status: 'nowe'}]);
+    persist(PANEL_KEY, panel); $('nk-correction').value = ''; $('nk-corr-saved').textContent = 'Zgłoszenie wysłane do biura.';
+    toast('Zgłoszenie wysłane do biura'); renderAll();
+  });
   $('nk-save').addEventListener('click', () => {
     panel.profiles[current] = Object.assign({}, panel.profiles[current] || {}, {wnosze: $('nk-wnosze').value.trim(), szukam: $('nk-szukam').value.trim(), dost: $('nk-dost').value, zain: $('nk-zain').value, zaktualizowano: new Date().toISOString().slice(0, 10)});
     persist(PANEL_KEY, panel); $('nk-saved').textContent = 'Zapisano'; renderAll();
