@@ -18,7 +18,7 @@ Stan na 27.10.2026 (po uproszczeniu menu). Decyzje: logowanie przez SSO AGH, ok.
 
 **Naukowiec:** Naukowcy · Zaproszenia · Mój profil
 
-**Biuro:** Naukowcy (Lista, Dobierz zespół, Graf współpracy; obszary jako filtr listy) · Projekty (baza projektów z filtrami, tablica naborów UE z dopasowanymi osobami, eksport CSV/PDF) · Zaproszenia
+**Biuro:** Naukowcy (Lista, Dobierz zespół, Graf współpracy; obszary jako filtr listy) · Projekty (baza projektów z filtrami i eksportem CSV/PDF) · Tablica naborów (osobna podstrona: nabory UE, dopasowane osoby, zespół) · Zaproszenia
 
 **Koordynator:** jak biuro, plus Zatwierdzanie · Użytkownicy biura · Dziennik zmian
 

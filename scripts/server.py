@@ -28,6 +28,9 @@ ROLES = {"biuro", "koordynator", "naukowiec", "admin"}
 PERMS = {
     "bm-projekty-v1": {"read": {"biuro", "koordynator"}, "write": {"biuro", "koordynator"}},
     "bm-panel-v2": {"read": {"biuro", "koordynator"}, "write": {"biuro", "koordynator"}},
+    "bm-baza-nowe": {"read": {"biuro", "koordynator"}, "write": {"biuro", "koordynator"}},
+    "bm-nabor-projekt": {"read": {"biuro", "koordynator"}, "write": {"biuro", "koordynator"}},
+    "bm-projekt-opiekun": {"read": {"biuro", "koordynator"}, "write": {"koordynator"}},
 }
 
 

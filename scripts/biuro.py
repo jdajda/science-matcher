@@ -202,7 +202,14 @@ BASE_TEMPLATE = r'''  <section id="pj-baza" class="pj-base">
     var ORDER = ['w realizacji', 'zakończony'];
     var LBL = {'zakończony': 'Zakończone', 'w realizacji': 'W trakcie realizacji'};
     var PLBL = {'wi': 'Projekty WI', 'unijne': 'Unijne'};
-    var rows = __DATA__;
+    var BASE_ROWS = __DATA__;
+    var rows = BASE_ROWS.concat(loadNewRows());
+    window.addEventListener('bm-baza-changed', function () { rows = BASE_ROWS.concat(loadNewRows()); render(); });
+    if (location.protocol.indexOf('http') === 0) {
+      fetch('/api/kv/bm-baza-nowe', {cache: 'no-store'}).then(function (r) { return r.ok ? r.json() : null; }).then(function (v) {
+        if (v) { localStorage.setItem('bm-baza-nowe', JSON.stringify(v)); rows = BASE_ROWS.concat(loadNewRows()); render(); }
+      }).catch(function () {});
+    }
     var STAFF = __STAFF__;
     var NABORY = __NABORY__;
     var MEMBERS = __MEMBERS__;
@@ -237,6 +244,14 @@ BASE_TEMPLATE = r'''  <section id="pj-baza" class="pj-base">
       return true;
     }
     function shownRows() { return rows.filter(matches); }
+    function loadNewRows() {
+      var list = []; try { list = JSON.parse(localStorage.getItem('bm-baza-nowe') || '[]'); } catch (e) { list = []; }
+      return list.map(function (r) {
+        var stan = r.koniec < '__TODAY__' ? 'zakończony' : 'w realizacji';
+        var pula = /Komisja Europejska/.test(r.zleceniodawca || '') ? 'unijne' : 'wi';
+        return Object.assign({}, r, {stan: stan, pula: pula});
+      }).filter(function (r) { return r.start <= '__TODAY__'; });
+    }
     function fillSelect(sel, values) {
       var cur = sel.value;
       sel.innerHTML = '<option value="">wszyscy</option>' + values.map(function (v) { return '<option value="' + esc(v) + '">' + esc(v) + '</option>'; }).join('');
@@ -255,8 +270,9 @@ BASE_TEMPLATE = r'''  <section id="pj-baza" class="pj-base">
       var p = document.createElement('span'); p.className = 'bz-pula'; p.textContent = PLBL[pulaOf(r)];
       var nm = document.createElement('div'); nm.className = 'bz-meta'; if (r.nazwa) nm.textContent = 'Nazwa: ' + r.nazwa;
       var t = document.createElement('div'); t.className = 'bz-title'; t.textContent = r.temat;
+      var mlink = r.nabor ? ' · z naboru ' + r.nabor : '';
       var m = document.createElement('div'); m.className = 'bz-meta';
-      m.textContent = 'Kierownik: ' + (kierWiOf(r) || r.kierownik || 'brak danych') + (kover.hasOwnProperty(String(r.id)) ? ' (wybrane przez biuro)' : '');
+      m.textContent = 'Kierownik: ' + (kierWiOf(r) || r.kierownik || 'brak danych') + (kover.hasOwnProperty(String(r.id)) ? ' (wybrane przez biuro)' : '') + mlink;
       var z = document.createElement('div'); z.className = 'bz-meta'; z.textContent = r.zleceniodawca;
       var dt = document.createElement('div'); dt.className = 'bz-meta';
       dt.textContent = r.start + ' → ' + r.koniec + (r.kwota ? ' · ' + fmtKwota(r.kwota) : '') + (r.nr_umowy ? ' · ' + r.nr_umowy : '');
@@ -419,11 +435,76 @@ def nabory_status():
     return txt
 
 
-def render():
+def board_html(col_checks, opt):
+    return f"""  <div class="pj-layout">
+    <aside class="pj-side">
+      <div class="side-head"><h3>Filtry</h3></div>
+      <div class="side-block">
+        <span class="side-label">Szukaj</span>
+        <input id="pj-q" type="search" placeholder="Nazwa, opis, słowo kluczowe…">
+      </div>
+      <div class="side-block">
+        <span class="side-label">Etap</span>
+        {col_checks}
+      </div>
+      <div class="side-block">
+        <span class="side-label">Status naboru</span>
+        <select id="pj-status" aria-label="Status naboru"><option value="">wszystkie</option><option>planowany</option><option>otwarty</option><option>zamknięty</option><option>sprawdzić</option></select>
+      </div>
+      <div class="side-block">
+        <span class="side-label">Źródło</span>
+        <select id="pj-source" aria-label="Źródło"><option value="">wszystkie</option>{opt(SOURCES)}</select>
+      </div>
+      <div class="side-block">
+        <span class="side-label">Program</span>
+        <select id="pj-program" aria-label="Program"><option value="">wszystkie</option>{opt(PROGRAMS)}</select>
+      </div>
+      <div class="side-block">
+        <span class="side-label">Typ roli</span>
+        <select id="pj-role" aria-label="Typ roli"><option value="">wszystkie</option>{opt(ROLES)}</select>
+      </div>
+      <div class="side-block">
+        <span class="side-label">Osoba w zespole</span>
+        <select id="pj-person" aria-label="Osoba w zespole"><option value="">wszystkie</option></select>
+      </div>
+      <div class="side-block">
+        <span class="side-label">Termin do</span>
+        <input id="pj-deadline" type="date" aria-label="Termin do">
+      </div>
+      <div class="side-block">
+        <button id="pj-reset" class="link-btn" type="button">Wyczyść filtry</button>
+      </div>
+    </aside>
+    <div>
+      <div class="pj-actions"><span class="pj-meta">{h.escape(nabory_status())}</span><span class="pj-meta" id="pj-hidden" hidden></span></div>
+      <div class="pj-board" id="pj-board"></div>
+    </div>
+  </div>
+
+"""
+
+
+PAGE_VIEWS = [("baza", "biuro.html", "Baza projektów"), ("tablica", "nabory.html", "Tablica naborów")]
+HEROES = {
+    "baza": ("Projekty", "Baza projektów", "Realizowane i zakończone projekty WI i unijne. Filtry po lewej. Przeciągnij kafel na inny etap albo na pulę."),
+    "tablica": ("Nabory UE", "Tablica naborów", "Nabory przyszłe i otwarte. W karcie widzisz tematy, terminy, dopasowane osoby i zespół. Projekt z naboru utworzysz w karcie."),
+}
+
+
+def page_nav(view):
+    parts = []
+    for key, href, lbl in PAGE_VIEWS:
+        cls = "tab seg-btn active" if key == view else "tab seg-btn"
+        cur = ' aria-current="page"' if key == view else ""
+        parts.append(f'<a class="{cls}" href="{href}"{cur}>{h.escape(lbl)}</a>')
+    return '<div class="seg-bar" role="navigation" aria-label="Widoki strony"><div class="container seg-row">' + "".join(parts) + "</div></div>"
+
+
+def render(view="baza"):
     head, header, theme_js = dp.site_parts()
     head = head.replace("Dopasowanie do naboru · Mapa badawcza WI AGH", "Projekty · Mapa badawcza WI AGH")
-    local = dp.local_nav([("pj-baza", "Baza projektów"), ("pj-board", "Tablica naborów")])
-    tabs = dp.nav_html("projekty") + local
+    tabs = dp.nav_html("projekty") + page_nav(view)
+    eyebrow, title, sub = HEROES[view]
     projects = call_projects()
     people = people_list()
     payload = {
@@ -438,12 +519,20 @@ def render():
         "members": json.loads((ROOT / "data" / "biuro_kontakt.json").read_text(encoding="utf-8")).get("czlonkowie", []),
     }
     data = json.dumps(payload, ensure_ascii=False).replace("</", "<\\/")
-    script = SCRIPT.replace("__DATA__", data)
+    script = SCRIPT.replace("__DATA__", data) if view == "tablica" else ""
     opt = lambda items: "".join(f'<option value="{h.escape(x)}">{h.escape(x)}</option>' for x in items)
     col_checks = "".join(
         f'<label class="f-check"><input type="checkbox" class="pj-col-cb" value="{c}" checked> {h.escape(l)}</label>'
         for c, l, _ in COLUMNS
     )
+    hero = f"""  <section class="hero-simple">
+    <div class="eyebrow">{h.escape(eyebrow)}</div>
+    <h1 class="hero-title">{h.escape(title)}</h1>
+    <p class="hero-sub">{h.escape(sub)}</p>
+  </section>
+"""
+    body_base = base_html() if view == "baza" else ""
+    board = board_html(col_checks, opt) if view == "tablica" else ""
     return f"""{head}
 <style>a.tab, a.tab:hover {{ text-decoration: none; }} 
 .pj-layout {{ display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 1.2rem; align-items: start; }}
@@ -510,59 +599,12 @@ def render():
 {tabs}
 
 <main class="container">
-  <section class="hero-simple">
-    <div class="eyebrow">Projekty</div>
-    <h1 class="hero-title">Projekty i dobór zespołu</h1>
-    <p class="hero-sub">Nabory UE: przyszłe i otwarte. W karcie naboru widzisz tematy, terminy i osoby dopasowane na podstawie publikacji. Dodaj osobę do zespołu jednym kliknięciem. Projekty realizowane i zakończone są w bazie powyżej.</p>
-  </section>
+  {hero}
 
-  {base_html()}
+  {body_base}
 
 
-  <div class="pj-layout">
-    <aside class="pj-side">
-      <div class="side-head"><h3>Filtry</h3></div>
-      <div class="side-block">
-        <span class="side-label">Szukaj</span>
-        <input id="pj-q" type="search" placeholder="Nazwa, opis, słowo kluczowe…">
-      </div>
-      <div class="side-block">
-        <span class="side-label">Etap</span>
-        {col_checks}
-      </div>
-      <div class="side-block">
-        <span class="side-label">Status naboru</span>
-        <select id="pj-status" aria-label="Status naboru"><option value="">wszystkie</option><option>planowany</option><option>otwarty</option><option>zamknięty</option><option>sprawdzić</option></select>
-      </div>
-      <div class="side-block">
-        <span class="side-label">Źródło</span>
-        <select id="pj-source" aria-label="Źródło"><option value="">wszystkie</option>{opt(SOURCES)}</select>
-      </div>
-      <div class="side-block">
-        <span class="side-label">Program</span>
-        <select id="pj-program" aria-label="Program"><option value="">wszystkie</option>{opt(PROGRAMS)}</select>
-      </div>
-      <div class="side-block">
-        <span class="side-label">Typ roli</span>
-        <select id="pj-role" aria-label="Typ roli"><option value="">wszystkie</option>{opt(ROLES)}</select>
-      </div>
-      <div class="side-block">
-        <span class="side-label">Osoba w zespole</span>
-        <select id="pj-person" aria-label="Osoba w zespole"><option value="">wszystkie</option></select>
-      </div>
-      <div class="side-block">
-        <span class="side-label">Termin do</span>
-        <input id="pj-deadline" type="date" aria-label="Termin do">
-      </div>
-      <div class="side-block">
-        <button id="pj-reset" class="link-btn" type="button">Wyczyść filtry</button>
-      </div>
-    </aside>
-    <div>
-      <div class="pj-actions"><span class="pj-meta">{h.escape(nabory_status())}</span><span class="pj-meta" id="pj-hidden" hidden></span></div>
-      <div class="pj-board" id="pj-board"></div>
-    </div>
-  </div>
+  {board}
 
 </main>
 {script}
@@ -596,8 +638,12 @@ SCRIPT = """
   const OPKEY = 'bm-projekt-opiekun';
   const COORD = localStorage.getItem('bm-biuro-rola') === 'koordynator';
   let OPIEKUN = {}; try { OPIEKUN = JSON.parse(localStorage.getItem(OPKEY) || '{}'); } catch (e) { OPIEKUN = {}; }
-  function saveOpiekun(key, name){ OPIEKUN[key] = name; localStorage.setItem(OPKEY, JSON.stringify(OPIEKUN)); }
+  function saveOpiekun(key, name){ OPIEKUN[key] = name; saveState(OPKEY, OPIEKUN); }
   let st = await loadState(KEY, {cards: {}, custom: []});
+  for (const k of ['bm-baza-nowe', 'bm-nabor-projekt', 'bm-projekt-opiekun']) {
+    const v = await loadRemote(k); if (v) localStorage.setItem(k, JSON.stringify(v));
+  }
+  OPIEKUN = jsonLs(OPKEY, {});
   const save = () => saveState(KEY, st);
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const initials = n => n.split(/\\s+/).filter(Boolean).slice(0,2).map(p => p[0]).join('').toUpperCase();
@@ -628,6 +674,38 @@ SCRIPT = """
     const tags = [p.source, p.program, p.typ].concat(p.slowa || []).filter(Boolean);
     return tags.length ? '<div class="pj-tags">' + tags.map(t => '<span class="pj-tag">' + esc(t) + '</span>').join('') + '</div>' : '';
   }
+  const NEWKEY = 'bm-baza-nowe', LINKKEY = 'bm-nabor-projekt';
+  function jsonLs(key, fallback) { try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); } catch (e) { return fallback; } }
+  function linkedTo(callId) { return jsonLs(LINKKEY, {})[callId] || ''; }
+  function createSection(p){
+    const opts = (DATA.people || []).map(x => '<option value="' + esc(x.name) + '">' + esc(x.name) + '</option>').join('');
+    return '<div class="pj-section"><div class="pj-label">Projekt z naboru</div>' +
+      '<button class="btn" type="button" data-to-project="' + esc(p.id) + '">Utwórz projekt z naboru</button>' +
+      '<div class="pj-form-inline" data-form="' + esc(p.id) + '" hidden>' +
+      '<label>Początek projektu <input type="date" data-f="start"></label>' +
+      '<label>Koniec projektu <input type="date" data-f="koniec"></label>' +
+      '<label>Kierownik <select data-f="kierownik"><option value="">— wybierz —</option>' + opts + '</select></label>' +
+      '<label>Nr umowy <input type="text" data-f="nr" placeholder="np. 101000000"></label>' +
+      '<button class="btn btn-primary" type="button" data-create="' + esc(p.id) + '">Utwórz w bazie projektów</button>' +
+      '<div class="pj-small" data-err="' + esc(p.id) + '"></div></div></div>';
+  }
+  function createFromCall(callId){
+    const form = document.querySelector('[data-form="' + callId + '"]');
+    const v = k => form.querySelector('[data-f="' + k + '"]').value.trim();
+    const err = form.querySelector('[data-err="' + callId + '"]');
+    if (!v('start') || !v('koniec')) { err.textContent = 'Podaj datę początku i końca.'; return; }
+    if (v('koniec') < v('start')) { err.textContent = 'Koniec nie może być przed początkiem.'; return; }
+    if (!v('kierownik')) { err.textContent = 'Wybierz kierownika.'; return; }
+    const call = DATA.projects.find(x => x.id === callId) || {};
+    const rec = {id: 'nabor-' + callId, temat: 'Projekt z naboru ' + callId, nazwa: callId, kierownik: v('kierownik'), kierownik_wi: v('kierownik'),
+      start: v('start'), koniec: v('koniec'), zleceniodawca: 'Komisja Europejska (nabór ' + callId + ')', kwota: null,
+      nr_umowy: v('nr') || null, zrodlo: 'nabór', nabor: callId, opis: call.opis || ''};
+    const list = jsonLs(NEWKEY, []); list.push(rec); saveState(NEWKEY, list);
+    const links = jsonLs(LINKKEY, {}); links[callId] = rec.id; saveState(LINKKEY, links);
+    toast('Utworzono projekt w bazie: ' + rec.id);
+    window.dispatchEvent(new Event('bm-baza-changed'));
+    render();
+  }
   function opiekunSel(key){
     const cur = OPIEKUN[key] || '';
     const opts = '<option value="">— nie przypisano —</option>' + (DATA.members || []).map(m => '<option value="' + esc(m.name) + '"' + (m.name === cur ? ' selected' : '') + '>' + esc(m.name) + ' · ' + esc(m.rola) + '</option>').join('');
@@ -655,6 +733,7 @@ SCRIPT = """
         '<div class="pj-section"><div class="pj-label">Zespół</div>' + (chips || '<div class="pj-empty">Brak osób. Dodaj z listy poniżej.</div>') +
         '<select data-add="' + esc(p.id) + '">' + peopleOpts + '</select></div>' +
         '<div class="pj-section"><div class="pj-label">Opiekun projektu</div>' + opiekunSel('call:' + p.id) + '</div>' +
+        (linkedTo(p.id) ? '<div class="pj-section"><div class="pj-label">Projekt w bazie</div><p>' + esc(linkedTo(p.id)) + ' (kafel w bazie projektów WI i unijne)</p></div>' : createSection(p)) +
         '<div class="pj-section"><div class="pj-label">Etap</div><select data-move="' + esc(p.id) + '">' + colOpts + '</select></div>' +
         '<button class="btn" type="button" data-card="' + esc(p.id) + '">Wizytówka do wysłania</button>' +
       '</div></details>';
@@ -713,6 +792,10 @@ SCRIPT = """
       const p = all.find(x => x.id === id);
       update(id, {people: (p.people || []).concat([name]), open: true});
     }));
+    board.querySelectorAll('[data-to-project]').forEach(b => b.addEventListener('click', () => {
+      const f = board.querySelector('[data-form="' + b.dataset.toProject + '"]'); f.hidden = !f.hidden;
+    }));
+    board.querySelectorAll('[data-create]').forEach(b => b.addEventListener('click', () => createFromCall(b.dataset.create)));
     board.querySelectorAll('[data-opiekun]').forEach(sel => sel.addEventListener('change', () => {
       if (!COORD) return;
       saveOpiekun(sel.dataset.opiekun, sel.value); toast(sel.value ? 'Opiekun projektu: ' + sel.value : 'Usunięto opiekuna projektu'); render();
@@ -765,8 +848,11 @@ SCRIPT = """
 
 def main():
     out = ROOT / "biuro.html"
-    out.write_text(render(), encoding="utf-8")
+    out.write_text(render("baza"), encoding="utf-8")
     print(f"zapisano: {out}")
+    nabory = ROOT / "nabory.html"
+    nabory.write_text(render("tablica"), encoding="utf-8")
+    print(f"zapisano: {nabory}")
 
 
 if __name__ == "__main__":

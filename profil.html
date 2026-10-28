@@ -634,8 +634,14 @@ a.tab, a.tab:hover { text-decoration: none; }
   const OPIEKUN_MAP = (function () { try { return JSON.parse(localStorage.getItem('bm-projekt-opiekun') || '{}'); } catch (e) { return {}; } })();
   const opOf = k => OPIEKUN_MAP[k] ? ' · opiekun: ' + OPIEKUN_MAP[k] : ' · opiekun: nie przypisano';
   const STAGE = {'zakończony': 'Zakończone', 'w realizacji': 'W trakcie realizacji', 'planowany': 'Przyszłe'};
+  function todayIso() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+  function newBazaRows() {
+    const t = todayIso();
+    try { return JSON.parse(localStorage.getItem('bm-baza-nowe') || '[]').filter(function (r) { return r.start <= t; }).map(function (r) {
+      return Object.assign({}, r, {stan: r.koniec < t ? 'zakończony' : 'w realizacji', pula: /Komisja Europejska/.test(r.zleceniodawca || '') ? 'unijne' : 'wi'}); }); } catch (e) { return []; }
+  }
   function bazaFor(name) {
-    return (DATA.baza || []).filter(function (r) {
+    return (DATA.baza || []).concat(newBazaRows()).filter(function (r) {
       var k = bazaOver.hasOwnProperty(String(r.id)) ? bazaOver[String(r.id)] : (r.kierownik_wi || '');
       return k === name;
     });
@@ -761,6 +767,9 @@ a.tab, a.tab:hover { text-decoration: none; }
   });
 
   async function start(){
+    const rn = await loadRemote('bm-baza-nowe'), ro = await loadRemote('bm-projekt-opiekun');
+    if (rn) saveLocal('bm-baza-nowe', rn);
+    if (ro) { saveLocal('bm-projekt-opiekun', ro); Object.assign(OPIEKUN_MAP, ro); }
     const rp = await loadRemote(PANEL_KEY), rb = await loadRemote(BIURO_KEY);
     panel = rp || loadLocal(PANEL_KEY, panel);
     biuro = rb || loadLocal(BIURO_KEY, biuro);

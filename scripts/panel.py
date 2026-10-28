@@ -282,6 +282,11 @@ SCRIPT = """
   const STATUSES = FLOW.concat(ANSWERS);
   const people = DATA.people;
   const callsById = {}; DATA.calls.forEach(c => callsById[c.id] = c);
+  const made = await loadState('bm-baza-nowe', []);
+  (function () {
+    made.filter(r => r.koniec >= DATA.today).forEach(r => DATA.projects.push({id: r.id, nazwa: r.nazwa || r.temat, typ: 'projekt', termin: r.koniec,
+      opis: r.temat + '. Zleceniodawca: ' + r.zleceniodawca + '. Okres: ' + r.start + ' – ' + r.koniec + '.'}));
+  })();
   const projById = {}; DATA.projects.forEach(p => projById[p.id] = p);
   const ROLES_PROJ = DATA.rolesProj;
   function projOptions(){
