@@ -1,0 +1,122 @@
+[
+ {
+  "id": 1,
+  "temat": "Fort Kraków Polski Akcelerator DIANA",
+  "kierownik": "prof. dr hab. inż. Rafał Dańko",
+  "start": "2025-10-01",
+  "koniec": "2028-12-31",
+  "zleceniodawca": "Ministerstwo Rozwoju i Technologii"
+ },
+ {
+  "id": 2,
+  "temat": "Analiza i generacja zróżnicowanych i realistycznych instancji wyborów",
+  "kierownik": "prof. dr hab. inż. Piotr Faliszewski",
+  "start": "2026-09-01",
+  "koniec": "2031-08-31",
+  "zleceniodawca": "Narodowe Centrum Nauki"
+ },
+ {
+  "id": 3,
+  "temat": "Rozwój metod zwiększających stabilność działania i odporność dużych modeli językowych na ataki adwersarialne",
+  "kierownik": "prof. dr hab. inż. Leszek Rutkowski",
+  "start": "2026-07-09",
+  "koniec": "2029-07-08",
+  "zleceniodawca": "Narodowe Centrum Nauki"
+ },
+ {
+  "id": 4,
+  "temat": "ECCentriC: Badanie komitetów skoncentrowanych na kandydatach / NAWA Polskie Powroty 2025",
+  "kierownik": "dr inż. Andrzej Kaczmarczyk",
+  "start": "2026-10-01",
+  "koniec": "2029-09-30",
+  "zleceniodawca": "Narodowa Agencja Wymiany Akademickiej"
+ },
+ {
+  "id": 5,
+  "temat": "Ocena ryzyka, symulacja i zapobieganie występowaniu pyłu respirabilnego na obszarach poprzemysłowych",
+  "kierownik": "dr hab. inż. Ewa Adamiec",
+  "start": "2026-02-02",
+  "koniec": "2026-08-01",
+  "zleceniodawca": "Komisja Europejska"
+ },
+ {
+  "id": 6,
+  "temat": "Europejskie ramy cybermonitoringu, usług CTI i skoordynowanych działań mitygacyjnych oparte na sztucznej inteligencji / ang. AI-powered european framework for cyber monitoring, CTI services and coordinated mitigation",
+  "kierownik": "dr inż. Łukasz Faber",
+  "start": "2026-07-06",
+  "koniec": "2029-07-05",
+  "zleceniodawca": "Komisja Europejska"
+ },
+ {
+  "id": 7,
+  "temat": "Poprawa hybrydowej optymalizacji klasyczno-kwantowej za pomocą technik uczenia maszynowego",
+  "kierownik": "mgr inż. Justyna Zawalska",
+  "start": "2025-12-15",
+  "koniec": "2026-12-31",
+  "zleceniodawca": "Narodowe Centrum Nauki"
+ },
+ {
+  "id": 8,
+  "temat": "Sieci Neuronowe Poinformowane o Fizyce używające macierzy hierarchicznych i metody Petrova-Galerkina (HPG-PINN)",
+  "kierownik": "dr inż. Tomasz Służalec",
+  "start": "2026-02-13",
+  "koniec": "2029-02-12",
+  "zleceniodawca": "Narodowe Centrum Nauki"
+ },
+ {
+  "id": 9,
+  "temat": "Model autonomicznego zarządzania komponentów natywnego-chmurowego środowiska wykonawczego",
+  "kierownik": "dr inż. Joanna Kosińska",
+  "start": "2026-01-01",
+  "koniec": "2029-01-31",
+  "zleceniodawca": "Narodowe Centrum Nauki"
+ },
+ {
+  "id": 10,
+  "temat": "Symulacja złożonych układów biologicznych wspomagana przez sztuczną inteligencję: językowo sterowany model planowania terapii przeciwnowotworowej",
+  "kierownik": "prof. dr hab. inż. Witold Dzwinel",
+  "start": "2026-03-16",
+  "koniec": "2029-03-15",
+  "zleceniodawca": "Narodowe Centrum Nauki"
+ },
+ {
+  "id": 11,
+  "temat": "Od strategii tłumacza do tendencyjności algorytmu. Ilościowy model analizy przekładu",
+  "kierownik": "mgr inż. Maciej Rapacz",
+  "start": "2026-01-01",
+  "koniec": "2026-12-31",
+  "zleceniodawca": "Narodowe Centrum Nauki"
+ },
+ {
+  "id": 12,
+  "temat": "Opracowanie platformy referencyjnej dla modeli predykcyjnych opartych na AI/ML w zastosowaniach agrochemicznych dotyczących bioaktywności i toksyczności",
+  "kierownik": "dr inż. Wojciech Czech",
+  "start": "2026-01-13",
+  "koniec": "2030-01-12",
+  "zleceniodawca": "Narodowe Centrum Nauki"
+ },
+ {
+  "id": 13,
+  "temat": "Bezprzewodowy system nawigacji wibroakustycznej do wsparcia zabiegów małoinwazyjnych – VIBRONAV",
+  "kierownik": "dr hab. Michael Friebe / dr inż. Dominik Rzepka",
+  "start": "2026-03-01",
+  "koniec": "2027-02-28",
+  "zleceniodawca": "NCBiR"
+ },
+ {
+  "id": 14,
+  "temat": "Nawigacja urządzeń medycznych w oparciu o sygnały wibroakustyczne – VIBRONAV",
+  "kierownik": "dr hab. Michael Friebe",
+  "start": "2023-03-01",
+  "koniec": "2026-02-28",
+  "zleceniodawca": "NCBiR"
+ },
+ {
+  "id": 15,
+  "temat": "Optymalizacja problemów odpornego sterowania predykcyjnego i ze sprzężeniem zwrotnym w systemach z opóźnieniami przy pomocy złożonych metaheurystyk",
+  "kierownik": "prof. dr hab. inż. Janusz Kacprzyk",
+  "start": "2025-09-12",
+  "koniec": "2028-09-11",
+  "zleceniodawca": "Narodowe Centrum Nauki"
+ }
+]

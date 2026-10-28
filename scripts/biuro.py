@@ -87,10 +87,193 @@ def demo_people(projects, people):
         p["people"] = names[i * 3 : i * 3 + 3]
 
 
+def completed_base():
+    rows = json.loads((ROOT / "data" / "projekty_zrealizowane.json").read_text(encoding="utf-8"))
+    today = TODAY
+    for r in rows:
+        r["pula"] = "unijne" if "Komisja Europejska" in r["zleceniodawca"] else "wi"
+        if r["koniec"] < today:
+            r["stan"] = "zakończony"
+        elif r["start"] > today:
+            r["stan"] = "planowany"
+        else:
+            r["stan"] = "w realizacji"
+    return rows
+
+
+def base_html():
+    rows = completed_base()
+    data = json.dumps(rows, ensure_ascii=False).replace("</", "<\\/")
+    return BASE_TEMPLATE.replace("__DATA__", data).replace("__TODAY__", TODAY)
+
+
+BASE_TEMPLATE = r'''  <section id="pj-baza" class="pj-base">
+    <div class="pj-label">Baza projektów: WI i unijne</div>
+    <p class="pj-empty">Projekty krajowe (Projekty WI) i unijne. Kafel można przeciągnąć na inny etap albo na pulę „Unijne” lub „Projekty WI”. Etap i pulę można też wybrać w kaflu.</p>
+    <div class="pj-actions">
+      <button class="btn seg-btn active" type="button" data-pula="all">Wszystkie</button>
+      <button class="btn seg-btn" type="button" data-pula="wi">Projekty WI</button>
+      <button class="btn seg-btn" type="button" data-pula="unijne">Unijne</button>
+      <button class="btn btn-primary" id="bz-pdf" type="button">Pobierz PDF</button>
+      <button class="btn" id="bz-csv" type="button">Pobierz CSV</button>
+      <button class="link-btn" id="bz-reset" type="button">Przywróć dane domyślne</button>
+      <span class="pj-meta" id="bz-msg" role="status" aria-live="polite"></span>
+    </div>
+    <div class="bz-board">
+      <div class="bz-col" data-stan="zakończony" style="--c:#8a94a6"><div class="bz-col-head"><span>Zakończone</span><span class="pj-count" data-count="zakończony"></span></div><div class="bz-list"></div></div>
+      <div class="bz-col" data-stan="w realizacji" style="--c:#b08a4a"><div class="bz-col-head"><span>W realizacji</span><span class="pj-count" data-count="w realizacji"></span></div><div class="bz-list"></div></div>
+      <div class="bz-col" data-stan="planowany" style="--c:#4f7fb0"><div class="bz-col-head"><span>Planowane</span><span class="pj-count" data-count="planowany"></span></div><div class="bz-list"></div></div>
+    </div>
+  </section>
+  <style>
+  .bz-board { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .9rem; margin-top: .8rem; }
+  .bz-col { background: var(--surface); border: 1px solid var(--border); border-top: 3px solid var(--c); border-radius: 14px; padding: .8rem; min-height: 140px; min-width: 0; }
+  .bz-col.over, .bz-pula-drop.over { outline: 2px dashed var(--accent, #5f9e80); outline-offset: 2px; }
+  .bz-col-head { display: flex; justify-content: space-between; font-weight: 600; color: var(--text); margin-bottom: .6rem; }
+  .bz-list { display: flex; flex-direction: column; gap: .6rem; }
+  .bz-tile { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: .7rem .8rem; cursor: grab; overflow-wrap: anywhere; }
+  .bz-tile.dragging { opacity: .5; }
+  .bz-tile--wi { border-left: 4px solid #4f8fbf; }
+  .bz-tile--unijne { border-left: 4px solid #8b7fd6; }
+  .bz-tile--wi .bz-pula { background: rgba(79, 143, 191, .22); color: #9cc9ea; }
+  .bz-tile--unijne .bz-pula { background: rgba(139, 127, 214, .24); color: #c7beff; }
+  .bz-pula { display: inline-block; font-size: .7rem; border-radius: 999px; padding: .1rem .5rem; background: var(--surface2); color: var(--text2); margin-bottom: .35rem; }
+  .bz-title { font-weight: 600; font-size: .88rem; color: var(--text); line-height: 1.35; }
+  .bz-meta { font-size: .78rem; color: var(--text2); margin-top: .3rem; line-height: 1.4; }
+  .bz-sel { margin-top: .5rem; width: 100%; padding: .35rem .5rem; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font: inherit; font-size: .82rem; }
+  @media (max-width: 900px) { .bz-board { grid-template-columns: 1fr; } }
+  </style>
+  <script>
+  (function () {
+    var KEY = 'bm-baza-stan', PKEY = 'bm-baza-pula';
+    var ORDER = ['zakończony', 'w realizacji', 'planowany'];
+    var LBL = {'zakończony': 'Zakończone', 'w realizacji': 'W realizacji', 'planowany': 'Planowane'};
+    var PLBL = {'wi': 'Projekty WI', 'unijne': 'Unijne'};
+    var rows = __DATA__;
+    var over = {}, pover = {}, filt = 'all';
+    try { over = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { over = {}; }
+    try { pover = JSON.parse(localStorage.getItem(PKEY) || '{}'); } catch (e) { pover = {}; }
+    var msg = document.getElementById('bz-msg');
+
+    function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]; }); }
+    function stanOf(r) { return over[String(r.id)] || r.stan; }
+    function pulaOf(r) { return pover[String(r.id)] || r.pula; }
+    function currentRows() { return rows.map(function (r) { return Object.assign({}, r, {stan: stanOf(r), pula: pulaOf(r)}); }); }
+    function visible(r) { return filt === 'all' || pulaOf(r) === filt; }
+    function save() {
+      localStorage.setItem(KEY, JSON.stringify(over));
+      localStorage.setItem(PKEY, JSON.stringify(pover));
+    }
+
+    function tile(r) {
+      var d = document.createElement('article');
+      d.className = 'bz-tile bz-tile--' + pulaOf(r); d.draggable = true; d.dataset.id = String(r.id);
+      var p = document.createElement('span'); p.className = 'bz-pula'; p.textContent = PLBL[pulaOf(r)];
+      var t = document.createElement('div'); t.className = 'bz-title'; t.textContent = r.temat;
+      var m = document.createElement('div'); m.className = 'bz-meta'; m.textContent = r.kierownik + ' · ' + r.zleceniodawca;
+      var dt = document.createElement('div'); dt.className = 'bz-meta'; dt.textContent = r.start + ' → ' + r.koniec;
+      var sel = document.createElement('select'); sel.className = 'bz-sel'; sel.setAttribute('aria-label', 'Etap: ' + r.temat);
+      ORDER.forEach(function (s) {
+        var o = document.createElement('option'); o.value = s; o.textContent = LBL[s];
+        if (s === stanOf(r)) o.selected = true;
+        sel.appendChild(o);
+      });
+      sel.addEventListener('change', function () { setStan(r, sel.value); });
+      var psel = document.createElement('select'); psel.className = 'bz-sel'; psel.setAttribute('aria-label', 'Pula: ' + r.temat);
+      ['wi', 'unijne'].forEach(function (k) {
+        var o = document.createElement('option'); o.value = k; o.textContent = PLBL[k];
+        if (k === pulaOf(r)) o.selected = true;
+        psel.appendChild(o);
+      });
+      psel.addEventListener('change', function () { setPula(r, psel.value); });
+      d.addEventListener('dragstart', function (e) { e.dataTransfer.setData('text/plain', String(r.id)); d.classList.add('dragging'); });
+      d.addEventListener('dragend', function () { d.classList.remove('dragging'); });
+      d.append(p, t, m, dt, sel, psel);
+      return d;
+    }
+
+    function render() {
+      ORDER.forEach(function (st) {
+        var col = document.querySelector('.bz-col[data-stan="' + st + '"]');
+        var list = col.querySelector('.bz-list');
+        list.innerHTML = '';
+        var n = 0;
+        rows.forEach(function (r) { if (visible(r) && stanOf(r) === st) { n++; list.appendChild(tile(r)); } });
+        col.querySelector('[data-count]').textContent = n;
+      });
+      document.querySelectorAll('[data-pula]').forEach(function (b) { b.classList.toggle('active', b.dataset.pula === filt); });
+    }
+
+    function setStan(r, st) {
+      if (stanOf(r) === st) return;
+      over[String(r.id)] = st; save(); render();
+      msg.textContent = 'Przeniesiono etap: ' + r.temat + ' → ' + LBL[st] + '.';
+    }
+    function setPula(r, pu) {
+      if (pulaOf(r) === pu) return;
+      pover[String(r.id)] = pu; save(); render();
+      msg.textContent = 'Przeniesiono do puli „' + PLBL[pu] + '”: ' + r.temat + '.';
+    }
+
+    function dropOn(el, handler) {
+      el.addEventListener('dragover', function (e) { e.preventDefault(); el.classList.add('over'); });
+      el.addEventListener('dragleave', function () { el.classList.remove('over'); });
+      el.addEventListener('drop', function (e) {
+        e.preventDefault(); el.classList.remove('over');
+        var id = e.dataTransfer.getData('text/plain');
+        var r = rows.filter(function (x) { return String(x.id) === id; })[0];
+        if (r) handler(r);
+      });
+    }
+    document.querySelectorAll('.bz-col').forEach(function (c) {
+      dropOn(c, function (r) { setStan(r, c.dataset.stan); });
+    });
+    document.querySelectorAll('[data-pula]').forEach(function (b) {
+      b.addEventListener('click', function () { filt = b.dataset.pula; render(); });
+      if (b.dataset.pula !== 'all') { b.classList.add('bz-pula-drop'); dropOn(b, function (r) { setPula(r, b.dataset.pula); }); }
+    });
+
+    document.getElementById('bz-reset').addEventListener('click', function () {
+      over = {}; pover = {}; localStorage.removeItem(KEY); localStorage.removeItem(PKEY);
+      render(); msg.textContent = 'Przywrócono dane domyślne.';
+    });
+
+    document.getElementById('bz-csv').addEventListener('click', function () {
+      var q = function (v) { return '"' + String(v).replace(/"/g, '""') + '"'; };
+      var lines = [['Temat', 'Kierownik', 'Rozpoczęcie', 'Zakończenie', 'Zleceniodawca', 'Pula', 'Etap']].concat(
+        currentRows().filter(visible).map(function (r) { return [r.temat, r.kierownik, r.start, r.koniec, r.zleceniodawca, PLBL[r.pula], LBL[r.stan]]; }));
+      var csv = '\ufeff' + lines.map(function (r) { return r.map(q).join(';'); }).join('\r\n');
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([csv], {type: 'text/csv;charset=utf-8'}));
+      a.download = 'projekty_wi_unijne___TODAY__.csv';
+      a.click();
+    });
+
+    document.getElementById('bz-pdf').addEventListener('click', function () {
+      var w = window.open('', '_blank');
+      if (!w) { msg.textContent = 'Przeglądarka zablokowała nowe okno.'; return; }
+      var list = currentRows().filter(visible);
+      var body = ORDER.map(function (st) {
+        var g = list.filter(function (r) { return r.stan === st; });
+        return '<h2>' + LBL[st] + ' (' + g.length + ')</h2><table><thead><tr><th>Temat</th><th>Kierownik</th><th>Start</th><th>Koniec</th><th>Zleceniodawca</th><th>Pula</th></tr></thead><tbody>' +
+          g.map(function (r) { return '<tr><td>' + esc(r.temat) + '</td><td>' + esc(r.kierownik) + '</td><td>' + esc(r.start) + '</td><td>' + esc(r.koniec) + '</td><td>' + esc(r.zleceniodawca) + '</td><td>' + esc(PLBL[r.pula]) + '</td></tr>'; }).join('') +
+          '</tbody></table>';
+      }).join('');
+      var title = filt === 'all' ? 'Projekty WI i unijne' : PLBL[filt];
+      w.document.write('<!doctype html><html lang="pl"><head><meta charset="utf-8"><title>' + esc(title) + '</title><style>body{font-family:system-ui,sans-serif;font-size:11px;color:#111;margin:24px}h1{font-size:18px;margin:0}h2{font-size:13px;margin:16px 0 6px}table{width:100%;border-collapse:collapse}th,td{border-bottom:1px solid #ccc;padding:4px 6px;text-align:left;vertical-align:top}th{background:#eee}</style></head><body><h1>' + esc(title) + '</h1><p>Stan na __TODAY__</p>' + body + '</body></html>');
+      w.document.close(); w.focus(); w.print();
+    });
+
+    render();
+  })();
+  </script>
+'''
+
+
 def render(demo=False):
     head, header, theme_js = dp.site_parts()
     head = head.replace("Dopasowanie do naboru · Mapa badawcza WI AGH", "Projekty · Mapa badawcza WI AGH")
-    local = dp.local_nav([("pj-board", "Tablica etapów"), ("pj-report", "Statystyki")])
+    local = dp.local_nav([("pj-board", "Tablica etapów"), ("pj-baza", "Baza projektów"), ("pj-report", "Statystyki")])
     tabs = dp.nav_html("projekty") + local
     projects = call_projects()
     people = people_list()
@@ -153,6 +336,13 @@ def render(demo=False):
 .pj-form-grid {{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .8rem; margin-top: .6rem; }}
 .pj-form-grid .wide {{ grid-column: span 2; }}
 .pj-empty {{ color: var(--text2); font-size: .85rem; padding: .6rem 0; }}
+.pj-base {{ margin-top: 1.6rem; }}
+.pj-table-wrap {{ overflow-x: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; }}
+.pj-table {{ width: 100%; border-collapse: collapse; font-size: .85rem; }}
+.pj-table th, .pj-table td {{ text-align: left; padding: .55rem .7rem; border-bottom: 1px solid var(--border); vertical-align: top; }}
+.pj-table th {{ font-weight: 600; color: var(--text); background: var(--surface2); white-space: nowrap; }}
+.pj-table td {{ color: var(--text2); }}
+.pj-table tr[hidden] {{ display: none; }}
 .pj-stats {{ display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .8rem; margin-top: 1.4rem; }}
 .pj-stat {{ background: var(--surface); border: 1px solid var(--border); border-top: 3px solid var(--c); border-radius: 12px; padding: .8rem 1rem; }}
 .pj-stat b {{ font-size: 1.4rem; color: var(--text); display: block; }}
@@ -234,6 +424,7 @@ def render(demo=False):
     </div>
   </div>
 
+  {base_html()}
   <div id="pj-report">
     <div class="pj-actions"><button id="pj-print" class="btn btn-primary" type="button">Pobierz statystyki (PDF)</button> <button id="pj-csv" class="btn" type="button">Pobierz projekty (CSV)</button></div>
     <div class="pj-stats" id="pj-stats"></div>
