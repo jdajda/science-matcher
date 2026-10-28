@@ -106,7 +106,7 @@
     menu.querySelectorAll('[data-role]').forEach(function (b) {
       b.addEventListener('click', function () {
         var role = b.getAttribute('data-role');
-        var name = role === 'naukowiec' ? (me().name || firstName(panel)) : '';
+        var name = role === 'naukowiec' ? me().name || '' : '';
         setMe({ role: role, name: name });
         location.reload();
       });
@@ -127,9 +127,8 @@
     Object.keys((panel && panel.profiles) || {}).forEach(function (n) { set[n] = true; });
     return Object.keys(set).sort();
   }
-  function firstName(panel) { return names(panel)[0] || ''; }
 
-  var BIURO_PAGES = ['biuro.html', 'wyszukiwarka.html', 'dopasowanie.html'];
+  var BIURO_PAGES = ['biuro.html', 'dopasowanie.html'];
 
   function currentPage() {
     var p = location.pathname.split('/').pop();
@@ -170,10 +169,6 @@
     if (naukowiec && page === 'profil.html' && !new URLSearchParams(location.search).get('osoba') && user.name) {
       location.replace('profil.html?osoba=' + encodeURIComponent(user.name));
       return;
-    }
-    if (naukowiec && !user.name) {
-      var first = names(panel)[0];
-      if (first) { setMe({ role: 'naukowiec', name: first }); location.reload(); return; }
     }
     if (page === 'panel.html') {
       document.querySelectorAll('.pn-view').forEach(function (v) { v.classList.toggle('active', v.id === (naukowiec ? 'view-nauk' : 'view-biuro')); });

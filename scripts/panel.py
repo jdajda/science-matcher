@@ -12,6 +12,8 @@ TODAY = datetime.date.today().isoformat()
 
 
 AREA_COLORS = dp.person_area_colors()
+TITLES_PL = json.loads((ROOT / "data/tytuly_pl.json").read_text(encoding="utf-8"))
+ROLES_PROJ = ["kierownik zadania", "wykonawca", "ekspert doradczy", "koordynacja komunikacji", "lider pakietu prac", "specjalista ds. danych", "inna (opisana w uzasadnieniu)"]
 
 
 def people():
@@ -38,8 +40,9 @@ def calls():
     items = json.loads((ROOT / "data/nabory_sedia.json").read_text(encoding="utf-8"))
     groups = {}
     for t in items:
-        g = groups.setdefault(t["call"], {"id": t["call"], "deadlines": set(), "starts": [], "topics": 0})
+        g = groups.setdefault(t["call"], {"id": t["call"], "deadlines": set(), "starts": [], "topics": 0, "titles": []})
         g["topics"] += 1
+        g["titles"].append(TITLES_PL.get(t["id"]) or t.get("title") or t["id"])
         g["deadlines"].update(t.get("terminy") or [])
         if t.get("start"):
             g["starts"].append(t["start"][:10])
@@ -56,8 +59,24 @@ def calls():
             status = "otwarty"
         else:
             status = "sprawdzić"
-        out.append({"id": g["id"], "status": status, "deadlines": dl, "topics": g["topics"]})
+        out.append({"id": g["id"], "status": status, "deadlines": dl, "topics": g["topics"], "titles": g["titles"]})
     out.sort(key=lambda x: (x["status"] != "otwarty", x["deadlines"][0] if x["deadlines"] else "9999"))
+    return out
+
+
+def projects():
+    """Nabory i trwające projekty, do których można wysłać zaproszenie (z opisem)."""
+    out = []
+    for c in calls():
+        shown = "; ".join(c["titles"][:4]) + (" …" if len(c["titles"]) > 4 else "")
+        out.append({"id": c["id"], "nazwa": c["id"], "typ": "nabór", "termin": (c["deadlines"][-1] if c["deadlines"] else ""),
+                    "opis": "Nabór UE. Tematy: " + shown})
+    rows = json.loads((ROOT / "data/projekty_zrealizowane.json").read_text(encoding="utf-8"))
+    for r in rows:
+        if r["koniec"] < TODAY:
+            continue
+        out.append({"id": "base-%s" % r["id"], "nazwa": r.get("nazwa") or r["temat"], "typ": "projekt", "termin": r["koniec"],
+                    "opis": "%s. Zleceniodawca: %s. Okres: %s – %s." % (r["temat"], r["zleceniodawca"], r["start"], r["koniec"])})
     return out
 
 
@@ -65,7 +84,7 @@ def render():
     head, header, theme_js = dp.site_parts()
     head = head.replace("Dopasowanie do naboru · Mapa badawcza WI AGH", "Panel · Mapa badawcza WI AGH")
     tabs = dp.nav_html("panel")
-    payload = {"people": people(), "calls": calls(), "today": TODAY}
+    payload = {"people": people(), "calls": calls(), "projects": projects(), "rolesProj": ROLES_PROJ, "today": TODAY}
     data = json.dumps(payload, ensure_ascii=False).replace("</", "<\\/")
     script = SCRIPT.replace("__DATA__", data)
     return f"""{head}
@@ -128,6 +147,24 @@ table.pn-table th {{ color: var(--text2); font-weight: 600; font-size: .78rem; }
 
   <!-- NAUKOWIEC -->
   <div class="pn-view active" id="view-nauk" data-role-only="naukowiec">
+    <p class="pn-small" id="pn-change-wrap" style="margin:0 0 .6rem"><button class="link-btn" id="pn-change-me" type="button">To nie ja. Zmień osobę</button></p>
+    <div class="pn-card pn-form" id="pn-whois" hidden>
+      <h3>Kim jesteś?</h3>
+      <p class="pn-small">Wybierz swoje nazwisko z listy pracowników WI. Zapamiętamy wybór w tej przeglądarce.</p>
+      <input id="pn-whois-input" list="pn-whois-list" autocomplete="off" placeholder="Zacznij pisać nazwisko…" aria-label="Twoje nazwisko">
+      <datalist id="pn-whois-list"></datalist>
+      <div style="margin-top:.6rem"><button class="btn btn-primary" id="pn-whois-save" type="button">Zapisz</button> <span class="pn-small" id="pn-whois-msg"></span></div>
+    </div>
+    <div class="pn-card pn-form" id="pp-card" style="margin-top:1rem">
+      <h3>Zaproponuj współpracownika</h3>
+      <p class="pn-small">Propozycja trafi do biura. Biuro ją sprawdzi i dopiero wtedy wyśle oficjalne zaproszenie.</p>
+      <label for="pp-osoba">Osoba z WI</label><input id="pp-osoba" list="zp-osoba-list" autocomplete="off" placeholder="Zacznij pisać nazwisko…">
+      <label for="pp-proj">Projekt lub nabór</label><select id="pp-proj"></select>
+      <label for="pp-rola">Rola w projekcie</label><select id="pp-rola"></select>
+      <label for="pp-uzas">Dlaczego ta osoba?</label><input id="pp-uzas" type="text" placeholder="np. publikacje o optymalizacji">
+      <div style="margin-top:.8rem"><button class="pn-btn" id="pp-send" type="button">Wyślij propozycję do biura</button></div>
+      <div class="pn-small" id="pp-mine" style="margin-top:.8rem"></div>
+    </div>
     <div class="pn-grid2">
       <div class="pn-stack">
         <div class="pn-card">
@@ -159,25 +196,21 @@ table.pn-table th {{ color: var(--text2); font-weight: 600; font-size: .78rem; }
 
   <!-- BIURO -->
   <div class="pn-view" id="view-biuro" data-role-only="biuro">
+    <div class="pn-card pn-form" style="margin-bottom:1rem">
+      <label for="bi-me">Twoje imię i nazwisko (osoba z biura)</label>
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap"><input id="bi-me" type="text" placeholder="np. Anna Kowalska" style="flex:1;min-width:200px"><button class="pn-btn ghost" id="bi-me-save" type="button">Zapisz</button></div>
+      <p class="pn-small">Szkic utworzony przez Ciebie zatwierdzi inna osoba z biura (W11). Do czasu logowania SSO wpisz się tu w przeglądarce.</p>
+    </div>
     <div class="pn-sub">
       <button class="active" data-pane="nabory">Zaproszenia</button>
       <button data-pane="nowe">Nowe zaproszenie</button>
-      <button data-pane="przeglad">Przegląd</button>
     </div>
 
-    <div class="pn-pane" id="pane-przeglad">
-      <div class="pn-kpi" id="bi-kpi"></div>
-      <div class="pn-grid2">
-        <div class="pn-card"><h3>Zaproszenia wg statusu</h3><div id="bi-status"></div></div>
-        <div class="pn-card"><h3>Najczęstsze tematy w zespole</h3><div id="bi-topics"></div></div>
-      </div>
-    </div>
 
     <div class="pn-pane active" id="pane-nabory">
       <div class="pn-filter">
         <input id="bi-q" class="pn-pick" type="search" aria-label="Szukaj osoby albo naboru" placeholder="Szukaj osoby albo naboru">
         <div class="pn-chips" id="bi-chips" role="group" aria-label="Filtr statusu"></div>
-        <button class="pn-btn ghost" id="bi-approve-all" type="button">Zatwierdź wszystkie szkice</button>
       </div>
       <div class="pn-card"><div id="bi-list"></div></div>
       <p class="pn-note">Naborów bez zaproszeń nie pokazujemy. Nowe zaproszenie utworzysz w zakładce „Nowe zaproszenie”.</p>
@@ -187,8 +220,9 @@ table.pn-table th {{ color: var(--text2); font-weight: 600; font-size: .78rem; }
       <div class="pn-card pn-form" style="max-width:720px">
         <h3>Nowe zaproszenie (szkic)</h3>
         <label for="zp-osoba">Osoba</label><input id="zp-osoba" list="zp-osoba-list" autocomplete="off" placeholder="Zacznij pisać nazwisko…"><datalist id="zp-osoba-list"></datalist><p class="pn-small" id="zp-osoba-info" aria-live="polite">Wybierz osobę z podpowiedzi z listy pracowników WI.</p>
-        <label for="zp-nabor">Nabór</label><select id="zp-nabor"></select>
-        <label for="zp-rola">Proponowana rola</label><select id="zp-rola"><option>badawcza</option><option>zarządcza</option><option>wdrożeniowa</option><option>komunikacja</option></select>
+        <label for="zp-nabor">Projekt lub nabór</label><select id="zp-nabor"></select>
+        <p class="pn-small" id="zp-opis" aria-live="polite">Wybierz projekt, żeby zobaczyć jego opis. Opis trafi do zaproszenia.</p>
+        <label for="zp-rola">Rola w projekcie</label><select id="zp-rola"></select>
         <label for="zp-uzas">Uzasadnienie (krótko)</label><input id="zp-uzas" type="text" placeholder="np. publikacje z predykcji szeregów czasowych">
         <div style="margin-top:.9rem"><button class="pn-btn" id="zp-add" type="button">Utwórz szkic</button></div>
         <p class="pn-note">Wysyłka tylko po zatwierdzeniu (W11). Wiadomość otwiera się w programie pocztowym.</p>
@@ -223,8 +257,11 @@ SCRIPT = """
 
 (async function(){
   const DATA = __DATA__;
+  const ME = (function () { try { return JSON.parse(localStorage.getItem('bm-me') || 'null') || {}; } catch (e) { return {}; } })();
+  const NAUK = ME.role === 'naukowiec';
   const KEY = 'bm-panel-v3';
-  const DEMO_INVITES = [{person: 'Eckes Maria', nabor: 'HORIZON-CL4-2027-01', rola: 'badawcza', uzas: 'publikacje z optymalizacji i analizy danych w projektach przemysłowych', status: 'wysłane', created: DATA.today, sent: DATA.today}];
+  const DEMO_PROJ = DATA.projects.find(p => p.id === 'HORIZON-CL4-2027-01') || {nazwa: 'HORIZON-CL4-2027-01', opis: ''};
+  const DEMO_INVITES = [{person: 'Eckes Maria', nabor: 'HORIZON-CL4-2027-01', projekt: DEMO_PROJ.nazwa, opis: DEMO_PROJ.opis, rola: 'wykonawca', uzas: 'publikacje z optymalizacji i analizy danych w projektach przemysłowych', status: 'wysłane', typ: 'zaproszenie', created: DATA.today, sent: DATA.today}];
   let st = await loadState(KEY, {profiles: {}, invites: DEMO_INVITES});
   const save = () => saveState(KEY, st);
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -243,6 +280,25 @@ SCRIPT = """
   const STATUSES = FLOW.concat(ANSWERS);
   const people = DATA.people;
   const callsById = {}; DATA.calls.forEach(c => callsById[c.id] = c);
+  const projById = {}; DATA.projects.forEach(p => projById[p.id] = p);
+  const ROLES_PROJ = DATA.rolesProj;
+  function projOptions(){
+    const grp = (typ, label) => {
+      const items = DATA.projects.filter(p => p.typ === typ);
+      return items.length ? '<optgroup label="' + esc(label) + '">' + items.map(p => '<option value="' + esc(p.id) + '">' + esc(p.nazwa) + '</option>').join('') + '</optgroup>' : '';
+    };
+    return '<option value="">— wybierz nabór lub projekt —</option>' + grp('nabór', 'Nabory UE (tablica)') + grp('projekt', 'Trwające projekty (baza)');
+  }
+  function roleOptions(){ return ROLES_PROJ.map(r => '<option value="' + esc(r) + '">' + esc(r) + '</option>').join(''); }
+  function showProj(){
+    const p = projById[$('zp-nabor').value];
+    $('zp-opis').textContent = p ? p.opis : 'Wybierz projekt, żeby zobaczyć jego opis. Opis trafi do zaproszenia.';
+  }
+  $('zp-nabor').innerHTML = projOptions();
+  $('zp-rola').innerHTML = roleOptions();
+  $('pp-proj').innerHTML = projOptions();
+  $('pp-rola').innerHTML = roleOptions();
+  $('zp-nabor').addEventListener('change', showProj);
   const SC = {'szkic': '#4f7fb0', 'zatwierdzone': '#5f9e80', 'wysłane': '#b08a4a', 'odpowiedź: tak': '#2f7d5b', 'odpowiedź: nie': '#b06464', 'brak odpowiedzi': '#8a94a6'};
   const CC = {'otwarty': '#5f9e80', 'planowany': '#4f7fb0', 'zamknięty': '#8a94a6', 'sprawdzić': '#b08a4a'};
   const pill = s => { const c = SC[s] || '#8a94a6'; return '<span class="pn-status" style="background:' + c + '22;color:' + c + ';border:1px solid ' + c + '">' + esc(s) + '</span>'; };
@@ -268,13 +324,14 @@ SCRIPT = """
   }
   function fillPeople(){
     const q = ($('pn-search').value || '').trim().toLowerCase();
-    const list = people.filter(p => !q || p.name.toLowerCase().includes(q));
+    const base = NAUK && ME.name ? people.filter(p => p.name === ME.name) : people;
+    const list = base.filter(p => !q || p.name.toLowerCase().includes(q));
     const cur = $('pn-person').value;
     const opts = list.map(p => '<option value="' + esc(p.name) + '">' + esc(p.name) + '</option>').join('');
     $('pn-person').innerHTML = opts;
     if (list.some(p => p.name === cur)) $('pn-person').value = cur;
     $('zp-osoba-list').innerHTML = people.map(p => '<option value="' + esc(p.name) + '"></option>').join('');
-    if (!$('zp-nabor').options.length) $('zp-nabor').innerHTML = '<option value="">— wybierz nabór —</option>' + DATA.calls.map(c => '<option value="' + esc(c.id) + '">' + esc(c.id) + ' · ' + esc(c.status) + '</option>').join('');
+
   }
   function showPerson(){
     const name = $('pn-person').value;
@@ -294,39 +351,33 @@ SCRIPT = """
   }
   function renderNaukInvites(){
     const name = $('pn-person').value;
-    const mine = st.invites.map((i, idx) => Object.assign({}, i, {idx: idx})).filter(i => i.person === name && i.status !== 'szkic');
+    const mine = st.invites.map((i, idx) => Object.assign({}, i, {idx: idx})).filter(i => i.person === name && ['szkic', 'propozycja', 'zatwierdzone'].indexOf(i.status) === -1);
     if (!mine.length) { $('nk-invites').innerHTML = '<p class="pn-small">Brak zaproszeń. Biuro wysyła zaproszenia po zatwierdzeniu.</p>'; return; }
     $('nk-invites').innerHTML = mine.map(i => {
       const c = callsById[i.nabor];
       const answer = ANSWERS.includes(i.status) ? '' : '<div style="display:flex;gap:.4rem;margin-top:.6rem;flex-wrap:wrap"><button class="pn-btn" data-yes="' + i.idx + '" type="button">Chcę dołączyć</button><button class="pn-btn bad" data-no="' + i.idx + '" type="button">Nie w tym razie</button></div>';
-      return '<div class="pn-inv"><div class="pn-inv-head"><div><b style="color:var(--text)">' + esc(i.nabor) + '</b><div class="pn-small">' + callLine(c) + '</div><div class="pn-small">Rola: ' + esc(i.rola) + (i.uzas ? ' · ' + esc(i.uzas) : '') + '</div>' + (i.answered ? '<div class="pn-small" role="status" style="color:#2f7d5b;margin-top:.3rem">✓ Odpowiedź zapisana: ' + (i.status === 'odpowiedź: tak' ? 'chcesz dołączyć' : 'nie w tym razie') + ' (' + esc(i.answered) + ')</div>' : '') + '</div>' + pill(i.status) + '</div>' + answer + '</div>';
+      const pj = projById[i.nabor];
+      return '<div class="pn-inv"><div class="pn-inv-head"><div><b style="color:var(--text)">' + esc(i.projekt || i.nabor) + '</b><div class="pn-small">' + (c ? callLine(c) : (pj ? 'termin: ' + esc(pj.termin) : '')) + '</div>' + (i.opis ? '<div class="pn-small" style="margin-top:.3rem">' + esc(i.opis) + '</div>' : '') + '<div class="pn-small" style="margin-top:.3rem">Rola w projekcie: ' + esc(i.rola) + (i.uzas ? ' · ' + esc(i.uzas) : '') + '</div>' + (i.answered ? '<div class="pn-small" role="status" style="color:#2f7d5b;margin-top:.3rem">✓ Odpowiedź zapisana: ' + (i.status === 'odpowiedź: tak' ? 'chcesz dołączyć' : 'nie w tym razie') + ' (' + esc(i.answered) + ')</div>' : '') + '</div>' + pill(i.status) + '</div>' + answer + '</div>';
     }).join('');
     $('nk-invites').querySelectorAll('[data-yes]').forEach(b => b.addEventListener('click', () => { const inv = st.invites[+b.dataset.yes]; inv.status = 'odpowiedź: tak'; inv.answered = new Date().toISOString().slice(0, 10); save(); toast('Dziękujemy. Biuro zobaczy, że chcesz dołączyć do naboru ' + inv.nabor + '.'); refresh(); }));
     $('nk-invites').querySelectorAll('[data-no]').forEach(b => b.addEventListener('click', () => { const inv = st.invites[+b.dataset.no]; inv.status = 'odpowiedź: nie'; inv.answered = new Date().toISOString().slice(0, 10); save(); toast('Dziękujemy za odpowiedź. Biuro zostanie poinformowane.'); refresh(); }));
   }
 
   /* ---------- BIURO ---------- */
-  function renderBiuroKpi(){
-    const inv = st.invites;
-    const cnt = s => inv.filter(i => i.status === s).length;
-    const done = Object.values(st.profiles).filter(p => p.wnosze && p.wnosze.trim()).length;
-    const open = DATA.calls.filter(c => c.status === 'otwarty').length;
-    const answered = inv.filter(i => ANSWERS.includes(i.status)).length;
-    $('bi-kpi').innerHTML = [
-      [DATA.calls.length, 'naborów w bazie'],
-      [open, 'naborów otwartych'],
-      [inv.length, 'zaproszeń łącznie'],
-      [answered + ' / ' + inv.length, 'z odpowiedzią']
-    ].map(([v, l]) => '<div class="pn-card"><span class="pn-big">' + esc(v) + '</span><span class="pn-small">' + esc(l) + '</span></div>').join('');
-    $('bi-status').innerHTML = STATUSES.map(s => '<div class="pn-row"><span>' + esc(s) + '</span><b>' + cnt(s) + '</b></div>').join('') +
-      '<div class="pn-row"><span>profile uzupełnione</span><b>' + done + '</b></div>';
-    const topicCount = {};
-    people.forEach(p => p.topics.slice(0, 3).forEach(t => topicCount[t] = (topicCount[t] || 0) + 1));
-    const top = Object.entries(topicCount).sort((a, b) => b[1] - a[1]).slice(0, 8);
-    const max = top.length ? top[0][1] : 1;
-    $('bi-topics').innerHTML = top.map(([t, n]) => '<div class="pn-bar"><div><div class="pn-small" style="color:var(--text)">' + esc(t) + '</div><div class="track"><i style="width:' + Math.round(n / max * 100) + '%"></i></div></div><span>' + n + '</span></div>').join('') || '<p class="pn-small">Brak danych</p>';
+  var BIURO_USER = localStorage.getItem('bm-biuro-user') || '';
+  $('bi-me').value = BIURO_USER;
+  $('bi-me-save').addEventListener('click', function () {
+    BIURO_USER = $('bi-me').value.trim();
+    localStorage.setItem('bm-biuro-user', BIURO_USER);
+    toast(BIURO_USER ? 'Zapisano: ' + BIURO_USER : 'Wyczyszczono nazwisko biura');
+    refresh();
+  });
+  function canApprove(i){
+    if (!BIURO_USER) { toast('Najpierw wpisz swoje nazwisko w polu u góry strony.'); return false; }
+    if (i.autor && i.autor === BIURO_USER) { toast('Szkic utworzony przez Ciebie zatwierdzi inna osoba z biura (W11).'); return false; }
+    return true;
   }
-  var INV_FILTERS = ['wszystkie', 'szkic', 'zatwierdzone', 'wysłane', 'odpowiedź: tak', 'odpowiedź: nie', 'brak odpowiedzi'];
+  var INV_FILTERS = ['wszystkie', 'propozycja', 'szkic', 'zatwierdzone', 'wysłane', 'odpowiedź: tak', 'odpowiedź: nie', 'brak odpowiedzi'];
   var invFilter = 'wszystkie';
 
   function renderBiuroCalls(){
@@ -342,7 +393,7 @@ SCRIPT = """
     });
     var rows = all.filter(function (i) {
       if (invFilter !== 'wszystkie' && i.status !== invFilter) return false;
-      if (q && (i.person + ' ' + i.nabor).toLowerCase().indexOf(q) === -1) return false;
+      if (q && (i.person + ' ' + (i.projekt || '') + ' ' + i.nabor).toLowerCase().indexOf(q) === -1) return false;
       return true;
     });
     var callStatus = {};
@@ -350,28 +401,35 @@ SCRIPT = """
     if (!rows.length) {
       $('bi-list').innerHTML = '<div class="pn-empty">Brak zaproszeń w tym filtrze. Zmień filtr albo utwórz nowe zaproszenie.</div>';
     } else {
-      $('bi-list').innerHTML = '<table class="pn-table"><thead><tr><th>Osoba</th><th>Nabór</th><th>Rola</th><th>Status</th><th><span class="pn-small">Akcja</span></th></tr></thead><tbody>' +
+      $('bi-list').innerHTML = '<table class="pn-table"><thead><tr><th>Osoba</th><th>Projekt lub nabór</th><th>Rola w projekcie</th><th>Status</th><th><span class="pn-small">Akcja</span></th></tr></thead><tbody>' +
         rows.map(function (i) {
           var act = '';
-          if (i.status === 'szkic') act = '<button class="pn-btn ghost" data-approve="' + i.idx + '" type="button">Zatwierdź</button>';
+          if (i.status === 'propozycja') act = '<button class="pn-btn ghost" data-accept="' + i.idx + '" type="button">Przyjmij jako szkic</button>';
+          else if (i.status === 'szkic') act = '<button class="pn-btn ghost" data-approve="' + i.idx + '" type="button">Zatwierdź</button>';
           else if (i.status === 'zatwierdzone') act = '<button class="pn-btn" data-send="' + i.idx + '" type="button">Otwórz e-mail</button>';
-          return '<tr><td><b>' + esc(i.person) + '</b></td>' +
-            '<td>' + esc(i.nabor) + '<div class="pn-small">' + esc(callStatus[i.nabor] || '') + '</div></td>' +
+          return '<tr><td><b>' + esc(i.person) + '</b>' + (i.zglosil ? '<div class="pn-small">propozycja od: ' + esc(i.zglosil) + '</div>' : '') + (i.autor ? '<div class="pn-small">szkic: ' + esc(i.autor) + (i.zatwierdzil ? ' · zatwierdził: ' + esc(i.zatwierdzil) : '') + '</div>' : '') + '</td>' +
+            '<td>' + esc(i.projekt || i.nabor) + '<div class="pn-small">' + esc(callStatus[i.nabor] || (projById[i.nabor] || {}).typ || '') + '</div>' + (i.opis ? '<div class="pn-small">' + esc(i.opis) + '</div>' : '') + '</td>' +
             '<td>' + esc(i.rola) + '</td>' +
             '<td>' + pill(i.status) + '</td>' +
             '<td style="text-align:right">' + act + '</td></tr>';
         }).join('') + '</tbody></table>';
     }
-    $('bi-approve-all').hidden = !all.some(function (i) { return i.status === 'szkic'; });
+    $('bi-list').querySelectorAll('[data-accept]').forEach(function (b) {
+      b.addEventListener('click', function () { st.invites[+b.dataset.accept].status = 'szkic'; st.invites[+b.dataset.accept].autor = BIURO_USER; save(); toast('Propozycja przyjęta jako szkic. Zatwierdź ją, zanim wyślesz.'); refresh(); });
+    });
     $('bi-list').querySelectorAll('[data-approve]').forEach(function (b) {
-      b.addEventListener('click', function () { st.invites[+b.dataset.approve].status = 'zatwierdzone'; save(); toast('Zaproszenie zatwierdzone'); refresh(); });
+      b.addEventListener('click', function () {
+        const inv = st.invites[+b.dataset.approve];
+        if (!canApprove(inv)) return;
+        inv.status = 'zatwierdzone'; inv.zatwierdzil = BIURO_USER; save(); toast('Zaproszenie zatwierdzone'); refresh();
+      });
     });
     $('bi-list').querySelectorAll('[data-send]').forEach(function (b) {
       b.addEventListener('click', function () {
         var i = st.invites[+b.dataset.send];
         if (!confirm('Otworzyć wiadomość do ' + i.person + '? Status zaproszenia zmieni się na „wysłane”.')) return;
-        var subj = encodeURIComponent('Zaproszenie do udziału: ' + i.nabor);
-        var body = encodeURIComponent('Dzień dobry ' + i.person + ',\\n\\nzapraszamy do udziału w zespole dla naboru ' + i.nabor + ' w roli: ' + i.rola + '.\\n' + (i.uzas ? 'Uzasadnienie: ' + i.uzas + '.\\n' : '') + '\\nProsimy o odpowiedź, czy jest Pan/Pani zainteresowana/y.\\n\\nPozdrawiamy,\\nBiuro projektowe Wydziału Informatyki AGH');
+        var subj = encodeURIComponent('Zaproszenie do udziału: ' + (i.projekt || i.nabor));
+        var body = encodeURIComponent('Dzień dobry ' + i.person + ',\\n\\nzapraszamy do udziału w projekcie „' + (i.projekt || i.nabor) + '” w roli: ' + i.rola + '.\\n' + (i.opis ? 'Opis: ' + i.opis + '\\n' : '') + (i.uzas ? 'Uzasadnienie: ' + i.uzas + '.\\n' : '') + '\\nProsimy o odpowiedź, czy jest Pan/Pani zainteresowana/y.\\n\\nPozdrawiamy,\\nBiuro projektowe Wydziału Informatyki AGH');
         i.status = 'wysłane'; i.sent = new Date().toISOString().slice(0, 10); save();
         window.location.href = 'mailto:?subject=' + subj + '&body=' + body;
         refresh();
@@ -379,18 +437,15 @@ SCRIPT = """
     });
   }
   $('bi-q').addEventListener('input', renderBiuroCalls);
-  $('bi-approve-all').addEventListener('click', function () {
-    st.invites.forEach(function (i) { if (i.status === 'szkic') i.status = 'zatwierdzone'; });
-    save(); toast('Wszystkie szkice zatwierdzone'); refresh();
-  });
-
   $('zp-add').addEventListener('click', () => {
     const person = $('zp-osoba').value.trim(), nabor = $('zp-nabor').value;
     if (!people.some(x => x.name === person)) { toast('Wybierz osobę z listy podpowiedzi.'); return; }
-    if (!nabor) { toast('Wybierz nabór, zanim zapiszesz szkic.'); return; }
-    st.invites.push({person: person, nabor: nabor, rola: $('zp-rola').value, uzas: $('zp-uzas').value.trim(), status: 'szkic', created: DATA.today});
+    if (!nabor) { toast('Wybierz projekt lub nabór, zanim zapiszesz szkic.'); return; }
+    const pj = projById[nabor];
+    if (!BIURO_USER) { toast('Najpierw wpisz swoje nazwisko w polu u góry strony.'); return; }
+    st.invites.push({person: person, nabor: nabor, projekt: pj.nazwa, opis: pj.opis, rola: $('zp-rola').value, uzas: $('zp-uzas').value.trim(), status: 'szkic', typ: 'zaproszenie', autor: BIURO_USER, created: DATA.today});
     toast('Szkic zapisany. Zatwierdź go, zanim wyślesz.');
-    $('zp-osoba').value = ''; showOsoba();
+    $('zp-osoba').value = ''; showOsoba(); showProj();
     $('zp-uzas').value = '';
     save(); refresh();
     document.querySelector('.pn-sub button[data-pane="nabory"]').click();
@@ -398,13 +453,48 @@ SCRIPT = """
   $('pn-person').addEventListener('change', showPerson);
   $('pn-search').addEventListener('input', () => { fillPeople(); showPerson(); });
   $('zp-osoba').addEventListener('input', showOsoba);
+  function renderMyProposals(){
+    const mine = st.invites.filter(i => i.typ === 'propozycja' && i.zglosil === ME.name);
+    $('pp-mine').innerHTML = mine.length
+      ? '<b>Twoje propozycje</b>' + mine.map(i => '<div>' + esc(i.person) + ' · ' + esc(i.projekt || i.nabor) + ' · ' + (i.status === 'propozycja' ? 'czeka na biuro' : 'biuro przyjęło propozycję') + '</div>').join('')
+      : '';
+  }
+  $('pp-send').addEventListener('click', () => {
+    const person = $('pp-osoba').value.trim(), nabor = $('pp-proj').value;
+    if (!people.some(x => x.name === person) || person === ME.name) { toast('Wybierz współpracownika z listy podpowiedzi.'); return; }
+    if (!nabor) { toast('Wybierz projekt lub nabór.'); return; }
+    const pj = projById[nabor];
+    st.invites.push({person: person, nabor: nabor, projekt: pj.nazwa, opis: pj.opis, rola: $('pp-rola').value, uzas: $('pp-uzas').value.trim(), status: 'propozycja', typ: 'propozycja', zglosil: ME.name, created: DATA.today});
+    save(); $('pp-osoba').value = ''; $('pp-uzas').value = '';
+    toast('Propozycja wysłana do biura.'); renderMyProposals();
+  });
+  if (NAUK) renderMyProposals();
   $('pf-save').addEventListener('click', () => {
     const name = $('pn-person').value;
     st.profiles[name] = {wnosze: $('pf-wnosze').value.trim(), szukam: $('pf-szukam').value.trim(), dost: $('pf-dost').value, zain: $('pf-zain').value, zaktualizowano: DATA.today};
     save(); $('pf-saved').textContent = 'Zapisano lokalnie'; toast('Profil zapisany'); refresh();
   });
 
-  function refresh(){ renderNaukInvites(); renderBiuroKpi(); renderBiuroCalls(); }
+  function refresh(){ renderNaukInvites(); renderBiuroCalls(); }
+  if (NAUK) {
+    $('pn-change-me').addEventListener('click', function () {
+      localStorage.setItem('bm-me', JSON.stringify({role: 'naukowiec', name: ''}));
+      location.reload();
+    });
+  }
+  if (NAUK && !ME.name) {
+    $('pn-change-wrap').hidden = true;
+    const view = document.getElementById('view-nauk');
+    Array.from(view.children).forEach(function (c) { if (c.id !== 'pn-whois') c.hidden = true; });
+    $('pn-whois').hidden = false;
+    $('pn-whois-list').innerHTML = people.map(p => '<option value="' + esc(p.name) + '"></option>').join('');
+    $('pn-whois-save').addEventListener('click', function () {
+      const v = $('pn-whois-input').value.trim();
+      if (!people.some(p => p.name === v)) { $('pn-whois-msg').textContent = 'Wybierz nazwisko z podpowiedzi.'; return; }
+      localStorage.setItem('bm-me', JSON.stringify({role: 'naukowiec', name: v}));
+      location.reload();
+    });
+  }
   fillPeople(); showPerson(); showOsoba(); refresh();
   setInterval(async () => {
     const v = await loadRemote(KEY);

@@ -18,7 +18,7 @@ Stan na 27.10.2026 (po uproszczeniu menu). Decyzje: logowanie przez SSO AGH, ok.
 
 **Naukowiec:** Naukowcy · Zaproszenia · Mój profil
 
-**Biuro:** Naukowcy (z podzakładkami: Lista, Obszary, Dobierz zespół, Graf; z linkiem do Wyszukiwarki) · Projekty (baza projektów z filtrami, tablica naborów UE z dopasowanymi osobami, eksport CSV/PDF) · Zaproszenia
+**Biuro:** Naukowcy (Lista, Dobierz zespół, Graf współpracy; obszary jako filtr listy) · Projekty (baza projektów z filtrami, tablica naborów UE z dopasowanymi osobami, eksport CSV/PDF) · Zaproszenia
 
 **Koordynator:** jak biuro, plus Zatwierdzanie · Użytkownicy biura · Dziennik zmian
 
@@ -34,6 +34,7 @@ Stan na 27.10.2026 (po uproszczeniu menu). Decyzje: logowanie przez SSO AGH, ok.
 | Edytować cudzy profil | nie | nie | nie (tylko zgłoszenie korekty) | tak, po potwierdzeniu właściciela | nie |
 | Tworzyć projekt i dobierać zespół | nie | nie | tak | tak | nie |
 | Utworzyć szkic zaproszenia | nie | nie | tak | tak | nie |
+| Zaproponować współpracownika (propozycja trafia do biura, nie jest wysyłana) | nie | tak | nie | nie | nie |
 | Zatwierdzić wysyłkę zaproszenia | nie | nie | nie | tak (inna osoba niż twórca, W11) | nie |
 | Odpowiedzieć na zaproszenie | nie | tak | nie | nie | nie |
 | Eksport CSV i statystyki | nie | nie | tak | tak | nie |

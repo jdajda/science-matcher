@@ -210,6 +210,7 @@ SCRIPT = """
   const initials = n => n.split(/\\s+/).filter(Boolean).slice(0,2).map(p => p[0]).join('').toUpperCase();
   const people = DATA.people;
   const bazaOver = (function () { try { return JSON.parse(localStorage.getItem('bm-baza-kier') || '{}'); } catch (e) { return {}; } })();
+  const colLabel = k => ((DATA.columns || []).find(c => c[0] === k) || [null, k || ''])[1];
   const STAGE = {'zakończony': 'Zakończone', 'w realizacji': 'W trakcie realizacji', 'planowany': 'Przyszłe'};
   function bazaFor(name) {
     return (DATA.baza || []).filter(function (r) {
@@ -258,7 +259,7 @@ SCRIPT = """
     $('nk-areas').innerHTML = (b.areas || []).map(function (a) { return '<li>' + esc(a) + '</li>'; }).join('') || '<li>Brak obszarów</li>';
     var projs = allProjects().filter(function (x) { return (x.people || []).indexOf(current) !== -1; });
     var bz0 = bazaFor(current);
-    $('nk-projects').innerHTML = projs.map(function (x) { return '<li>' + esc(x.title) + ' · ' + esc(x.column || '') + '</li>'; }).concat(bz0.map(function (r) { return '<li>' + esc(r.temat) + ' · ' + esc(STAGE[r.stan] || r.stan) + ' (' + esc(r.start) + ' – ' + esc(r.koniec) + ')' + (bazaOver.hasOwnProperty(String(r.id)) ? ' · przypisane przez biuro' : '') + '</li>'; })).join('') || '<li>Brak przypisanych projektów</li>';
+    $('nk-projects').innerHTML = projs.map(function (x) { return '<li>' + esc(x.title) + ' · ' + esc(colLabel(x.column)) + '</li>'; }).concat(bz0.map(function (r) { return '<li>' + esc(r.temat) + ' · ' + esc(STAGE[r.stan] || r.stan) + ' (' + esc(r.start) + ' – ' + esc(r.koniec) + ')' + (bazaOver.hasOwnProperty(String(r.id)) ? ' · przypisane przez biuro' : '') + '</li>'; })).join('') || '<li>Brak przypisanych projektów</li>';
     var pr0 = panel.profiles[current] || {};
     $('nk-confirmed').textContent = pr0.potwierdzono ? 'Dane potwierdzone: ' + pr0.potwierdzono + ' (potwierdzenie tożsamości przez SSO – po wdrożeniu)' : 'Dane nie zostały jeszcze potwierdzone przez właściciela.';
     var corr = (panel.korekty || []).filter(function (k) { return k.person === current; });
@@ -301,7 +302,7 @@ SCRIPT = """
     $('bi-topics').innerHTML = p.topics.map(t => '<li>' + esc(t) + '</li>').join('') || '<li>Brak tematów</li>';
     const projects = allProjects().filter(x => (x.people || []).includes(current));
     var bzList = bazaFor(current).map(r => '<div class="member-row"><div><b>' + esc(r.temat) + '</b><div class="s-sub">' + esc(r.start) + ' – ' + esc(r.koniec) + (r.kwota ? ' · ' + Math.round(r.kwota).toLocaleString('pl-PL') + ' PLN' : '') + '</div></div><span class="s-pill">' + esc(STAGE[r.stan] || r.stan) + '</span></div>').join('');
-    var kanbanHtml = projects.map(x => '<div class="member-row"><div><b>' + esc(x.title) + '</b><div class="s-sub">' + esc(x.status || '') + (x.deadlines && x.deadlines.length ? ' · termin: ' + esc(x.deadlines.join(' · ')) : '') + '</div></div><span class="s-pill">' + esc(x.column || '') + '</span></div>').join('');
+    var kanbanHtml = projects.map(x => '<div class="member-row"><div><b>' + esc(x.title) + '</b><div class="s-sub">' + esc(x.status || '') + (x.deadlines && x.deadlines.length ? ' · termin: ' + esc(x.deadlines.join(' · ')) : '') + '</div></div><span class="s-pill">' + esc(colLabel(x.column)) + '</span></div>').join('');
     $('bi-projects').innerHTML = (kanbanHtml + bzList) || '<p class="s-sub">Nie jest przypisana do żadnego projektu.</p>';
     const inv = panel.invites.filter(i => i.person === current);
     $('bi-invites').innerHTML = inv.length ? inv.map(i => '<div class="member-row"><div><b>' + esc(i.nabor) + '</b><div class="s-sub">rola: ' + esc(i.rola) + '</div></div><span class="s-pill">' + esc(LABEL[i.status] || i.status) + '</span></div>').join('') : '<p class="s-sub">Brak zaproszeń.</p>';

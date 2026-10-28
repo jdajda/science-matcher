@@ -84,7 +84,6 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background
 .areas-sidebar { display: flex; flex-direction: column; gap: .5rem; max-height: 80vh; }
 .areas-sidebar input[type="text"] { padding: .5rem .8rem; border-radius: var(--radius); border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: .85rem; flex-shrink: 0; }
 .areas-sidebar input[type="text"]:focus { outline: none; border-color: var(--accent); }
-.areas-list { overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: .5rem; }
 .area-item { padding: .8rem 1rem; border-radius: var(--radius); cursor: pointer; border: 1px solid var(--border); background: var(--surface); transition: all .15s; }
 .area-item:hover { border-color: var(--accent); }
 .area-item.active { border-color: var(--accent); background: rgba(var(--accent-rgb),0.08); }
@@ -222,7 +221,6 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background
 /* ===== Układ strony: nagłówek, zakładki, wyszukiwanie, filtry, wyniki ===== */
 .container { max-width: 1280px; margin: 0 auto; padding: 0 1.5rem; }
 .tab-pane { padding: 1.5rem 0; }
-#tab-areas { padding: 1.5rem; }
 .site-header { position: relative; background: var(--header-bg); color: var(--header-text); border-bottom: 1px solid var(--border); }
 .site-header::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
 .header-row { display: flex; align-items: center; gap: 2.2rem; padding-top: 1.2rem; padding-bottom: 1.1rem; flex-wrap: wrap; }
@@ -516,7 +514,6 @@ a.tab, a.tab:hover { text-decoration: none; }
     <div class="seg-bar" role="navigation" aria-label="Widoki strony">
       <div class="container seg-row">
         <button class="tab seg-btn active" data-tab="staff" aria-pressed="true">Lista</button>
-        <button class="tab seg-btn" data-tab="areas">Obszary badawcze</button>
         <button class="tab seg-btn" data-tab="match" data-role-only="biuro">Dobierz zespół</button>
         <button class="tab seg-btn" data-tab="graph">Graf współpracy</button>
       </div>
@@ -608,23 +605,12 @@ a.tab, a.tab:hover { text-decoration: none; }
   </div>
 </div>
 
-<div id="tab-areas" class="tab-pane">
-  <div class="areas-layout">
-    <div class="areas-sidebar">
-      <input type="text" id="areas-search" class="search-input" placeholder="Szukaj obszaru…">
-      <div class="areas-list" id="areas-list"></div>
-    </div>
-    <div class="areas-main" id="areas-main"></div>
-  </div>
-</div>
-
 <div id="tab-match" class="tab-pane">
   <div class="container">
     <div class="match-head">
       <h2>Dobierz zespół</h2>
       <p class="match-sub">Wybierz nabór Horyzont Europa, aby zobaczyć osoby z Wydziału Informatyki dopasowane do jego tematu. Dopasowanie opiera się na tytułach tematów i publikacjach; wyniki są wstępne i wymagają weryfikacji.</p>
     </div>
-    <p style="margin:.2rem 0 1rem"><a class="link-btn" href="wyszukiwarka.html">Szukaj po potrzebach (wyszukiwarka) →</a></p>
     <details class="own-match" open style="margin-bottom:1.2rem">
       <summary>Opisz projekt, a dostaniesz listę osób</summary>
       <textarea id="match-input" class="match-textarea" placeholder="np. Kwantowe algorytmy optymalizacyjne do harmonogramowania workflow HPC: rozproszone systemy, obliczenia kwantowe, optymalizacja mieszana…"></textarea>
@@ -692,7 +678,6 @@ const STAFF_BY_ID = Object.fromEntries(DATA.staff.map(s=>[s.id,s]));
 const norm = s => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
 
 let activeTab = 'staff';
-let selectedArea = DATA.areas[0].id;
 let selectedStaffId = null;
 let staffFilter = { cat:'', degree:'', minPubs:0, since:0, ext:false, mail:false, badap:false, areas: new Set() };
 let areasExpanded=false;
@@ -719,9 +704,12 @@ function switchTab(name){
 }
 function goToArea(aid){
   if(!aid) return;
-  selectedArea=aid;
-  switchTab('areas');
-  renderAreas();
+  staffFilter.areas.clear();
+  staffFilter.areas.add(aid);
+  areasExpanded=true;
+  renderTagBar();
+  renderStaff();
+  switchTab('staff');
 }
 </script>
 <script>
@@ -982,149 +970,12 @@ function openDetailByName(name){
 }
 
 // panel szczegółów osiągnięcia
-function openAchievement(areaId,idx){
-  const a=AREA_BY_ID[areaId];
-  const h=a&&a.achievements&&a.achievements.highlights&&a.achievements.highlights[idx];
-  if(!h||typeof h==='string')return;
-  const panel=document.getElementById('detail-panel');
-  const team=(h.staff||[]).map(id=>{
-    const s=STAFF_BY_ID[id];
-    if(!s)return '';
-    const ini=s.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
-    const col=s.areas.length?AREA_COLORS[s.areas[0].id]:'#6b7280';
-    return `<div class="ach-person" data-id="${esc(s.id)}">
-      <div class="avatar" style="background:${col}">${esc(ini)}</div>
-      <div class="ap-info">
-        <div class="ap-name">${esc(s.name)}</div>
-        <div class="ap-meta">${esc(s.degree||'')}${s.unit?' · '+esc(s.unit):''} · ${s.pubs} publ.</div>
-      </div>
-      ${s.badap?`<a class="ap-ext" href="${esc(s.badap)}" target="_blank" rel="noopener noreferrer" title="Profil w BadAP">BadAP &#8599;</a>`:''}
-    </div>`;
-  }).join('');
-  const pubs=(h.pubs||[]).map(p=>`<li class="pub-item"><div class="pub-title">${pubHtml(p)}</div></li>`).join('');
-  panel.innerHTML=`
-    <button class="close-btn" id="close-detail">&times;</button>
-    <div class="ach-kicker" style="color:${AREA_COLORS[a.id]}">${esc(a.label)}</div>
-    <h2>${esc(h.title)}</h2>
-    <div class="ach-kind">${esc(h.kind||'Realizacja badawcza')}</div>
-    ${h.desc?`<div class="ach-block"><div class="section-title">Co to jest</div><div class="ach-desc">${esc(h.desc)}</div></div>`:''}
-    <div class="ach-block"><div class="section-title">Streszczenie</div><div class="ach-summary">${esc(h.summary||h.desc||'')}</div></div>
-    <div class="ach-block"><div class="section-title">Zespół <span class="pubs-total">(${(h.staff||[]).length})</span></div>
-      <div class="ach-people">${team||'<div style="color:var(--text2);font-size:.85rem">Brak danych</div>'}</div></div>
-    <div class="ach-block"><div class="section-title">Publikacje <span class="pubs-total">(${(h.pubs||[]).length})</span></div>
-      <ul class="pub-list">${pubs||'<li style="color:var(--text2)">Brak danych</li>'}</ul></div>
-    <div class="profile-links">
-      <button class="btn" id="ach-go-area">Obszar: ${esc(a.label)}</button>
-    </div>`;
-  document.getElementById('detail-overlay').classList.add('show');
-  document.getElementById('close-detail').onclick=()=>document.getElementById('detail-overlay').classList.remove('show');
-  panel.querySelectorAll('.ach-person').forEach(el=>el.onclick=e=>{
-    if(e.target.closest('.ap-ext'))return;
-    openDetail(STAFF_BY_ID[el.dataset.id]);
-  });
-  document.getElementById('ach-go-area').onclick=()=>{
-    document.getElementById('detail-overlay').classList.remove('show');
-    goToArea(a.id);
-  };
-}
 
 // popup: publikacje pracownika w wybranym obszarze
-function openAreaPubs(s,aid){
-  const a=AREA_BY_ID[aid];
-  if(!a) return;
-  const rec=s.areas.find(x=>x.id===aid);
-  const plist=(s.areaPubs&&s.areaPubs[aid])||[];
-  const pubs=plist.map(t=>`<li class="pub-item"><div class="pub-title">${pubHtml(t)}</div></li>`).join('');
-  const panel=document.getElementById('detail-panel');
-  panel.innerHTML=`
-    <button class="close-btn" id="close-detail">&times;</button>
-    <div class="profile-header">
-      <div class="avatar avatar-lg" style="background:${AREA_COLORS[aid]}">${esc(a.label.slice(0,2).toUpperCase())}</div>
-      <div class="profile-header-info">
-        <h2 style="color:${AREA_COLORS[aid]}">${esc(a.label)}</h2>
-        <div class="profile-meta">${esc(s.name)} · udział w obszarze: ${areaSharePct(aid,rec?rec.score:0)}%</div>
-      </div>
-    </div>
-    <div class="profile-section">
-      <div class="section-title">Publikacje w tym obszarze ${plist.length?`<span class="pubs-total">(${plist.length})</span>`:''}</div>
-      <ul class="pub-list">${pubs||'<li style="color:var(--text2)">Brak tytułów odpowiadających temu obszarowi w dostępnych danych (BadAP zwraca 10 najnowszych)</li>'}</ul>
-    </div>
-    <div class="profile-links">
-      <button class="btn" id="open-full-profile">Pełny profil: ${esc(s.name)}</button>
-    </div>`;
-  document.getElementById('detail-overlay').classList.add('show');
-  document.getElementById('close-detail').onclick=()=>document.getElementById('detail-overlay').classList.remove('show');
-  document.getElementById('open-full-profile').onclick=()=>openDetail(s);
-}
 
 document.getElementById('detail-overlay').addEventListener('click',e=>{ if(e.target.id==='detail-overlay') e.target.classList.remove('show'); });
 </script>
 <script>
-// ===== TAB 2: areas =====
-let areaQuery='';
-function renderAreas(){
-  const list=document.getElementById('areas-list');
-  const q=norm(areaQuery);
-  const maxAct=Math.max(...DATA.areas.map(a=>a.activity));
-  const totalAct=DATA.areas.reduce((s,a)=>s+a.activity,0);
-  list.innerHTML='';
-  DATA.areas.forEach(a=>{
-    if(q&&!norm(a.label).includes(q))return;
-    const el=document.createElement('div');
-    el.className='area-item'+(a.id===selectedArea?' active':'');
-    // udział obszaru w aktywności całego wydziału (w procentach)
-    const share=totalAct>0?Math.round(a.activity/totalAct*100):0;
-    el.innerHTML=`<div class="a-row"><span class="a-dot" style="background:${AREA_COLORS[a.id]}"></span><span class="a-name">${esc(a.label)}</span><span class="a-count">${a.members.length}</span></div>`;
-    el.onclick=()=>{selectedArea=a.id;renderAreas();};
-    list.appendChild(el);
-  });
-  renderAreaDetail();
-}
-function renderAreaDetail(){
-  const a=AREA_BY_ID[selectedArea];
-  const box=document.getElementById('areas-main');
-  const maxScore=Math.max(...a.members.map(m=>m.score));
-  // udział procentowy względem najbardziej aktywnego badacza w obszarze (100% = lider)
-  const pctOf=m=>maxScore>0?Math.round(m/maxScore*100):0;
-  const initOf=n=>n.split(' ').filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase();
-  const rows=a.members.map((m,i)=>{
-    const s=STAFF_BY_ID[m.id];
-    if(!s) return '';
-    const pct=pctOf(m.score);
-    return `<div class="ad-person" data-id="${m.id}" title="${esc(s.degree||'')} · ${s.pubs} publikacji${s.yearMax?' · do '+s.yearMax:''}">
-      <span class="ad-av" style="background:${AREA_COLORS[a.id]}">${esc(initOf(s.name))}</span>
-      <span class="ad-name">${esc(s.name)}</span>
-      <span class="ad-pct">${pct}%</span>
-    </div>`;
-  }).join('');
-  let achHtml='';
-  if(a.achievements){
-    const ach=a.achievements;
-    const highlightsHtml=ach.highlights.map((h,i)=>{
-      if(typeof h==='string')return `<li class="achievement-item">${esc(h)}</li>`;
-      return `<li class="achievement-item ach-item" data-ach="${esc(a.id)}" data-i="${i}" title="Zobacz szczegóły osiągnięcia">
-        <span class="ach-item-title">${esc(h.title)}</span>
-        ${h.desc?`<span class="ach-item-desc">${esc(h.desc)}</span>`:''}
-      </li>`;
-    }).join('');
-    const pubsHtml=ach.topPubs.map(p=>`<li class="achievement-item"><span class="pub-title">${pubHtml(p)}</span></li>`).join('');
-    achHtml=`<div class="achievements-block">
-      <div class="achievements-summary">${esc(ach.summary)}</div>
-      <div class="achievements-section-title">Kluczowe osiągnięcia</div>
-      <ul class="achievement-list">${highlightsHtml}</ul>
-      <div class="achievements-section-title">Ważniejsze publikacje</div>
-      <ul class="achievement-list">${pubsHtml}</ul>
-    </div>`;
-  }
-  const achFold=achHtml?`<details class="ad-more"><summary>Osiągnięcia i publikacje</summary>${achHtml}</details>`:'';
-  box.innerHTML=`<div class="ad-head"><h2 style="color:${AREA_COLORS[a.id]}">${esc(a.label)}</h2><span class="ad-count">${a.members.length} osób</span></div>${achFold}<div class="ad-grid">${rows}</div>`;
-  box.querySelectorAll('.ad-person').forEach(el=>el.onclick=()=>openDetail(STAFF_BY_ID[el.dataset.id]));
-  box.querySelectorAll('.ach-item').forEach(el=>el.onclick=()=>openAchievement(el.dataset.ach,+el.dataset.i));
-}
-document.getElementById('areas-search').addEventListener('input',(e)=>{
-  areaQuery=e.target.value.trim();
-  renderAreas();
-});
 </script>
 <script>
 // ===== TAB 2b: match staff to project =====
@@ -1906,13 +1757,12 @@ canvas.addEventListener('wheel',e=>{
 function init(){
   renderTagBar();
   renderStaff();
-  renderAreas();
   tick();
 }
 window.addEventListener('load',init);
 function openTabFromHash(){
   const name=location.hash.slice(1);
-  if(['staff','areas','match','graph'].includes(name)) switchTab(name);
+  if(['staff','match','graph'].includes(name)) switchTab(name);
 }
 window.addEventListener('load',openTabFromHash);
 window.addEventListener('hashchange',openTabFromHash);

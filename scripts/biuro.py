@@ -110,7 +110,9 @@ def base_html():
     data = json.dumps(rows, ensure_ascii=False).replace("</", "<\\/")
     staff = json.loads((ROOT / "data" / "wi_pracownicy.json").read_text(encoding="utf-8"))
     staff_js = json.dumps(sorted(staff, key=lambda n: n.lower()), ensure_ascii=False).replace("</", "<\\/")
-    return BASE_TEMPLATE.replace("__DATA__", data).replace("__STAFF__", staff_js).replace("__TODAY__", TODAY)
+    nab = [{"id": p["id"], "status": p["status"], "termin": " | ".join(p["deadlines"])} for p in call_projects()]
+    nab_js = json.dumps(nab, ensure_ascii=False).replace("</", "<\\/")
+    return BASE_TEMPLATE.replace("__DATA__", data).replace("__STAFF__", staff_js).replace("__NABORY__", nab_js).replace("__TODAY__", TODAY)
 
 
 BASE_TEMPLATE = r'''  <section id="pj-baza" class="pj-base">
@@ -119,7 +121,6 @@ BASE_TEMPLATE = r'''  <section id="pj-baza" class="pj-base">
     <div class="pj-actions">
       <button class="btn btn-primary" id="bz-pdf" type="button">Pobierz PDF</button>
       <button class="btn" id="bz-csv" type="button">Pobierz CSV</button>
-      <button class="link-btn" id="bz-reset" type="button">Przywróć dane domyślne</button>
       <span class="pj-meta" id="bz-msg" role="status" aria-live="polite"></span>
     </div>
     <div class="bz-layout">
@@ -159,6 +160,7 @@ BASE_TEMPLATE = r'''  <section id="pj-baza" class="pj-base">
       </div>
     </div>
   </section>
+  <datalist id="bz-staff"></datalist>
   <style>
   .bz-layout { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 1.2rem; align-items: start; margin-top: .6rem; }
   .bz-side { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1rem 1.1rem; position: sticky; top: 1rem; font-size: .88rem; min-width: 0; }
@@ -199,6 +201,7 @@ BASE_TEMPLATE = r'''  <section id="pj-baza" class="pj-base">
     var PLBL = {'wi': 'Projekty WI', 'unijne': 'Unijne'};
     var rows = __DATA__;
     var STAFF = __STAFF__;
+    var NABORY = __NABORY__;
     var over = {}, pover = {}, kover = {}, expanded = {}, LIMIT = 8;
     try { over = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { over = {}; }
     try { pover = JSON.parse(localStorage.getItem(PKEY) || '{}'); } catch (e) { pover = {}; }
@@ -267,14 +270,14 @@ BASE_TEMPLATE = r'''  <section id="pj-baza" class="pj-base">
         psel.appendChild(o);
       });
       psel.addEventListener('change', function () { setPula(r, psel.value); });
-      var ksel = document.createElement('select'); ksel.className = 'bz-sel'; ksel.setAttribute('aria-label', 'Kierownik z WI: ' + r.temat);
-      var none = document.createElement('option'); none.value = ''; none.textContent = '— bez kierownika z WI —'; ksel.appendChild(none);
-      STAFF.forEach(function (n) {
-        var o = document.createElement('option'); o.value = n; o.textContent = n;
-        if (n === kierWiOf(r)) o.selected = true;
-        ksel.appendChild(o);
+      var ksel = document.createElement('input'); ksel.type = 'text'; ksel.className = 'bz-sel'; ksel.value = kierWiOf(r);
+      ksel.setAttribute('list', 'bz-staff'); ksel.setAttribute('autocomplete', 'off'); ksel.placeholder = 'Wpisz nazwisko z WI…';
+      ksel.setAttribute('aria-label', 'Kierownik z WI: ' + r.temat);
+      ksel.addEventListener('change', function () {
+        var v = ksel.value.trim();
+        if (v && STAFF.indexOf(v) === -1) { msg.textContent = 'Wybierz nazwisko z podpowiedzi (lista pracowników WI).'; ksel.value = kierWiOf(r); return; }
+        setKier(r, v);
       });
-      ksel.addEventListener('change', function () { setKier(r, ksel.value); });
       var edit = document.createElement('details'); edit.className = 'bz-edit';
       var es = document.createElement('summary'); es.textContent = 'Edytuj: etap, pula, kierownik';
       edit.append(es, sel, psel, ksel);
@@ -353,22 +356,16 @@ BASE_TEMPLATE = r'''  <section id="pj-baza" class="pj-base">
       render();
     });
 
-    document.getElementById('bz-reset').addEventListener('click', function () {
-      if (!Object.keys(over).length && !Object.keys(pover).length && !Object.keys(kover).length) { msg.textContent = 'Nie ma ręcznych zmian do przywrócenia.'; return; }
-      if (!confirm('Przywrócić dane domyślne? Ręczne etapy, pule i kierownicy w tej przeglądarce zostaną usunięte.')) return;
-      var prev = {over: over, pover: pover, kover: kover};
-      over = {}; pover = {}; kover = {}; save(); fillFilters(); render();
-      msg.innerHTML = '';
-      msg.append('Przywrócono dane domyślne. ');
-      var u = document.createElement('button'); u.type = 'button'; u.className = 'link-btn'; u.textContent = 'Cofnij';
-      u.addEventListener('click', function () { over = prev.over; pover = prev.pover; kover = prev.kover; save(); fillFilters(); render(); msg.textContent = 'Cofnięto przywrócenie.'; });
-      msg.append(u);
-    });
 
+    function teamOf(id) {
+      try { var c = (JSON.parse(localStorage.getItem('bm-projekty-v1') || '{}').cards || {})[id] || {}; return c.people || []; } catch (e) { return []; }
+    }
     document.getElementById('bz-csv').addEventListener('click', function () {
       var q = function (v) { return '"' + String(v).replace(/"/g, '""') + '"'; };
-      var lines = [['Nazwa', 'Temat', 'Kierownik', 'Kierownik (WI)', 'Rozpoczęcie', 'Zakończenie', 'Kwota (PLN)', 'Nr umowy', 'Zleceniodawca', 'Pula', 'Etap']].concat(
-        shownRows().map(function (r) { return [r.nazwa || '', r.temat, r.kierownik, kierWiOf(r), r.start, r.koniec, r.kwota || '', r.nr_umowy || '', r.zleceniodawca, PLBL[pulaOf(r)], LBL[stanOf(r)]]; }));
+      var head = ['Typ', 'Nazwa', 'Temat', 'Kierownik', 'Kierownik (WI)', 'Rozpoczęcie', 'Zakończenie / termin', 'Kwota (PLN)', 'Nr umowy', 'Zleceniodawca', 'Pula', 'Zespół na tablicy', 'Etap'];
+      var lines = [head].concat(
+        shownRows().map(function (r) { return ['projekt', r.nazwa || '', r.temat, r.kierownik, kierWiOf(r), r.start, r.koniec, r.kwota || '', r.nr_umowy || '', r.zleceniodawca, PLBL[pulaOf(r)], '', LBL[stanOf(r)]]; }),
+        NABORY.map(function (n) { return ['nabór UE', n.id, '', '', '', '', n.termin, '', '', 'SEDIA', '', teamOf(n.id).join(', '), n.status]; }));
       var csv = '\ufeff' + lines.map(function (r) { return r.map(q).join(';'); }).join('\r\n');
       var a = document.createElement('a');
       a.href = URL.createObjectURL(new Blob([csv], {type: 'text/csv;charset=utf-8'}));
@@ -390,6 +387,7 @@ BASE_TEMPLATE = r'''  <section id="pj-baza" class="pj-base">
       w.document.close(); w.focus(); w.print();
     });
 
+    document.getElementById('bz-staff').innerHTML = STAFF.map(function (n) { return '<option value="' + esc(n) + '"></option>'; }).join('');
     fillFilters();
     render();
   })();
@@ -400,7 +398,7 @@ BASE_TEMPLATE = r'''  <section id="pj-baza" class="pj-base">
 def render():
     head, header, theme_js = dp.site_parts()
     head = head.replace("Dopasowanie do naboru · Mapa badawcza WI AGH", "Projekty · Mapa badawcza WI AGH")
-    local = dp.local_nav([("pj-baza", "Baza projektów"), ("pj-board", "Tablica etapów")])
+    local = dp.local_nav([("pj-baza", "Baza projektów"), ("pj-board", "Tablica naborów")])
     tabs = dp.nav_html("projekty") + local
     projects = call_projects()
     people = people_list()
@@ -446,7 +444,6 @@ def render():
 .pj-match {{ list-style: none; padding: 0; margin: .3rem 0; }}
 .pj-match li {{ margin: .45rem 0; font-size: .85rem; }}
 .pj-small {{ color: var(--text2); font-size: .78rem; }}
-.pj-new > summary {{ cursor: pointer; padding: .3rem 0 .6rem; }}
 .pj-meta {{ font-size: .8rem; color: var(--text2); margin-top: .25rem; line-height: 1.4; }}
 .pj-tags {{ display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .4rem; }}
 .pj-tag {{ font-size: .72rem; color: var(--text2); background: var(--surface2); border-radius: 999px; padding: .1rem .5rem; }}
@@ -496,22 +493,6 @@ def render():
 
   {base_html()}
 
-  <details class="pj-new">
-  <summary class="pj-label">Dodaj nowy projekt (z zewnątrz lub z naboru)</summary>
-  <div class="pj-form">
-    <div class="pj-form-grid">
-      <div><input id="pj-new-title" type="text" placeholder="Nazwa projektu" aria-label="Nazwa projektu"></div>
-      <div><select id="pj-new-source" aria-label="Źródło projektu">{opt(SOURCES)}</select></div>
-      <div><select id="pj-new-call" aria-label="Nabór"><option value="">Bez naboru</option></select></div>
-      <div><select id="pj-new-program" aria-label="Program">{opt(PROGRAMS)}</select></div>
-      <div><select id="pj-new-role" aria-label="Typ roli">{opt(ROLES)}</select></div>
-      <div><input id="pj-new-term" type="date" aria-label="Termin składania lub zakończenia"></div>
-      <div class="wide"><input id="pj-new-slowa" type="text" placeholder="Słowa kluczowe, po przecinku (np. digital twin, AI)"></div>
-      <div class="wide"><textarea id="pj-new-opis" rows="2" placeholder="Krótki opis: czego dotyczy projekt"></textarea></div>
-    </div>
-    <button id="pj-new-btn" class="btn btn-primary" type="button" style="margin-top:.8rem">Dodaj do Przyszłych</button>
-  </div>
-  </details>
 
   <div class="pj-layout">
     <aside class="pj-side">
@@ -553,7 +534,7 @@ def render():
       </div>
     </aside>
     <div>
-      <div class="pj-actions"><button id="pj-csv" class="btn" type="button">Pobierz tablicę naborów (CSV)</button><span class="pj-meta" id="pj-hidden" hidden></span></div>
+      <div class="pj-actions"><span class="pj-meta" id="pj-hidden" hidden></span></div>
       <div class="pj-board" id="pj-board"></div>
     </div>
   </div>
@@ -605,8 +586,7 @@ SCRIPT = """
 
   function allProjects(){
     const base = DATA.projects.map(p => Object.assign({}, p, st.cards[p.id] || {}));
-    const custom = st.custom.map(p => Object.assign({}, p, st.cards[p.id] || {}));
-    return base.concat(custom);
+    return base;
   }
   function update(id, patch){
     st.cards[id] = Object.assign({}, st.cards[id] || {}, patch);
@@ -727,28 +707,6 @@ SCRIPT = """
       h.textContent = hidden ? hidden + ' naborów zamkniętych nie jest na tablicy (są poza tym widokiem).' : '';
     })();
   }
-  const newCall = $('pj-new-call');
-  DATA.projects.forEach(p => { const o = document.createElement('option'); o.value = p.id; o.textContent = p.id; newCall.appendChild(o); });
-  $('pj-new-btn').addEventListener('click', () => {
-    const title = $('pj-new-title').value.trim();
-    if (!title) return;
-    const call = newCall.value;
-    const base = DATA.projects.find(p => p.id === call);
-    const slowa = $('pj-new-slowa').value.split(',').map(s => s.trim()).filter(Boolean);
-    const term = $('pj-new-term').value;
-    toast('Dodano projekt do etapu Przyszłe');
-    st.custom.push({
-      id: 'custom-' + Date.now(), title: title,
-      opis: $('pj-new-opis').value.trim(),
-      source: $('pj-new-source').value, program: $('pj-new-program').value, typ: $('pj-new-role').value,
-      slowa: slowa, term: term,
-      start: '', deadlines: base ? base.deadlines : (term ? [term] : []),
-      status: call ? 'nabór ' + call : 'bez naboru',
-      column: 'przyszle', tematy: base ? base.tematy : [], people: []
-    });
-    ['pj-new-title', 'pj-new-opis', 'pj-new-slowa', 'pj-new-term'].forEach(id => $(id).value = '');
-    save(); render();
-  });
   ['pj-q', 'pj-status', 'pj-source', 'pj-program', 'pj-role', 'pj-person', 'pj-deadline'].forEach(id => $(id).addEventListener('input', render));
   document.querySelectorAll('.pj-col-cb').forEach(c => c.addEventListener('change', render));
   $('pj-reset').addEventListener('click', () => {
@@ -756,22 +714,6 @@ SCRIPT = """
     ['pj-status', 'pj-source', 'pj-program', 'pj-role', 'pj-person'].forEach(id => $(id).value = '');
     document.querySelectorAll('.pj-col-cb').forEach(c => c.checked = true);
     render();
-  });
-  $('pj-csv').addEventListener('click', () => {
-    const cols = ['nazwa', 'nabór', 'etap', 'status', 'termin', 'źródło', 'program', 'typ roli', 'słowa kluczowe', 'osoby w zespole'];
-    const colName = c => (DATA.columns.find(x => x[0] === c) || [c, c])[1];
-    const q = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
-    const rows = allProjects().map(p => [
-      p.title, p.id, colName(p.column), p.status || '',
-      (p.deadlines && p.deadlines.length ? p.deadlines.join(' | ') : (p.term || '')),
-      p.source || '', p.program || '', p.typ || '',
-      (p.slowa || []).join(', '), (p.people || []).join(', ')
-    ].map(q).join(';'));
-    const csv = '\\ufeff' + cols.map(q).join(';') + '\\r\\n' + rows.join('\\r\\n');
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([csv], {type: 'text/csv;charset=utf-8'}));
-    a.download = 'projekty_' + DATA.today + '.csv';
-    document.body.appendChild(a); a.click(); a.remove();
   });
   render();
   setInterval(async () => {

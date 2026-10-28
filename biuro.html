@@ -84,7 +84,6 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background
 .areas-sidebar { display: flex; flex-direction: column; gap: .5rem; max-height: 80vh; }
 .areas-sidebar input[type="text"] { padding: .5rem .8rem; border-radius: var(--radius); border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: .85rem; flex-shrink: 0; }
 .areas-sidebar input[type="text"]:focus { outline: none; border-color: var(--accent); }
-.areas-list { overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: .5rem; }
 .area-item { padding: .8rem 1rem; border-radius: var(--radius); cursor: pointer; border: 1px solid var(--border); background: var(--surface); transition: all .15s; }
 .area-item:hover { border-color: var(--accent); }
 .area-item.active { border-color: var(--accent); background: rgba(var(--accent-rgb),0.08); }
@@ -222,7 +221,6 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background
 /* ===== Układ strony: nagłówek, zakładki, wyszukiwanie, filtry, wyniki ===== */
 .container { max-width: 1280px; margin: 0 auto; padding: 0 1.5rem; }
 .tab-pane { padding: 1.5rem 0; }
-#tab-areas { padding: 1.5rem; }
 .site-header { position: relative; background: var(--header-bg); color: var(--header-text); border-bottom: 1px solid var(--border); }
 .site-header::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
 .header-row { display: flex; align-items: center; gap: 2.2rem; padding-top: 1.2rem; padding-bottom: 1.1rem; flex-wrap: wrap; }
@@ -514,7 +512,6 @@ a.tab, a.tab:hover { text-decoration: none; }
 .pj-match { list-style: none; padding: 0; margin: .3rem 0; }
 .pj-match li { margin: .45rem 0; font-size: .85rem; }
 .pj-small { color: var(--text2); font-size: .78rem; }
-.pj-new > summary { cursor: pointer; padding: .3rem 0 .6rem; }
 .pj-meta { font-size: .8rem; color: var(--text2); margin-top: .25rem; line-height: 1.4; }
 .pj-tags { display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .4rem; }
 .pj-tag { font-size: .72rem; color: var(--text2); background: var(--surface2); border-radius: 999px; padding: .1rem .5rem; }
@@ -564,7 +561,7 @@ a.tab, a.tab:hover { text-decoration: none; }
     <div class="acc-slot" id="account-slot"></div>
   </div>
 </header>
-<nav class="tabs" aria-label="Menu główne"><div class="container tabs-row"><a class="tab" href="index.html">Naukowcy</a><a class="tab active" href="biuro.html" aria-current="page" data-role-only="biuro">Projekty</a><a class="tab" href="panel.html">Zaproszenia</a><a class="tab" href="profil.html" data-role-only="naukowiec">Mój profil</a></div></nav><div class="seg-bar" role="navigation" aria-label="Widoki strony"><div class="container seg-row"><a class="tab seg-btn active" href="#pj-baza">Baza projektów</a><a class="tab seg-btn" href="#pj-board">Tablica etapów</a></div></div>
+<nav class="tabs" aria-label="Menu główne"><div class="container tabs-row"><a class="tab" href="index.html">Naukowcy</a><a class="tab active" href="biuro.html" aria-current="page" data-role-only="biuro">Projekty</a><a class="tab" href="panel.html">Zaproszenia</a><a class="tab" href="profil.html" data-role-only="naukowiec">Mój profil</a></div></nav><div class="seg-bar" role="navigation" aria-label="Widoki strony"><div class="container seg-row"><a class="tab seg-btn active" href="#pj-baza">Baza projektów</a><a class="tab seg-btn" href="#pj-board">Tablica naborów</a></div></div>
 
 <main class="container">
   <section class="hero-simple">
@@ -579,7 +576,6 @@ a.tab, a.tab:hover { text-decoration: none; }
     <div class="pj-actions">
       <button class="btn btn-primary" id="bz-pdf" type="button">Pobierz PDF</button>
       <button class="btn" id="bz-csv" type="button">Pobierz CSV</button>
-      <button class="link-btn" id="bz-reset" type="button">Przywróć dane domyślne</button>
       <span class="pj-meta" id="bz-msg" role="status" aria-live="polite"></span>
     </div>
     <div class="bz-layout">
@@ -619,6 +615,7 @@ a.tab, a.tab:hover { text-decoration: none; }
       </div>
     </div>
   </section>
+  <datalist id="bz-staff"></datalist>
   <style>
   .bz-layout { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 1.2rem; align-items: start; margin-top: .6rem; }
   .bz-side { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1rem 1.1rem; position: sticky; top: 1rem; font-size: .88rem; min-width: 0; }
@@ -659,6 +656,7 @@ a.tab, a.tab:hover { text-decoration: none; }
     var PLBL = {'wi': 'Projekty WI', 'unijne': 'Unijne'};
     var rows = [{"id": 1, "temat": "Fort Kraków Polski Akcelerator DIANA", "kierownik": "prof. dr hab. inż. Rafał Dańko", "start": "2025-10-01", "koniec": "2028-12-31", "zleceniodawca": "Ministerstwo Rozwoju i Technologii", "nazwa": null, "nr_umowy": null, "kwota": null, "zrodlo": "zestawienie 2026", "kierownik_wi": "", "pula": "wi", "stan": "w realizacji"}, {"id": 2, "temat": "Analiza i generacja zróżnicowanych i realistycznych instancji wyborów", "kierownik": "prof. dr hab. inż. Piotr Faliszewski", "start": "2026-09-01", "koniec": "2031-08-31", "zleceniodawca": "Narodowe Centrum Nauki", "nazwa": null, "nr_umowy": null, "kwota": null, "zrodlo": "zestawienie 2026", "kierownik_wi": "Faliszewski Piotr", "pula": "wi", "stan": "w realizacji"}, {"id": 3, "temat": "Rozwój metod zwiększających stabilność działania i odporność dużych modeli językowych na ataki adwersarialne", "kierownik": "prof. dr hab. inż. Leszek Rutkowski", "start": "2026-07-09", "koniec": "2029-07-08", "zleceniodawca": "Narodowe Centrum Nauki", "nazwa": null, "nr_umowy": null, "kwota": null, "zrodlo": "zestawienie 2026", "kierownik_wi": "Rutkowski Leszek", "pula": "wi", "stan": "w realizacji"}, {"id": 4, "temat": "ECCentriC: Badanie komitetów skoncentrowanych na kandydatach / NAWA Polskie Powroty 2025", "kierownik": "dr inż. Andrzej Kaczmarczyk", "start": "2026-10-01", "koniec": "2029-09-30", "zleceniodawca": "Narodowa Agencja Wymiany Akademickiej", "nazwa": null, "nr_umowy": null, "kwota": null, "zrodlo": "zestawienie 2026", "kierownik_wi": "", "pula": "wi", "stan": "w realizacji"}, {"id": 5, "temat": "Ocena ryzyka, symulacja i zapobieganie występowaniu pyłu respirabilnego na obszarach poprzemysłowych", "kierownik": "dr hab. inż. Ewa Adamiec", "start": "2026-02-02", "koniec": "2026-08-01", "zleceniodawca": "Komisja Europejska", "nazwa": null, "nr_umowy": null, "kwota": null, "zrodlo": "zestawienie 2026", "kierownik_wi": "Adamiec Ewa", "pula": "unijne", "stan": "zakończony"}, {"id": 6, "temat": "Europejskie ramy cybermonitoringu, usług CTI i skoordynowanych działań mitygacyjnych oparte na sztucznej inteligencji / ang. AI-powered european framework for cyber monitoring, CTI services and coordinated mitigation", "kierownik": "dr inż. Łukasz Faber", "start": "2026-07-06", "koniec": "2029-07-05", "zleceniodawca": "Komisja Europejska", "nazwa": null, "nr_umowy": null, "kwota": null, "zrodlo": "zestawienie 2026", "kierownik_wi": "", "pula": "unijne", "stan": "w realizacji"}, {"id": 7, "temat": "Poprawa hybrydowej optymalizacji klasyczno-kwantowej za pomocą technik uczenia maszynowego", "kierownik": "mgr inż. Justyna Zawalska", "start": "2025-12-15", "koniec": "2026-12-31", "zleceniodawca": "Narodowe Centrum Nauki", "nazwa": null, "nr_umowy": null, "kwota": null, "zrodlo": "zestawienie 2026", "kierownik_wi": "", "pula": "wi", "stan": "w realizacji"}, {"id": 8, "temat": "Sieci Neuronowe Poinformowane o Fizyce używające macierzy hierarchicznych i metody Petrova-Galerkina (HPG-PINN)", "kierownik": "dr inż. Tomasz Służalec", "start": "2026-02-13", "koniec": "2029-02-12", "zleceniodawca": "Narodowe Centrum Nauki", "nazwa": null, "nr_umowy": null, "kwota": null, "zrodlo": "zestawienie 2026", "kierownik_wi": "Służalec Tomasz", "pula": "wi", "stan": "w realizacji"}, {"id": 9, "temat": "Model autonomicznego zarządzania komponentów natywnego-chmurowego środowiska wykonawczego", "kierownik": "dr inż. Joanna Kosińska", "start": "2026-01-01", "koniec": "2029-01-31", "zleceniodawca": "Narodowe Centrum Nauki", "nazwa": null, "nr_umowy": null, "kwota": null, "zrodlo": "zestawienie 2026", "kierownik_wi": "Kosińska Joanna", "pula": "wi", "stan": "w realizacji"}, {"id": 10, "temat": "Symulacja złożonych układów biologicznych wspomagana przez sztuczną inteligencję: językowo sterowany model planowania terapii przeciwnowotworowej", "kierownik": "prof. dr hab. inż. Witold Dzwinel", "start": "2026-03-16", "koniec": "2029-03-15", "zleceniodawca": "Narodowe Centrum Nauki", "nazwa": null, "nr_umowy": null, "kwota": null, "zrodlo": "zestawienie 2026", "kierownik_wi": "Dzwinel Witold", "pula": "wi", "stan": "w realizacji"}, {"id": 11, "temat": "Od strategii tłumacza do tendencyjności algorytmu. Ilościowy model analizy przekładu", "kierownik": "mgr inż. Maciej Rapacz", "start": "2026-01-01", "koniec": "2026-12-31", "zleceniodawca": "Narodowe Centrum Nauki", "nazwa": null, "nr_umowy": null, "kwota": null, "zrodlo": "zestawienie 2026", "kierownik_wi": "", "pula": "wi", "stan": "w realizacji"}, {"id": 12, "temat": "Opracowanie platformy referencyjnej dla modeli predykcyjnych opartych na AI/ML w zastosowaniach agrochemicznych dotyczących bioaktywności i toksyczności", "kierownik": "dr inż. Wojciech Czech", "start": "2026-01-13", "koniec": "2030-01-12", "zleceniodawca": "Narodowe Centrum Nauki", "nazwa": null, "nr_umowy": null, "kwota": null, "zrodlo": "zestawienie 2026", "kierownik_wi": "Czech Wojciech", "pula": "wi", "stan": "w realizacji"}, {"id": 13, "temat": "Bezprzewodowy system nawigacji wibroakustycznej do wsparcia zabiegów małoinwazyjnych – VIBRONAV", "kierownik": "dr hab. Michael Friebe / dr inż. Dominik Rzepka", "start": "2026-03-01", "koniec": "2027-02-28", "zleceniodawca": "NCBiR", "nazwa": null, "nr_umowy": null, "kwota": null, "zrodlo": "zestawienie 2026", "kierownik_wi": "", "pula": "wi", "stan": "w realizacji"}, {"id": 14, "temat": "Nawigacja urządzeń medycznych w oparciu o sygnały wibroakustyczne – VIBRONAV", "kierownik": "dr hab. Michael Friebe", "start": "2023-03-01", "koniec": "2026-02-28", "zleceniodawca": "NCBiR", "nazwa": null, "nr_umowy": null, "kwota": null, "zrodlo": "zestawienie 2026", "kierownik_wi": "Friebe Michael", "pula": "wi", "stan": "zakończony"}, {"id": 15, "temat": "Optymalizacja problemów odpornego sterowania predykcyjnego i ze sprzężeniem zwrotnym w systemach z opóźnieniami przy pomocy złożonych metaheurystyk", "kierownik": "prof. dr hab. inż. Janusz Kacprzyk", "start": "2025-09-12", "koniec": "2028-09-11", "zleceniodawca": "Narodowe Centrum Nauki", "nazwa": null, "nr_umowy": null, "kwota": null, "zrodlo": "zestawienie 2026", "kierownik_wi": "Kacprzyk Janusz", "pula": "wi", "stan": "w realizacji"}, {"temat": "Pragmatyka Wyboru Komitetów: algorytmy i analiza danych preferencyjnych (PRAGMA)", "nazwa": "Horizon 2020 H2020-ERC-COG Consolidator Grant", "kierownik": "Piotr Faliszewski", "start": "2021-06-01", "koniec": "2026-05-31", "zleceniodawca": "Komisja Europejska", "nr_umowy": "GRANT AGREEMENT NUMBER 101002854 — PRAGMA", "kwota": 6211272.34, "zrodlo": "zestawienie 2021–2024", "kierownik_wi": "Faliszewski Piotr", "id": 101, "pula": "unijne", "stan": "zakończony"}, {"temat": "Wieloskalowa inwersja fizyki skał porowatych za pomocą symulatorów wysokiej wydajności: wypełnianie luk pomiędzy matematyką a geofizyką (MATHROCKS)", "nazwa": "Horizon 2020 MSCA-RISE-2017", "kierownik": "Maciej Paszyński", "start": "2021-10-14", "koniec": "2023-03-31", "zleceniodawca": "Komisja Europejska", "nr_umowy": "GRANT AGREEMENT NUMBER 777778 — MATHROCKS, AMENDMENT Reference No AMD-777778-19", "kwota": 207685.38, "zrodlo": "zestawienie 2021–2024", "kierownik_wi": "Paszyński Maciej", "id": 102, "pula": "unijne", "stan": "zakończony"}, {"temat": "Zarządzanie zasobami dla aplikacji naukowych na infrastrukturach o wysokiej elastyczności", "nazwa": "OPUS 11", "kierownik": "", "start": "2017-01-27", "koniec": "2021-01-26", "zleceniodawca": "Narodowe Centrum Nauki", "nr_umowy": "UMO-2016/21/B/ST6/01497", "kwota": 552300.0, "zrodlo": "zestawienie 2021–2024", "kierownik_wi": "", "id": 103, "pula": "wi", "stan": "zakończony"}, {"temat": "Lemkin - inteligentny system informacji prawnej", "nazwa": "LIDER VIII", "kierownik": "Aleksander Smywiński-Pohl", "start": "2017-11-01", "koniec": "2021-09-30", "zleceniodawca": "Narodowe Centrum Badań i Rozwoju", "nr_umowy": "UMOWA NR LIDER/27/0164/L-8/16/NCBR/2017", "kwota": 1200000.0, "zrodlo": "zestawienie 2021–2024", "kierownik_wi": "Smywiński-Pohl Aleksander", "id": 104, "pula": "wi", "stan": "zakończony"}, {"temat": "Hierarchiczna optymalizacja rojem cząstek jako agentowe narzędzie do wspomagania wielokryterialnych problemów decyzyjnych", "nazwa": "PRELUDIUM 13", "kierownik": "", "start": "2018-04-09", "koniec": "2021-10-08", "zleceniodawca": "Narodowe Centrum Nauki", "nr_umowy": "UMO-2017/25/N/ST6/02841", "kwota": 118800.0, "zrodlo": "zestawienie 2021–2024", "kierownik_wi": "", "id": 105, "pula": "wi", "stan": "zakończony"}, {"temat": "Techniki i narzędzia informatyczne wspomagające prowadzenie działań w cyberprzestrzeni, w szczególności detekcję i aktywne reagowanie na akcje dezinformacyjne prowadzone w sieci Internet", "nazwa": "Młodzi Naukowcy", "kierownik": "", "start": "2018-07-16", "koniec": "2021-11-15", "zleceniodawca": "Narodowe Centrum Badań i Rozwoju", "nr_umowy": "DOB-2P/01/04/2018", "kwota": 2856341.0, "zrodlo": "zestawienie 2021–2024", "kierownik_wi": "", "id": 106, "pula": "wi", "stan": "zakończony"}, {"temat": "cybercrypt@gov - rozproszony, skalowalny, wysokowydajny system pozwalajacy na przełamywanie zabezpieczeń kryptograficznych", "nazwa": null, "kierownik": "", "start": "2018-12-10", "koniec": "2022-12-09", "zleceniodawca": "Narodowe Centrum Badań i Rozwoju", "nr_umowy": "DOB-BIO9/32/03/2018", "kwota": 2922500.0, "zrodlo": "zestawienie 2021–2024", "kierownik_wi": "", "id": 107, "pula": "wi", "stan": "zakończony"}, {"temat": "Przetwarzanie i analiza danych masowych w odniesieniu do przestępstw gospodarczych", "nazwa": "STRATEGICZNE PROGRAMY RZĄDOWE", "kierownik": "", "start": "2018-12-17", "koniec": "2022-06-16", "zleceniodawca": "Narodowe Centrum Badań i Rozwoju", "nr_umowy": "DOB-BIO9/33/01/2018", "kwota": 6200583.75, "zrodlo": "zestawienie 2021–2024", "kierownik_wi": "", "id": 108, "pula": "wi", "stan": "zakończony"}, {"temat": "Rozwój energetyki rozproszonej w klastrach energii", "nazwa": "GOSPOSTRATEG", "kierownik": "", "start": "2019-02-01", "koniec": "2022-12-31", "zleceniodawca": "nie podano w zestawieniu", "nr_umowy": "Gospostrateg1/385085/21/NCBr/2019", "kwota": 5197675.0, "zrodlo": "zestawienie 2021–2024", "kierownik_wi": "", "id": 109, "pula": "wi", "stan": "zakończony"}, {"temat": "Standaryzacja usług Hubów Innowacji Cyfrowych dla wsparcia cyfrowej transformacji przedsiebiorstw", "nazwa": "Przemysł 4.0", "kierownik": "", "start": "2019-11-01", "koniec": "2021-11-30", "zleceniodawca": "Ministerstwo Rozwoju", "nr_umowy": "II/330/P/150905/2830/20/DIN", "kwota": 494000.0, "zrodlo": "zestawienie 2021–2024", "kierownik_wi": "", "id": 110, "pula": "wi", "stan": "zakończony"}, {"temat": "Inspiracje socjokognitywne w klasycznych metaheurystykach", "nazwa": "PRELUDIUM BIS 1", "kierownik": "", "start": "2020-05-18", "koniec": "2025-07-31", "zleceniodawca": "Narodowe Centrum Nauki", "nr_umowy": "UMO-2019/35/O/ST6/00570", "kwota": 400680.0, "zrodlo": "zestawienie 2021–2024", "kierownik_wi": "", "id": 111, "pula": "wi", "stan": "zakończony"}, {"temat": "Zrównoleglanie metaheurystyk z desynchronizacją", "nazwa": "PRELUDIUM BIS 1", "kierownik": "", "start": "2020-05-18", "koniec": "2024-09-30", "zleceniodawca": "Narodowe Centrum Nauki", "nr_umowy": "UMO-2019/35/O/ST6/00571", "kwota": 400680.0, "zrodlo": "zestawienie 2021–2024", "kierownik_wi": "", "id": 112, "pula": "wi", "stan": "zakończony"}, {"temat": "Super-skalowalna symulacja ruchu miejskiego", "nazwa": "PRELUDIUM BIS 2", "kierownik": "", "start": "2020-05-18", "koniec": "2024-09-30", "zleceniodawca": "Narodowe Centrum Nauki", "nr_umowy": "UMO-2019/35/O/ST6/01806", "kwota": 406080.0, "zrodlo": "zestawienie 2021–2024", "kierownik_wi": "", "id": 113, "pula": "wi", "stan": "zakończony"}, {"temat": "Środowisko oparte na śledzeniu wzroku dla multimodalnej interakcji człowieka z robotem", "nazwa": "POLTUR2", "kierownik": "", "start": "2018-02-01", "koniec": "2021-09-30", "zleceniodawca": "Narodowe Centrum Badań i Rozwoju", "nr_umowy": "DZP/POLTUR2/281/2017", "kwota": 793750.0, "zrodlo": "zestawienie 2021–2024", "kierownik_wi": "", "id": 114, "pula": "wi", "stan": "zakończony"}, {"temat": "Nowy paradygmat obliczeniowy Izogeometrycznej metody Minimalizacji Reziduum (iGRM) i jego zastosowanie do rozwiązywania problemów parabolicznych, hiperbolicznych, liniowych i nieliniowych", "nazwa": "HARMONIA 9", "kierownik": "", "start": "2018-04-16", "koniec": "2021-12-15", "zleceniodawca": "Narodowe Centrum Nauki", "nr_umowy": "UMO-2017/26/M/ST1/00281", "kwota": 554400.0, "zrodlo": "zestawienie 2021–2024", "kierownik_wi": "", "id": 115, "pula": "wi", "stan": "zakończony"}, {"temat": "Współpraca między Katedrą Informatyki AGH a Eksperymentem TOTEM a CERN na lata 2019-2021", "nazwa": "TOTEM", "kierownik": "Maciej Malawski", "start": "2019-01-01", "koniec": "2021-12-31", "zleceniodawca": "Ministerstwo Nauki i Szkolnictwa Wyższego", "nr_umowy": "DIR/WK/2018/13", "kwota": 1167583.0, "zrodlo": "zestawienie 2021–2024", "kierownik_wi": "Malawski Maciej", "id": 116, "pula": "wi", "stan": "zakończony"}, {"temat": "Od danych nawigacyjnych do ontologii - integracja wiedzy do skatalogowania scenariuszy etycznych w samochodach autonomicznych", "nazwa": "Wymiana bilateralna", "kierownik": "", "start": "2020-01-01", "koniec": "2021-12-31", "zleceniodawca": "Narodowa Agencja Wymiany Akademickiej", "nr_umowy": "PPN/BDE/2019/1/00007/U/00001", "kwota": 24960.0, "zrodlo": "zestawienie 2021–2024", "kierownik_wi": "", "id": 117, "pula": "wi", "stan": "zakończony"}, {"temat": "Działanie, innowacje, aktywność, ludzie, otwartość, gotowość", "nazwa": "DIALOG", "kierownik": "", "start": "2019-12-31", "koniec": "2021-12-31", "zleceniodawca": "Ministerstwo Funduszy i Polityki Regionalnej", "nr_umowy": "DPT/BWGII/POPT/265/19", "kwota": 806906.0, "zrodlo": "zestawienie 2021–2024", "kierownik_wi": "", "id": 118, "pula": "wi", "stan": "zakończony"}, {"temat": "Optymalizacja parametryczna modeli i systemów z opóźnieniem czasowym z wykorzystaniem metaheurystyk", "nazwa": "OPUS LAP", "kierownik": "", "start": "2021-10-08", "koniec": "2024-10-07", "zleceniodawca": "Narodowe Centrum Nauki", "nr_umowy": "UMO-2020/39/I/ST7/02285", "kwota": 542900.0, "zrodlo": "zestawienie 2021–2024", "kierownik_wi": "", "id": 119, "pula": "wi", "stan": "zakończony"}, {"temat": "Nowe rozwiązania w zakresie asymilacji i przekazywania danych dla ulepszenia modeli i prognoz hydrologicznych", "nazwa": "CHIST-ERA", "kierownik": "", "start": "2021-03-01", "koniec": "2024-02-29", "zleceniodawca": "Narodowe Centrum Nauki", "nr_umowy": "UMO-2020/02/Y/ST10/00065", "kwota": 338560.0, "zrodlo": "zestawienie 2021–2024", "kierownik_wi": "", "id": 120, "pula": "wi", "stan": "zakończony"}, {"temat": "Advanced artifical intelligence technologies summer and winter courses at AGH", "nazwa": "SPINAKER", "kierownik": "", "start": "2022-06-01", "koniec": "2023-08-31", "zleceniodawca": "NAWA", "nr_umowy": "BPI/SP/2021/1/00019/U/00001", "kwota": 209354.0, "zrodlo": "zestawienie 2021–2024", "kierownik_wi": "", "id": 121, "pula": "wi", "stan": "zakończony"}, {"temat": "Eksperyment ALICE na Wielkim Zderzaczu Hadronów w CERN ALICE na Wielkim Zderzaczu Hadronów w CERN", "nazwa": "ALICE", "kierownik": "Jacek Kitowski", "start": "2022-01-01", "koniec": "2026-12-31", "zleceniodawca": "MEiN", "nr_umowy": "2022/WK/01", "kwota": 2212959.85, "zrodlo": "zestawienie 2021–2024", "kierownik_wi": "Kitowski Jacek", "id": 122, "pula": "wi", "stan": "w realizacji"}, {"temat": "Eksperyment Compact Muon Solenoid w CERN-ie (CMS 2022-2026)", "nazwa": "CMS", "kierownik": "", "start": "2022-06-01", "koniec": "2026-12-31", "zleceniodawca": "MEiN", "nr_umowy": "2022/WK/14", "kwota": 2094569.9, "zrodlo": "zestawienie 2021–2024", "kierownik_wi": "", "id": 123, "pula": "wi", "stan": "w realizacji"}, {"temat": "Automatyczne śledzenie i analiza ruchu dla wspomagania treningów sportowych", "nazwa": "LIDER XII", "kierownik": "", "start": "2022-02-01", "koniec": "2024-07-30", "zleceniodawca": "Narodowe Centrum Badań i Rozwoju", "nr_umowy": "LIDER/37/0198/L-12/20/NCBR/2021", "kwota": 846875.0, "zrodlo": "zestawienie 2021–2024", "kierownik_wi": "", "id": 124, "pula": "wi", "stan": "zakończony"}, {"temat": "Opracowanie, implementacja i ocena bezpieczeństwa algorytmów postkwantowych", "nazwa": "OBRONNOŚĆ", "kierownik": "", "start": "2022-12-20", "koniec": "2024-12-19", "zleceniodawca": "Narodowe Centrum Badań i Rozwoju", "nr_umowy": "DOB-BIO-12-01-002-2022", "kwota": 4045000.0, "zrodlo": "zestawienie 2021–2024", "kierownik_wi": "", "id": 125, "pula": "wi", "stan": "zakończony"}, {"temat": "Nowe klasy kognitywnych systemów zarządzania usługami i współdzielenia danych w Cloud Computingu", "nazwa": "OPU2 12", "kierownik": "", "start": "2022-01-24", "koniec": "2022-07-03", "zleceniodawca": "Narodowe Centrum Badań i Rozwoju", "nr_umowy": "UMO-2016/23/B/HS4/00616", "kwota": 32753.79, "zrodlo": "zestawienie 2021–2024", "kierownik_wi": "", "id": 126, "pula": "wi", "stan": "zakończony"}];
     var STAFF = ["Achtelik Wojciech", "Adamiec Ewa", "Albrycht Izabela", "Alda Witold", "Aleksandrowicz Maciej", "Baliś Bartosz", "Bałamut Anna", "Bednarska Marta", "Biesiadecka Katarzyna", "Bonczarowski Tomasz", "Borczyńska Joanna", "Boryczko Krzysztof", "Brodzicki Andrzej", "Brzoza-Zajęcka Ada", "Bubak Marian", "Byrski Aleksander", "Capała Karol", "Chochół Monika", "Chodak Paweł", "Crimi Alessandro", "Czech Wojciech", "Czekierda Łukasz", "Dajda Jacek", "Dekster Monika", "Dobrowolski Grzegorz", "Dobrzyński Krystian", "Dreżewski Rafał", "Duda Piotr", "Dyduch Tadeusz", "Dzwinel Witold", "Dębski Roman", "Długopolski Jacek", "Eckes Maria", "Faber Kamil", "Faliszewski Piotr", "Friebe Michael", "Funika Włodzimierz", "Gajewski Paweł", "Gajęcki Marek", "Gaska Krzysztof", "Golizda Marcin", "Grzanka Leszek", "Grzebinoga Maria", "Grzesik-Staroń Kinga", "Guzowski Hubert", "Głut Barbara", "Heller Krzysztof", "Heryan Katarzyna", "Idzik Michał", "Janeczko Łukasz", "Jarosz Mateusz", "Jawdyńska Joanna", "Jaworek-Korjakowska Joanna", "Kacprzyk Janusz", "Kapica Karolina", "Karcz-Nawrocka Karolina", "Kica Piotr", "Kisiel-Dorohinicki Marek", "Kitowski Jacek", "Klima Jan", "Knapik Ida", "Knapik-Mróz Dominika", "Konieczna Jolanta", "Konieczny Marek", "Kopeć Sławomir", "Kordeczka Łukasz", "Kosińska Joanna", "Kołodziejczyk Robert", "Kościółek Tomasz", "Kożuch Tomasz", "Kruszec Małgorzata", "Kryza Bartosz", "Król Magdalena", "Kumor Ewelina", "Kurdziel Marcin", "Kusak Maksymilian", "Kuta Marcin", "Kwiatkowska Katarzyna", "Kwolek Bogdan", "Liput Jakub", "Listopad Anna", "Maczuga Paweł", "Maj Bernard", "Majerz Emilia", "Majewska Marta", "Majewski Janusz", "Malawski Maciej", "Marcjan Robert", "Masłowska Adrianna", "Maternowska Wiktoria", "Mańdziuk Jacek", "Micek Dorota", "Mirowski Paweł", "Motyka Anna", "Mularczyk-Mędrykowska Paulina", "Mus-Frosik Malwina", "Nawrocki Piotr", "Nawrot Jacek", "Nejranowska Kornelia", "Nikolow Darin", "Niziołek-Jarominek Katarzyna", "Nowak Weronika", "Nowicki Robert", "Ogiela Lidia", "Ogiela Urszula", "Orzechowski Michał", "Panasiewicz Alicja", "Paszyńska Anna", "Paszyński Maciej", "Pełech-Pilichowski Tomasz", "Piętak Anna", "Piętak Kamil", "Polak Stanisław", "Raczek Agnieszka", "Rakoczy Witold", "Regulska Julia", "Romek Łukasz", "Rutkowski Leszek", "Rybka Tomasz", "Rycerz Katarzyna", "Rzepka Agata", "Samól Maciej", "Saracka Agnieszka", "Schaefer Robert", "Scherer Rafał", "Sebzda Dominika", "Sieciński Szymon", "Sitkowska Aleksandra", "Skalna Agata", "Skotniczny Michał", "Smołka Maciej", "Smywiński-Pohl Aleksander", "Sobczak-Firlej Izabela", "Sornat Krzysztof", "Stach Aneta", "Stobiecki Filip", "Straś Robert", "Straś Robert", "Suchoń Magdalena", "Suder Dawid", "Szewel Jakub", "Sznicer Katarzyna", "Szydło Tomasz", "Słota Renata", "Służalec Tomasz", "Tarnowska-Torbus Magdalena", "Titova Olha", "Topa Paweł", "Trawińska Anna", "Trojańska Monika", "Trojański Roman", "Turek Paulina", "Turek Wojciech", "Tęcza Olga", "Urbańczyk Aleksandra", "Vilkha Askold", "Waśniowski Tomasz", "Wcisło Rafał", "Wierzańska Magdalena", "Wirtel Weronika", "Witkowski Krzysztof", "Woźniak Maciej", "Woźniak Magdalena", "Wydział Informatyki", "Wójcicka Anna", "Wójcik Daria", "Zaborowski Wojciech", "Zajęcka-Bebel Małgorzata", "Zasada Mikołaj", "Załęga Dominika", "Zduleczna Monika", "Zieliński Krzysztof", "Zieliński Sławomir", "Ziółko Bartosz", "Zygmunt Anna", "Łazarz Radosław", "Łoś Marcin", "Śnieżyński Bartłomiej", "Świerad-Solińska Joanna", "Żabińska-Rakoczy Małgorzata"];
+    var NABORY = [{"id": "HORIZON-CL4-2027-01", "status": "otwarty", "termin": "2027-02-02"}, {"id": "HORIZON-CL4-2027-02-two-stage", "status": "otwarty", "termin": "2027-02-02 | 2027-09-02"}, {"id": "HORIZON-CL4-2027-06", "status": "otwarty", "termin": "2027-02-02"}, {"id": "HORIZON-CL5-2027-02", "status": "otwarty", "termin": "2027-03-31"}, {"id": "HORIZON-CL5-2027-01", "status": "planowany", "termin": "2027-03-04"}, {"id": "HORIZON-CL4-2027-04", "status": "planowany", "termin": "2027-03-18"}, {"id": "HORIZON-CL4-2027-05", "status": "planowany", "termin": "2027-03-18"}, {"id": "HORIZON-CL5-2027-03", "status": "planowany", "termin": "2027-04-14"}, {"id": "HORIZON-CL5-2027-04-Two-Stage", "status": "planowany", "termin": "2027-04-14 | 2027-10-07"}, {"id": "HORIZON-CL6-2027-03", "status": "planowany", "termin": "2027-05-11"}, {"id": "HORIZON-CL4-2027-03", "status": "planowany", "termin": "2027-09-02"}, {"id": "HORIZON-CL5-2027-05", "status": "planowany", "termin": "2027-09-15"}, {"id": "HORIZON-CL6-2027-01", "status": "planowany", "termin": "2027-09-22"}, {"id": "HORIZON-CL6-2027-02", "status": "planowany", "termin": "2027-09-23"}, {"id": "HORIZON-CL5-2027-06", "status": "planowany", "termin": "2027-10-07"}, {"id": "HORIZON-CL5-2027-07", "status": "planowany", "termin": "2027-12-01"}, {"id": "HORIZON-CL4-2027-07", "status": "planowany", "termin": "2028-01-20"}];
     var over = {}, pover = {}, kover = {}, expanded = {}, LIMIT = 8;
     try { over = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { over = {}; }
     try { pover = JSON.parse(localStorage.getItem(PKEY) || '{}'); } catch (e) { pover = {}; }
@@ -727,14 +725,14 @@ a.tab, a.tab:hover { text-decoration: none; }
         psel.appendChild(o);
       });
       psel.addEventListener('change', function () { setPula(r, psel.value); });
-      var ksel = document.createElement('select'); ksel.className = 'bz-sel'; ksel.setAttribute('aria-label', 'Kierownik z WI: ' + r.temat);
-      var none = document.createElement('option'); none.value = ''; none.textContent = '— bez kierownika z WI —'; ksel.appendChild(none);
-      STAFF.forEach(function (n) {
-        var o = document.createElement('option'); o.value = n; o.textContent = n;
-        if (n === kierWiOf(r)) o.selected = true;
-        ksel.appendChild(o);
+      var ksel = document.createElement('input'); ksel.type = 'text'; ksel.className = 'bz-sel'; ksel.value = kierWiOf(r);
+      ksel.setAttribute('list', 'bz-staff'); ksel.setAttribute('autocomplete', 'off'); ksel.placeholder = 'Wpisz nazwisko z WI…';
+      ksel.setAttribute('aria-label', 'Kierownik z WI: ' + r.temat);
+      ksel.addEventListener('change', function () {
+        var v = ksel.value.trim();
+        if (v && STAFF.indexOf(v) === -1) { msg.textContent = 'Wybierz nazwisko z podpowiedzi (lista pracowników WI).'; ksel.value = kierWiOf(r); return; }
+        setKier(r, v);
       });
-      ksel.addEventListener('change', function () { setKier(r, ksel.value); });
       var edit = document.createElement('details'); edit.className = 'bz-edit';
       var es = document.createElement('summary'); es.textContent = 'Edytuj: etap, pula, kierownik';
       edit.append(es, sel, psel, ksel);
@@ -813,22 +811,16 @@ a.tab, a.tab:hover { text-decoration: none; }
       render();
     });
 
-    document.getElementById('bz-reset').addEventListener('click', function () {
-      if (!Object.keys(over).length && !Object.keys(pover).length && !Object.keys(kover).length) { msg.textContent = 'Nie ma ręcznych zmian do przywrócenia.'; return; }
-      if (!confirm('Przywrócić dane domyślne? Ręczne etapy, pule i kierownicy w tej przeglądarce zostaną usunięte.')) return;
-      var prev = {over: over, pover: pover, kover: kover};
-      over = {}; pover = {}; kover = {}; save(); fillFilters(); render();
-      msg.innerHTML = '';
-      msg.append('Przywrócono dane domyślne. ');
-      var u = document.createElement('button'); u.type = 'button'; u.className = 'link-btn'; u.textContent = 'Cofnij';
-      u.addEventListener('click', function () { over = prev.over; pover = prev.pover; kover = prev.kover; save(); fillFilters(); render(); msg.textContent = 'Cofnięto przywrócenie.'; });
-      msg.append(u);
-    });
 
+    function teamOf(id) {
+      try { var c = (JSON.parse(localStorage.getItem('bm-projekty-v1') || '{}').cards || {})[id] || {}; return c.people || []; } catch (e) { return []; }
+    }
     document.getElementById('bz-csv').addEventListener('click', function () {
       var q = function (v) { return '"' + String(v).replace(/"/g, '""') + '"'; };
-      var lines = [['Nazwa', 'Temat', 'Kierownik', 'Kierownik (WI)', 'Rozpoczęcie', 'Zakończenie', 'Kwota (PLN)', 'Nr umowy', 'Zleceniodawca', 'Pula', 'Etap']].concat(
-        shownRows().map(function (r) { return [r.nazwa || '', r.temat, r.kierownik, kierWiOf(r), r.start, r.koniec, r.kwota || '', r.nr_umowy || '', r.zleceniodawca, PLBL[pulaOf(r)], LBL[stanOf(r)]]; }));
+      var head = ['Typ', 'Nazwa', 'Temat', 'Kierownik', 'Kierownik (WI)', 'Rozpoczęcie', 'Zakończenie / termin', 'Kwota (PLN)', 'Nr umowy', 'Zleceniodawca', 'Pula', 'Zespół na tablicy', 'Etap'];
+      var lines = [head].concat(
+        shownRows().map(function (r) { return ['projekt', r.nazwa || '', r.temat, r.kierownik, kierWiOf(r), r.start, r.koniec, r.kwota || '', r.nr_umowy || '', r.zleceniodawca, PLBL[pulaOf(r)], '', LBL[stanOf(r)]]; }),
+        NABORY.map(function (n) { return ['nabór UE', n.id, '', '', '', '', n.termin, '', '', 'SEDIA', '', teamOf(n.id).join(', '), n.status]; }));
       var csv = '\ufeff' + lines.map(function (r) { return r.map(q).join(';'); }).join('\r\n');
       var a = document.createElement('a');
       a.href = URL.createObjectURL(new Blob([csv], {type: 'text/csv;charset=utf-8'}));
@@ -850,28 +842,13 @@ a.tab, a.tab:hover { text-decoration: none; }
       w.document.close(); w.focus(); w.print();
     });
 
+    document.getElementById('bz-staff').innerHTML = STAFF.map(function (n) { return '<option value="' + esc(n) + '"></option>'; }).join('');
     fillFilters();
     render();
   })();
   </script>
 
 
-  <details class="pj-new">
-  <summary class="pj-label">Dodaj nowy projekt (z zewnątrz lub z naboru)</summary>
-  <div class="pj-form">
-    <div class="pj-form-grid">
-      <div><input id="pj-new-title" type="text" placeholder="Nazwa projektu" aria-label="Nazwa projektu"></div>
-      <div><select id="pj-new-source" aria-label="Źródło projektu"><option value="Nabór UE">Nabór UE</option><option value="Partner zewnętrzny">Partner zewnętrzny</option><option value="Inne">Inne</option></select></div>
-      <div><select id="pj-new-call" aria-label="Nabór"><option value="">Bez naboru</option></select></div>
-      <div><select id="pj-new-program" aria-label="Program"><option value="Dane i AI">Dane i AI</option><option value="Cyfryzacja">Cyfryzacja</option><option value="Przemysł">Przemysł</option><option value="Energia i środowisko">Energia i środowisko</option><option value="Zdrowie">Zdrowie</option><option value="Inne">Inne</option></select></div>
-      <div><select id="pj-new-role" aria-label="Typ roli"><option value="badawcza">badawcza</option><option value="zarządcza">zarządcza</option><option value="wdrożeniowa">wdrożeniowa</option><option value="komunikacja">komunikacja</option></select></div>
-      <div><input id="pj-new-term" type="date" aria-label="Termin składania lub zakończenia"></div>
-      <div class="wide"><input id="pj-new-slowa" type="text" placeholder="Słowa kluczowe, po przecinku (np. digital twin, AI)"></div>
-      <div class="wide"><textarea id="pj-new-opis" rows="2" placeholder="Krótki opis: czego dotyczy projekt"></textarea></div>
-    </div>
-    <button id="pj-new-btn" class="btn btn-primary" type="button" style="margin-top:.8rem">Dodaj do Przyszłych</button>
-  </div>
-  </details>
 
   <div class="pj-layout">
     <aside class="pj-side">
@@ -913,7 +890,7 @@ a.tab, a.tab:hover { text-decoration: none; }
       </div>
     </aside>
     <div>
-      <div class="pj-actions"><button id="pj-csv" class="btn" type="button">Pobierz tablicę naborów (CSV)</button><span class="pj-meta" id="pj-hidden" hidden></span></div>
+      <div class="pj-actions"><span class="pj-meta" id="pj-hidden" hidden></span></div>
       <div class="pj-board" id="pj-board"></div>
     </div>
   </div>
@@ -958,8 +935,7 @@ a.tab, a.tab:hover { text-decoration: none; }
 
   function allProjects(){
     const base = DATA.projects.map(p => Object.assign({}, p, st.cards[p.id] || {}));
-    const custom = st.custom.map(p => Object.assign({}, p, st.cards[p.id] || {}));
-    return base.concat(custom);
+    return base;
   }
   function update(id, patch){
     st.cards[id] = Object.assign({}, st.cards[id] || {}, patch);
@@ -1080,28 +1056,6 @@ a.tab, a.tab:hover { text-decoration: none; }
       h.textContent = hidden ? hidden + ' naborów zamkniętych nie jest na tablicy (są poza tym widokiem).' : '';
     })();
   }
-  const newCall = $('pj-new-call');
-  DATA.projects.forEach(p => { const o = document.createElement('option'); o.value = p.id; o.textContent = p.id; newCall.appendChild(o); });
-  $('pj-new-btn').addEventListener('click', () => {
-    const title = $('pj-new-title').value.trim();
-    if (!title) return;
-    const call = newCall.value;
-    const base = DATA.projects.find(p => p.id === call);
-    const slowa = $('pj-new-slowa').value.split(',').map(s => s.trim()).filter(Boolean);
-    const term = $('pj-new-term').value;
-    toast('Dodano projekt do etapu Przyszłe');
-    st.custom.push({
-      id: 'custom-' + Date.now(), title: title,
-      opis: $('pj-new-opis').value.trim(),
-      source: $('pj-new-source').value, program: $('pj-new-program').value, typ: $('pj-new-role').value,
-      slowa: slowa, term: term,
-      start: '', deadlines: base ? base.deadlines : (term ? [term] : []),
-      status: call ? 'nabór ' + call : 'bez naboru',
-      column: 'przyszle', tematy: base ? base.tematy : [], people: []
-    });
-    ['pj-new-title', 'pj-new-opis', 'pj-new-slowa', 'pj-new-term'].forEach(id => $(id).value = '');
-    save(); render();
-  });
   ['pj-q', 'pj-status', 'pj-source', 'pj-program', 'pj-role', 'pj-person', 'pj-deadline'].forEach(id => $(id).addEventListener('input', render));
   document.querySelectorAll('.pj-col-cb').forEach(c => c.addEventListener('change', render));
   $('pj-reset').addEventListener('click', () => {
@@ -1109,22 +1063,6 @@ a.tab, a.tab:hover { text-decoration: none; }
     ['pj-status', 'pj-source', 'pj-program', 'pj-role', 'pj-person'].forEach(id => $(id).value = '');
     document.querySelectorAll('.pj-col-cb').forEach(c => c.checked = true);
     render();
-  });
-  $('pj-csv').addEventListener('click', () => {
-    const cols = ['nazwa', 'nabór', 'etap', 'status', 'termin', 'źródło', 'program', 'typ roli', 'słowa kluczowe', 'osoby w zespole'];
-    const colName = c => (DATA.columns.find(x => x[0] === c) || [c, c])[1];
-    const q = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
-    const rows = allProjects().map(p => [
-      p.title, p.id, colName(p.column), p.status || '',
-      (p.deadlines && p.deadlines.length ? p.deadlines.join(' | ') : (p.term || '')),
-      p.source || '', p.program || '', p.typ || '',
-      (p.slowa || []).join(', '), (p.people || []).join(', ')
-    ].map(q).join(';'));
-    const csv = '\ufeff' + cols.map(q).join(';') + '\r\n' + rows.join('\r\n');
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([csv], {type: 'text/csv;charset=utf-8'}));
-    a.download = 'projekty_' + DATA.today + '.csv';
-    document.body.appendChild(a); a.click(); a.remove();
   });
   render();
   setInterval(async () => {
