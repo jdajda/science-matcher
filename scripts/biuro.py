@@ -407,6 +407,18 @@ BASE_TEMPLATE = r'''  <section id="pj-baza" class="pj-base">
 '''
 
 
+def nabory_status():
+    meta_path = ROOT / "data" / "nabory_aktualizacja.json"
+    if not meta_path.exists():
+        return "Dane z SEDIA: brak daty aktualizacji."
+    meta = json.loads(meta_path.read_text(encoding="utf-8"))
+    d = datetime.date.fromisoformat(meta["aktualizacja"])
+    txt = "Dane z SEDIA z " + d.strftime("%d.%m.%Y") + " (" + str(meta.get("naborow", "")) + " naborów)."
+    if (datetime.date.today() - d).days > 14:
+        txt += " Dane są starsze niż 14 dni. Uruchom scripts/odswiez_nabory.py."
+    return txt
+
+
 def render():
     head, header, theme_js = dp.site_parts()
     head = head.replace("Dopasowanie do naboru · Mapa badawcza WI AGH", "Projekty · Mapa badawcza WI AGH")
@@ -547,7 +559,7 @@ def render():
       </div>
     </aside>
     <div>
-      <div class="pj-actions"><span class="pj-meta" id="pj-hidden" hidden></span></div>
+      <div class="pj-actions"><span class="pj-meta">{h.escape(nabory_status())}</span><span class="pj-meta" id="pj-hidden" hidden></span></div>
       <div class="pj-board" id="pj-board"></div>
     </div>
   </div>

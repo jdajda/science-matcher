@@ -1,0 +1,966 @@
+{
+ "Achtelik Wojciech": {
+  "stopien": "mgr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/wojciech-achtelik-11165.html",
+  "tytul_strony": "mgr inż. Wojciech  Achtelik — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Albrycht Izabela": {
+  "stopien": "mgr",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/izabela-albrycht-10035.html",
+  "tytul_strony": "mgr Izabela  Albrycht — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Alda Witold": {
+  "stopien": "dr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/witold-alda-24.html",
+  "tytul_strony": "dr inż. Witold  Alda — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Aleksandrowicz Maciej": {
+  "stopien": "mgr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/maciej-aleksandrowicz-10290.html",
+  "tytul_strony": "mgr inż. Maciej  Aleksandrowicz — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Baliś Bartosz": {
+  "stopien": "dr hab. inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/bartosz-balis-5479.html",
+  "tytul_strony": "dr hab. inż. Bartosz  Baliś — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Bałamut Anna": null,
+ "Boryczko Krzysztof": {
+  "stopien": "prof. dr hab. inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/krzysztof-boryczko-257.html",
+  "tytul_strony": "prof. dr hab. inż. Krzysztof  Boryczko — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Brodzicki Andrzej": {
+  "stopien": "dr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/andrzej-brodzicki-9722.html",
+  "tytul_strony": "dr inż. Andrzej  Brodzicki — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Brzoza-Zajęcka Ada": {
+  "stopien": "dr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/ada-brzoza-zajecka-7830.html",
+  "tytul_strony": "dr inż. Ada  Brzoza-Zajęcka — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Byrski Aleksander": {
+  "stopien": "prof. dr hab. inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/aleksander-byrski-5325.html",
+  "tytul_strony": "prof. dr hab. inż. Aleksander  Byrski — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Capała Karol": {
+  "stopien": "dr",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/karol-capala-10335.html",
+  "tytul_strony": "dr Karol  Capała — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Chodak Paweł": {
+  "stopien": "dr hab. inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/pawel-chodak-9178.html",
+  "tytul_strony": "dr hab. inż. Paweł  Chodak — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Crimi Alessandro": {
+  "stopien": "dr",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/alessandro-crimi-10336.html",
+  "tytul_strony": "dr Alessandro  Crimi — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Czech Wojciech": {
+  "stopien": "dr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/wojciech-czech-7602.html",
+  "tytul_strony": "dr inż. Wojciech  Czech — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Czekierda Łukasz": {
+  "stopien": "dr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/lukasz-czekierda-4898.html",
+  "tytul_strony": "dr inż. Łukasz  Czekierda — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Dajda Jacek": {
+  "stopien": "dr hab. inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/jacek-dajda-6637.html",
+  "tytul_strony": "dr hab. inż. Jacek  Dajda — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Dekster Monika": {
+  "stopien": "dr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/monika-dekster-5344.html",
+  "tytul_strony": "dr inż. Monika  Dekster — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Dębski Roman": {
+  "stopien": "dr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/roman-debski-7742.html",
+  "tytul_strony": "dr inż. Roman  Dębski — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Długopolski Jacek": {
+  "stopien": "dr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/jacek-dlugopolski-6004.html",
+  "tytul_strony": "dr inż. Jacek  Długopolski — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Dobrowolski Grzegorz": {
+  "stopien": "prof. dr hab. inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/grzegorz-dobrowolski-581.html",
+  "tytul_strony": "prof. dr hab. inż. Grzegorz  Dobrowolski — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Dobrzyński Krystian": null,
+ "Dreżewski Rafał": {
+  "stopien": "dr hab. inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/rafal-drezewski-5341.html",
+  "tytul_strony": "dr hab. inż. Rafał  Dreżewski — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Duda Piotr": {
+  "stopien": "dr hab.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/piotr-duda-10721.html",
+  "tytul_strony": "dr hab. Piotr  Duda — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Dzwinel Witold": {
+  "stopien": "prof. dr hab. inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/witold-dzwinel-686.html",
+  "tytul_strony": "prof. dr hab. inż. Witold  Dzwinel — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Eckes Maria": {
+  "stopien": "dr",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/maria-eckes-kondak-7423.html",
+  "tytul_strony": "dr Maria  Eckes-Kondak — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Faber Kamil": {
+  "stopien": "dr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/kamil-faber-11004.html",
+  "tytul_strony": "dr inż. Kamil  Faber — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Faliszewski Piotr": {
+  "stopien": "prof. dr hab. inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/piotr-faliszewski-6923.html",
+  "tytul_strony": "prof. dr hab. inż. Piotr  Faliszewski — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Funika Włodzimierz": {
+  "stopien": "dr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/wlodzimierz-funika-4909.html",
+  "tytul_strony": "dr inż. Włodzimierz  Funika — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Gajewski Paweł": {
+  "stopien": "dr",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/pawel-gajewski-10012.html",
+  "tytul_strony": "dr Paweł  Gajewski — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Gajęcki Marek": {
+  "stopien": "dr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/marek-gajecki-813.html",
+  "tytul_strony": "dr inż. Marek  Gajęcki — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Gaska Krzysztof": {
+  "stopien": "prof. dr hab. inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/krzysztof-gaska-10407.html",
+  "tytul_strony": "prof. dr hab. inż. Krzysztof  Gaska — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Głut Barbara": {
+  "stopien": "dr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/barbara-glut-991.html",
+  "tytul_strony": "dr inż. Barbara  Głut — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Golizda Marcin": {
+  "stopien": "mgr",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/marcin-golizda-8835.html",
+  "tytul_strony": "mgr Marcin  Golizda — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Grzanka Leszek": {
+  "stopien": "dr",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/leszek-grzanka-8485.html",
+  "tytul_strony": "dr Leszek  Grzanka — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Guzowski Hubert": {
+  "stopien": "mgr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/hubert-guzowski-11173.html",
+  "tytul_strony": "mgr inż. Hubert  Guzowski — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Heller Krzysztof": {
+  "stopien": "dr",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/krzysztof-heller-10435.html",
+  "tytul_strony": "dr Krzysztof  Heller — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Heryan Katarzyna": {
+  "stopien": "mgr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/katarzyna-heryan-8212.html",
+  "tytul_strony": "mgr inż. Katarzyna  Heryan — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Idzik Michał": {
+  "stopien": "dr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/michal-idzik-8745.html",
+  "tytul_strony": "dr inż. Michał  Idzik — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Janeczko Łukasz": {
+  "stopien": "mgr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/lukasz-janeczko-11001.html",
+  "tytul_strony": "mgr inż. Łukasz  Janeczko — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Jarosz Mateusz": {
+  "stopien": "mgr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/mateusz-jarosz-9231.html",
+  "tytul_strony": "mgr inż. Mateusz  Jarosz — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Jaworek-Korjakowska Joanna": {
+  "stopien": "dr hab. inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/joanna-jaworek-korjakowska-6930.html",
+  "tytul_strony": "dr hab. inż. Joanna  Jaworek-Korjakowska — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Kacprzyk Janusz": {
+  "stopien": "prof. dr hab. inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/janusz-kacprzyk-9820.html",
+  "tytul_strony": "prof. dr hab. inż. Janusz  Kacprzyk — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Karcz-Nawrocka Karolina": {
+  "stopien": "dr",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/karolina-karcz-nawrocka-11161.html",
+  "tytul_strony": "dr Karolina  Karcz-Nawrocka — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Kica Piotr": null,
+ "Kisiel-Dorohinicki Marek": {
+  "stopien": "prof. dr hab. inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/marek-kisiel-dorohinicki-4738.html",
+  "tytul_strony": "prof. dr hab. inż. Marek  Kisiel-Dorohinicki — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Klima Jan": {
+  "stopien": "mgr",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/jan-klima-10167.html",
+  "tytul_strony": "mgr Jan  Klima — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Knapik Ida": {
+  "blad": "HTTP Error 308: Permanent Redirect",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/ida-knapik-10574.html"
+ },
+ "Konieczny Marek": {
+  "stopien": "mgr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/marek-konieczny-8480.html",
+  "tytul_strony": "mgr inż. Marek  Konieczny — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Kopeć Sławomir": {
+  "stopien": "dr",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/slawomir-kopec-8062.html",
+  "tytul_strony": "dr Sławomir  Kopeć — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Kosińska Joanna": {
+  "stopien": "dr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/joanna-kosinska-5339.html",
+  "tytul_strony": "dr inż. Joanna  Kosińska — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Kościółek Tomasz": {
+  "stopien": "dr",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/tomasz-kosciolek-10729.html",
+  "tytul_strony": "dr Tomasz  Kościółek — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Król Magdalena": {
+  "stopien": "mgr",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/magdalena-krol-9432.html",
+  "tytul_strony": "mgr Magdalena  Król — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Kryza Bartosz": null,
+ "Kurdziel Marcin": {
+  "stopien": "dr hab. inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/marcin-kurdziel-7281.html",
+  "tytul_strony": "dr hab. inż. Marcin  Kurdziel — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Kuta Marcin": {
+  "stopien": "dr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/marcin-kuta-5738.html",
+  "tytul_strony": "dr inż. Marcin  Kuta — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Kwolek Bogdan": {
+  "stopien": "prof. dr hab. inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/bogdan-kwolek-7604.html",
+  "tytul_strony": "prof. dr hab. inż. Bogdan  Kwolek — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Liput Jakub": null,
+ "Łazarz Radosław": {
+  "stopien": "dr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/radoslaw-lazarz-8728.html",
+  "tytul_strony": "dr inż. Radosław  Łazarz — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Łoś Marcin": {
+  "stopien": "dr hab. inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/marcin-los-8479.html",
+  "tytul_strony": "dr hab. inż. Marcin  Łoś — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Maczuga Paweł": {
+  "stopien": "mgr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/pawel-maczuga-10726.html",
+  "tytul_strony": "mgr inż. Paweł  Maczuga — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Maj Bernard": {
+  "stopien": "dr",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/bernard-maj-9728.html",
+  "tytul_strony": "dr Bernard  Maj — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Majerz Emilia": {
+  "stopien": "mgr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/emilia-majerz-10470.html",
+  "tytul_strony": "mgr inż. Emilia  Majerz — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Malawski Maciej": {
+  "stopien": "dr hab. inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/maciej-malawski-5348.html",
+  "tytul_strony": "dr hab. inż. Maciej  Malawski — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Mańdziuk Jacek": {
+  "stopien": "prof. dr hab. inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/jacek-mandziuk-9821.html",
+  "tytul_strony": "prof. dr hab. inż. Jacek  Mańdziuk — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Marcjan Robert": {
+  "stopien": "dr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/robert-marcjan-2041.html",
+  "tytul_strony": "dr inż. Robert  Marcjan — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Mus-Frosik Malwina": {
+  "stopien": "dr",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/malwina-mus-frosik-9294.html",
+  "tytul_strony": "dr Malwina  Mus-Frosik — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Nawrocki Piotr": {
+  "stopien": "prof. dr hab. inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/piotr-nawrocki-4897.html",
+  "tytul_strony": "prof. dr hab. inż. Piotr  Nawrocki — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Nawrot Jacek": {
+  "stopien": "mgr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/jacek-nawrot-10728.html",
+  "tytul_strony": "mgr inż. Jacek  Nawrot — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Nikolow Darin": null,
+ "Nowicki Robert": {
+  "stopien": "prof. dr hab. inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/robert-nowicki-10723.html",
+  "tytul_strony": "prof. dr hab. inż. Robert  Nowicki — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Ogiela Lidia": {
+  "stopien": "prof. dr hab.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/lidia-dominika-ogiela-9818.html",
+  "tytul_strony": "prof. dr hab. Lidia Dominika Ogiela — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Ogiela Urszula": {
+  "stopien": "dr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/urszula-izydora-ogiela-9819.html",
+  "tytul_strony": "dr inż. Urszula Izydora Ogiela — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Orzechowski Michał": null,
+ "Panasiewicz Alicja": {
+  "stopien": "prof. dr hab.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/alicja-panasiewicz-10880.html",
+  "tytul_strony": "prof. dr hab. Alicja  Panasiewicz — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Paszyńska Anna": {
+  "stopien": "dr hab.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/anna-paszynska-10332.html",
+  "tytul_strony": "dr hab. Anna  Paszyńska — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Paszyński Maciej": {
+  "stopien": "prof. dr hab.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/maciej-paszynski-6270.html",
+  "tytul_strony": "prof. dr hab. Maciej  Paszyński — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Pełech-Pilichowski Tomasz": {
+  "stopien": "dr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/tomasz-pelech-pilichowski-5726.html",
+  "tytul_strony": "dr inż. Tomasz  Pełech-Pilichowski — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Piętak Anna": {
+  "stopien": "mgr",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/anna-pietak-10274.html",
+  "tytul_strony": "mgr Anna  Piętak — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Piętak Kamil": {
+  "stopien": "dr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/kamil-pietak-8481.html",
+  "tytul_strony": "dr inż. Kamil  Piętak — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Polak Stanisław": {
+  "stopien": "dr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/stanislaw-polak-4299.html",
+  "tytul_strony": "dr inż. Stanisław  Polak — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Raczek Agnieszka": null,
+ "Rutkowski Leszek": {
+  "stopien": "prof. dr hab. inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/leszek-rutkowski-9956.html",
+  "tytul_strony": "prof. dr hab. inż. Leszek  Rutkowski — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Rycerz Katarzyna": {
+  "stopien": "dr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/katarzyna-rycerz-5347.html",
+  "tytul_strony": "dr inż. Katarzyna  Rycerz — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Schaefer Robert": {
+  "stopien": "prof. dr hab. inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/robert-schaefer-6225.html",
+  "tytul_strony": "prof. dr hab. inż. Robert  Schaefer — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Scherer Rafał": {
+  "stopien": "prof. dr hab. inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/rafal-scherer-10722.html",
+  "tytul_strony": "prof. dr hab. inż. Rafał  Scherer — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Sieciński Szymon": {
+  "stopien": "dr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/szymon-siecinski-11172.html",
+  "tytul_strony": "dr inż. Szymon  Sieciński — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Słota Renata": {
+  "stopien": "dr hab. inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/renata-slota-3386.html",
+  "tytul_strony": "dr hab. inż. Renata  Słota — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Służalec Tomasz": {
+  "stopien": "dr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/tomasz-sluzalec-10276.html",
+  "tytul_strony": "dr inż. Tomasz  Służalec — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Smołka Maciej": {
+  "stopien": "dr hab.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/maciej-smolka-7603.html",
+  "tytul_strony": "dr hab. Maciej  Smołka — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Smywiński-Pohl Aleksander": {
+  "stopien": "dr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/aleksander-smywinski-pohl-8486.html",
+  "tytul_strony": "dr inż. Aleksander  Smywiński-Pohl — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Sornat Krzysztof": {
+  "stopien": "dr",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/krzysztof-sornat-10984.html",
+  "tytul_strony": "dr Krzysztof  Sornat — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Straś Robert": {
+  "stopien": "dr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/robert-stras-6433.html",
+  "tytul_strony": "dr inż. Robert  Straś — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Suder Dawid": {
+  "stopien": "mgr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/dawid-suder-8513.html",
+  "tytul_strony": "mgr inż. Dawid  Suder — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Szydło Tomasz": {
+  "stopien": "dr hab. inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/tomasz-szydlo-7283.html",
+  "tytul_strony": "dr hab. inż. Tomasz  Szydło — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Śnieżyński Bartłomiej": {
+  "stopien": "dr hab. inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/bartlomiej-sniezynski-4899.html",
+  "tytul_strony": "dr hab. inż. Bartłomiej  Śnieżyński — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Titova Olha": null,
+ "Topa Paweł": {
+  "stopien": "dr hab. inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/pawel-topa-5343.html",
+  "tytul_strony": "dr hab. inż. Paweł  Topa — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Trawińska Anna": null,
+ "Turek Wojciech": {
+  "stopien": "dr hab. inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/wojciech-turek-6937.html",
+  "tytul_strony": "dr hab. inż. Wojciech  Turek — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Urbańczyk Aleksandra": {
+  "stopien": "mgr",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/aleksandra-urbanczyk-8620.html",
+  "tytul_strony": "mgr Aleksandra  Urbańczyk — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Vilkha Askold": {
+  "stopien": "mgr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/askold-vilkha-11162.html",
+  "tytul_strony": "mgr inż. Askold  Vilkha — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Wcisło Rafał": {
+  "stopien": "dr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/rafal-wcislo-3583.html",
+  "tytul_strony": "dr inż. Rafał  Wcisło — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Wierzańska Magdalena": {
+  "stopien": "mgr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/magdalena-wierzanska-11163.html",
+  "tytul_strony": "mgr inż. Magdalena  Wierzańska — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Woźniak Maciej": {
+  "stopien": "dr hab. inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/maciej-wozniak-8484.html",
+  "tytul_strony": "dr hab. inż. Maciej  Woźniak — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Wójcicka Anna": {
+  "stopien": "dr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/anna-malgorzata-wojcicka-9712.html",
+  "tytul_strony": "dr inż. Anna Małgorzata Wójcicka — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Wójcik Daria": {
+  "stopien": "mgr",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/daria-wojcik-10273.html",
+  "tytul_strony": "mgr Daria  Wójcik — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Zaborowski Wojciech": {
+  "stopien": "dr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/wojciech-zaborowski-4303.html",
+  "tytul_strony": "dr inż. Wojciech  Zaborowski — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Zajęcka-Bebel Małgorzata": {
+  "blad": "HTTP Error 308: Permanent Redirect",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/malgorzata-zajecka-10277.html"
+ },
+ "Zasada Mikołaj": null,
+ "Zieliński Krzysztof": {
+  "stopien": "prof. dr hab. inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/krzysztof-zielinski-3902.html",
+  "tytul_strony": "prof. dr hab. inż. Krzysztof  Zieliński — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Zieliński Sławomir": {
+  "stopien": "dr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/slawomir-zielinski-5170.html",
+  "tytul_strony": "dr inż. Sławomir  Zieliński — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Ziółko Bartosz": {
+  "stopien": "dr hab. inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/bartosz-ziolko-11171.html",
+  "tytul_strony": "dr hab. inż. Bartosz  Ziółko — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Adamiec Ewa": {
+  "stopien": "dr hab. inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/ewa-adamiec-5892.html",
+  "tytul_strony": "dr hab. inż. Ewa  Adamiec — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Bonczarowski Tomasz": {
+  "stopien": "mgr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/tomasz-bonczarowski-9801.html",
+  "tytul_strony": "mgr inż. Tomasz  Bonczarowski — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Friebe Michael": {
+  "stopien": "dr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/michael-friebe-9832.html",
+  "tytul_strony": "dr inż. Michael  Friebe — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Kapica Karolina": null,
+ "Kołodziejczyk Robert": {
+  "stopien": "",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/robert-kolodziejczyk-7944.html",
+  "tytul_strony": " Robert  Kołodziejczyk — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Kordeczka Łukasz": {
+  "stopien": "mgr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/lukasz-kordeczka-8980.html",
+  "tytul_strony": "mgr inż. Łukasz  Kordeczka — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Kożuch Tomasz": {
+  "stopien": "inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/tomasz-kozuch-10739.html",
+  "tytul_strony": "inż. Tomasz  Kożuch — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Kusak Maksymilian": {
+  "stopien": "dr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/maksymilian-kusak-10993.html",
+  "tytul_strony": "dr inż. Maksymilian  Kusak — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Kwiatkowska Katarzyna": {
+  "stopien": "mgr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/katarzyna-kwiatkowska-9958.html",
+  "tytul_strony": "mgr inż. Katarzyna  Kwiatkowska — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Listopad Anna": {
+  "stopien": "mgr",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/anna-listopad-10271.html",
+  "tytul_strony": "mgr Anna  Listopad — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Majewska Marta": {
+  "stopien": "mgr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/marta-majewska-10992.html",
+  "tytul_strony": "mgr inż. Marta  Majewska — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Masłowska Adrianna": {
+  "stopien": "lic.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/adrianna-maslowska-11326.html",
+  "tytul_strony": "lic. Adrianna  Masłowska — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Micek Dorota": null,
+ "Mirowski Paweł": {
+  "stopien": "mgr",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/pawel-leszek-mirowski-9627.html",
+  "tytul_strony": "mgr Paweł Leszek Mirowski — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Motyka Anna": {
+  "stopien": "mgr",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/anna-motyka-10486.html",
+  "tytul_strony": "mgr Anna  Motyka — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Mularczyk-Mędrykowska Paulina": {
+  "stopien": "mgr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/paulina-mularczyk-medrykowska-6513.html",
+  "tytul_strony": "mgr inż. Paulina  Mularczyk-Mędrykowska — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Nejranowska Kornelia": {
+  "stopien": "mgr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/kornelia-nejranowska-10133.html",
+  "tytul_strony": "mgr inż. Kornelia  Nejranowska — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Nowak Weronika": {
+  "stopien": "mgr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/weronika-nowak-9971.html",
+  "tytul_strony": "mgr inż. Weronika  Nowak — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Rybka Tomasz": {
+  "stopien": "mgr",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/tomasz-rybka-10272.html",
+  "tytul_strony": "mgr Tomasz  Rybka — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Samól Maciej": {
+  "stopien": "",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/maciej-samol-10990.html",
+  "tytul_strony": " Maciej  Samól — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Sitkowska Aleksandra": {
+  "stopien": "mgr",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/aleksandra-sitkowska-11196.html",
+  "tytul_strony": "mgr Aleksandra  Sitkowska — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Sobczak-Firlej Izabela": {
+  "stopien": "mgr",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/izabela-sobczak-firlej-11025.html",
+  "tytul_strony": "mgr Izabela  Sobczak-Firlej — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Szewel Jakub": {
+  "stopien": "",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/jakub-szewel-10996.html",
+  "tytul_strony": " Jakub  Szewel — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Świerad-Solińska Joanna": {
+  "stopien": "mgr",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/joanna-swierad-solinska-10151.html",
+  "tytul_strony": "mgr Joanna  Świerad-Solińska — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Tarnowska-Torbus Magdalena": {
+  "stopien": "mgr",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/magdalena-tarnowska-torbus-11064.html",
+  "tytul_strony": "mgr Magdalena  Tarnowska-Torbus — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Tęcza Olga": {
+  "stopien": "mgr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/olga-tecza-9973.html",
+  "tytul_strony": "mgr inż. Olga  Tęcza — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Trojańska Monika": {
+  "stopien": "",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/monika-trojanska-6903.html",
+  "tytul_strony": " Monika  Trojańska — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Trojański Roman": {
+  "stopien": "",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/roman-trojanski-6008.html",
+  "tytul_strony": " Roman  Trojański — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Turek Paulina": {
+  "stopien": "mgr",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/paulina-turek-10474.html",
+  "tytul_strony": "mgr Paulina  Turek — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Waśniowski Tomasz": {
+  "stopien": "",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/tomasz-wasniowski-4873.html",
+  "tytul_strony": " Tomasz  Waśniowski — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Wirtel Weronika": null,
+ "Witkowski Krzysztof": {
+  "stopien": "mgr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/krzysztof-witkowski-10579.html",
+  "tytul_strony": "mgr inż. Krzysztof  Witkowski — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Bednarska Marta": {
+  "stopien": "mgr",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/marta-bednarska-10433.html",
+  "tytul_strony": "mgr Marta  Bednarska — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Biesiadecka Katarzyna": {
+  "stopien": "mgr",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/katarzyna-biesiadecka-9080.html",
+  "tytul_strony": "mgr Katarzyna  Biesiadecka — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Borczyńska Joanna": {
+  "stopien": "mgr",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/joanna-borczynska-7262.html",
+  "tytul_strony": "mgr Joanna  Borczyńska — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Chochół Monika": {
+  "stopien": "mgr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/monika-chochol-7571.html",
+  "tytul_strony": "mgr inż. Monika  Chochół — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Grzebinoga Maria": {
+  "stopien": "mgr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/maria-grzebinoga-7601.html",
+  "tytul_strony": "mgr inż. Maria  Grzebinoga — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Grzesik-Staroń Kinga": {
+  "stopien": "mgr",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/kinga-grzesik-staron-7453.html",
+  "tytul_strony": "mgr Kinga  Grzesik-Staroń — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Jawdyńska Joanna": {
+  "stopien": "mgr",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/joanna-jawdynska-9182.html",
+  "tytul_strony": "mgr Joanna  Jawdyńska — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Knapik-Mróz Dominika": {
+  "stopien": "mgr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/dominika-knapik-mroz-10417.html",
+  "tytul_strony": "mgr inż. Dominika  Knapik-Mróz — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Konieczna Jolanta": {
+  "stopien": "inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/jolanta-konieczna-1467.html",
+  "tytul_strony": "inż. Jolanta  Konieczna — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Kruszec Małgorzata": {
+  "stopien": "mgr",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/malgorzata-kruszec-8487.html",
+  "tytul_strony": "mgr Małgorzata  Kruszec — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Kumor Ewelina": {
+  "stopien": "mgr",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/ewelina-kumor-9787.html",
+  "tytul_strony": "mgr Ewelina  Kumor — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Maternowska Wiktoria": {
+  "stopien": "mgr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/wiktoria-maternowska-7452.html",
+  "tytul_strony": "mgr inż. Wiktoria  Maternowska — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Niziołek-Jarominek Katarzyna": {
+  "stopien": "mgr",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/katarzyna-niziolek-jarominek-4096.html",
+  "tytul_strony": "mgr Katarzyna  Niziołek-Jarominek — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Regulska Julia": null,
+ "Romek Łukasz": {
+  "stopien": "mgr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/lukasz-romek-10652.html",
+  "tytul_strony": "mgr inż. Łukasz  Romek — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Rzepka Agata": {
+  "stopien": "mgr",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/agata-rzepka-9185.html",
+  "tytul_strony": "mgr Agata  Rzepka — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Saracka Agnieszka": {
+  "stopien": "mgr",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/agnieszka-saracka-7866.html",
+  "tytul_strony": "mgr Agnieszka  Saracka — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Sebzda Dominika": {
+  "blad": "HTTP Error 308: Permanent Redirect",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/dominika-sebzda-9557.html"
+ },
+ "Skalna Agata": {
+  "stopien": "mgr",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/agata-skalna-10408.html",
+  "tytul_strony": "mgr Agata  Skalna — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Skotniczny Michał": {
+  "stopien": "inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/michal-skotniczny-6878.html",
+  "tytul_strony": "inż. Michał  Skotniczny — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Stach Aneta": {
+  "stopien": "mgr",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/aneta-stach-10995.html",
+  "tytul_strony": "mgr Aneta  Stach — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Stobiecki Filip": {
+  "stopien": "mgr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/filip-stobiecki-7654.html",
+  "tytul_strony": "mgr inż. Filip  Stobiecki — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Suchoń Magdalena": {
+  "stopien": "mgr",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/magdalena-suchon-7282.html",
+  "tytul_strony": "mgr Magdalena  Suchoń — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Sznicer Katarzyna": {
+  "stopien": "mgr",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/katarzyna-sznicer-10374.html",
+  "tytul_strony": "mgr Katarzyna  Sznicer — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Załęga Dominika": null,
+ "Bubak Marian": {
+  "stopien": "dr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/marian-bubak-302.html",
+  "tytul_strony": "dr inż. Marian  Bubak — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Dyduch Tadeusz": {
+  "stopien": "dr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/tadeusz-dyduch-5485.html",
+  "tytul_strony": "dr inż. Tadeusz  Dyduch — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Kitowski Jacek": {
+  "stopien": "prof. dr hab. inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/jacek-kitowski-1396.html",
+  "tytul_strony": "prof. dr hab. inż. Jacek  Kitowski — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Majewski Janusz": {
+  "stopien": "dr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/janusz-majewski-1996.html",
+  "tytul_strony": "dr inż. Janusz  Majewski — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Rakoczy Witold": {
+  "stopien": "mgr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/witold-rakoczy-2781.html",
+  "tytul_strony": "mgr inż. Witold  Rakoczy — SkOs AGH",
+  "pobrano": "2026-10-28"
+ },
+ "Żabińska-Rakoczy Małgorzata": {
+  "stopien": "dr inż.",
+  "zrodlo": "https://skos.agh.edu.pl/osoba/malgorzata-zabinska-rakoczy-4063.html",
+  "tytul_strony": "dr inż. Małgorzata  Żabińska-Rakoczy — SkOs AGH",
+  "pobrano": "2026-10-28"
+ }
+}
