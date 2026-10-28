@@ -527,7 +527,7 @@ a.tab, a.tab:hover { text-decoration: none; }
     <div class="acc-slot" id="account-slot"></div>
   </div>
 </header>
-<nav class="tabs" aria-label="Menu główne"><div class="container tabs-row"><a class="tab active" href="index.html" aria-current="page">Naukowcy</a><a class="tab" href="dopasowanie.html" data-role-only="biuro">Nabory</a><a class="tab" href="biuro.html" data-role-only="biuro">Projekty</a><a class="tab" href="panel.html">Zaproszenia</a><a class="tab" href="profil.html" data-role-only="naukowiec">Mój profil</a></div></nav><div class="seg-bar" role="navigation" aria-label="Widoki strony"><div class="container seg-row"><a class="tab seg-btn active" href="#ws-results">Wyniki</a><a class="tab seg-btn" href="#ws-team-box">Zespół</a></div></div>
+<nav class="tabs" aria-label="Menu główne"><div class="container tabs-row"><a class="tab active" href="index.html" aria-current="page">Naukowcy</a><a class="tab" href="biuro.html" data-role-only="biuro">Projekty</a><a class="tab" href="panel.html">Zaproszenia</a><a class="tab" href="profil.html" data-role-only="naukowiec">Mój profil</a></div></nav><div class="seg-bar" role="navigation" aria-label="Widoki strony"><div class="container seg-row"><a class="tab seg-btn active" href="#ws-results">Wyniki</a><a class="tab seg-btn" href="#ws-team-box">Zespół</a></div></div>
 
 <main class="container">
   <section class="hero-simple">
@@ -545,7 +545,7 @@ a.tab, a.tab:hover { text-decoration: none; }
       </div>
       <div class="side-block">
         <span class="side-label">Aktualność</span>
-        <select id="ws-recent">
+        <select id="ws-recent" aria-label="Aktualność prac">
           <option value="0">bez ograniczeń</option>
           <option value="2022">prace od 2022</option>
           <option value="2024">prace od 2024</option>
@@ -553,7 +553,7 @@ a.tab, a.tab:hover { text-decoration: none; }
       </div>
       <div class="side-block">
         <span class="side-label">Pokrycie potrzeb (min.)</span>
-        <select id="ws-min">
+        <select id="ws-min" aria-label="Minimalne dopasowanie">
           <option value="0">dowolne</option>
           <option value="0.5">co najmniej 50%</option>
           <option value="0.75">co najmniej 75%</option>
@@ -561,11 +561,11 @@ a.tab, a.tab:hover { text-decoration: none; }
       </div>
       <div class="side-block">
         <span class="side-label">Dziedzina badawcza</span>
-        <select id="ws-field"><option value="">wszystkie</option><option value="Agricultural and Biological Sciences">Agricultural and Biological Sciences</option><option value="Biochemistry, Genetics and Molecular Biology">Biochemistry, Genetics and Molecular Biology</option><option value="Business, Management and Accounting">Business, Management and Accounting</option><option value="Chemical Engineering">Chemical Engineering</option><option value="Computer Science">Computer Science</option><option value="Decision Sciences">Decision Sciences</option><option value="Economics, Econometrics and Finance">Economics, Econometrics and Finance</option><option value="Energy">Energy</option><option value="Engineering">Engineering</option><option value="Environmental Science">Environmental Science</option><option value="Materials Science">Materials Science</option><option value="Mathematics">Mathematics</option><option value="Medicine">Medicine</option><option value="Neuroscience">Neuroscience</option><option value="Physics and Astronomy">Physics and Astronomy</option><option value="Psychology">Psychology</option><option value="Social Sciences">Social Sciences</option></select>
+        <select id="ws-field" aria-label="Dziedzina"><option value="">wszystkie</option><option value="Agricultural and Biological Sciences">Agricultural and Biological Sciences</option><option value="Biochemistry, Genetics and Molecular Biology">Biochemistry, Genetics and Molecular Biology</option><option value="Business, Management and Accounting">Business, Management and Accounting</option><option value="Chemical Engineering">Chemical Engineering</option><option value="Computer Science">Computer Science</option><option value="Decision Sciences">Decision Sciences</option><option value="Economics, Econometrics and Finance">Economics, Econometrics and Finance</option><option value="Energy">Energy</option><option value="Engineering">Engineering</option><option value="Environmental Science">Environmental Science</option><option value="Materials Science">Materials Science</option><option value="Mathematics">Mathematics</option><option value="Medicine">Medicine</option><option value="Neuroscience">Neuroscience</option><option value="Physics and Astronomy">Physics and Astronomy</option><option value="Psychology">Psychology</option><option value="Social Sciences">Social Sciences</option></select>
       </div>
       <div class="side-block">
         <span class="side-label">Minimalna liczba prac</span>
-        <select id="ws-minw">
+        <select id="ws-minw" aria-label="Minimalna liczba prac">
           <option value="0">bez ograniczeń</option>
           <option value="10">co najmniej 10</option>
           <option value="30">co najmniej 30</option>
@@ -582,9 +582,9 @@ a.tab, a.tab:hover { text-decoration: none; }
       </div>
       <div class="side-block">
         <span class="side-label">Wkrótce (wymaga danych)</span>
-        <select disabled title="Wymaga danych z CWP"><option>Rola w projekcie</option></select>
-        <select disabled title="Wymaga rejestru szkoleń"><option>Certyfikat</option></select>
-        <select disabled title="Wymaga profilu dostępności"><option>Dostępność</option></select>
+        <select disabled aria-label="Rola w projekcie (wymaga danych z CWP)" title="Wymaga danych z CWP"><option>Rola w projekcie</option></select>
+        <select disabled aria-label="Certyfikat (wymaga rejestru szkoleń)" title="Wymaga rejestru szkoleń"><option>Certyfikat</option></select>
+        <select disabled aria-label="Dostępność (wymaga profilu dostępności)" title="Wymaga profilu dostępności"><option>Dostępność</option></select>
       </div>
       <div class="side-block">
         <button id="ws-reset" class="link-btn" type="button" style="text-align:left">Wyczyść</button>

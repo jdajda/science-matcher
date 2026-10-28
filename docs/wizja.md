@@ -84,7 +84,7 @@ EUCALLS jest punktem odniesienia: publiczny opis obejmuje wyszukiwanie finansowa
 
 **W7.** Wyszukiwarka udostępni filtry tematu, metody, roli, zastosowania, jednostki, doświadczenia projektowego, certyfikatu i dostępności. Rekomendacja pokaże spełnione potrzeby, dowody, braki oraz aktualność danych. Użytkownik porówna kandydatów i łączne pokrycie wymagań przez zespół. Liczba publikacji ani wcześniejsze kontakty nie będą jedyną podstawą rankingu.
 
-### Panel biura projektowego
+### Zaproszenia (panel biura projektowego)
 
 **W8.** Kanban będzie zawierał kolumny „Przyszłe”, „Otwarte”, „W trakcie realizacji” i „Zakończone”. Karta oznacza inicjatywę projektową AGH powiązaną z konkursem i tematem naboru. „Przyszłe” obejmują pomysły i przygotowanie do naboru; „Otwarte” obejmują przygotowanie, składanie i ocenę wniosku oraz przygotowanie umowy; „W trakcie realizacji” oznacza uruchomione projekty; „Zakończone” obejmuje rozliczone projekty i zamknięte inicjatywy z podanym wynikiem.
 

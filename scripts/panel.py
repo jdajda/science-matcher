@@ -132,8 +132,8 @@ table.pn-table th {{ color: var(--text2); font-weight: 600; font-size: .78rem; }
       <div class="pn-stack">
         <div class="pn-card">
           <h3 id="pn-who">Moje dane</h3>
-          <input id="pn-search" class="pn-pick" type="search" placeholder="Szukaj osoby po nazwisku…" style="margin-bottom:.5rem" hidden>
-          <select id="pn-person" class="pn-pick" hidden></select>
+          <input id="pn-search" class="pn-pick" type="search" aria-label="Szukaj osoby po nazwisku" placeholder="Szukaj osoby po nazwisku…" style="margin-bottom:.5rem" hidden>
+          <select id="pn-person" class="pn-pick" aria-label="Osoba" hidden></select>
           <div id="pn-person-card" style="margin-top:1rem"></div>
         </div>
         <div class="pn-card">
@@ -148,9 +148,9 @@ table.pn-table th {{ color: var(--text2); font-weight: 600; font-size: .78rem; }
         <label for="pf-szukam">Jakich kompetencji lub partnerów szukam</label>
         <textarea id="pf-szukam" rows="3"></textarea>
         <label for="pf-dost">Dostępność</label>
-        <select id="pf-dost"><option>do ustalenia</option><option>tak</option><option>nie</option></select>
+        <select id="pf-dost" aria-label="Dostępność"><option>do ustalenia</option><option>tak</option><option>nie</option></select>
         <label for="pf-zain">Zainteresowanie nowymi projektami</label>
-        <select id="pf-zain"><option>nie wiem</option><option>tak</option><option>nie</option></select>
+        <select id="pf-zain" aria-label="Zainteresowanie nowymi projektami"><option>nie wiem</option><option>tak</option><option>nie</option></select>
         <div style="margin-top:.9rem"><button class="pn-btn" id="pf-save" type="button">Zapisz profil</button> <span class="pn-small" id="pf-saved"></span></div>
         <p class="pn-note">Bez logowania zmiany są zapisywane lokalnie. Przed publikacją profil wymaga potwierdzenia właściciela (W1).</p>
       </div>
@@ -175,7 +175,7 @@ table.pn-table th {{ color: var(--text2); font-weight: 600; font-size: .78rem; }
 
     <div class="pn-pane active" id="pane-nabory">
       <div class="pn-filter">
-        <input id="bi-q" class="pn-pick" type="search" placeholder="Szukaj osoby albo naboru">
+        <input id="bi-q" class="pn-pick" type="search" aria-label="Szukaj osoby albo naboru" placeholder="Szukaj osoby albo naboru">
         <div class="pn-chips" id="bi-chips" role="group" aria-label="Filtr statusu"></div>
         <button class="pn-btn ghost" id="bi-approve-all" type="button">Zatwierdź wszystkie szkice</button>
       </div>
@@ -186,7 +186,7 @@ table.pn-table th {{ color: var(--text2); font-weight: 600; font-size: .78rem; }
     <div class="pn-pane" id="pane-nowe">
       <div class="pn-card pn-form" style="max-width:720px">
         <h3>Nowe zaproszenie (szkic)</h3>
-        <label for="zp-osoba">Osoba</label><select id="zp-osoba"></select>
+        <label for="zp-osoba">Osoba</label><input id="zp-osoba" list="zp-osoba-list" autocomplete="off" placeholder="Zacznij pisać nazwisko…"><datalist id="zp-osoba-list"></datalist><p class="pn-small" id="zp-osoba-info" aria-live="polite">Wybierz osobę z podpowiedzi z listy pracowników WI.</p>
         <label for="zp-nabor">Nabór</label><select id="zp-nabor"></select>
         <label for="zp-rola">Proponowana rola</label><select id="zp-rola"><option>badawcza</option><option>zarządcza</option><option>wdrożeniowa</option><option>komunikacja</option></select>
         <label for="zp-uzas">Uzasadnienie (krótko)</label><input id="zp-uzas" type="text" placeholder="np. publikacje z predykcji szeregów czasowych">
@@ -223,8 +223,9 @@ SCRIPT = """
 
 (async function(){
   const DATA = __DATA__;
-  const KEY = 'bm-panel-v2';
-  let st = await loadState(KEY, {profiles: {}, invites: []});
+  const KEY = 'bm-panel-v3';
+  const DEMO_INVITES = [{person: 'Eckes Maria', nabor: 'HORIZON-CL4-2027-01', rola: 'badawcza', uzas: 'publikacje z optymalizacji i analizy danych w projektach przemysłowych', status: 'wysłane', created: DATA.today, sent: DATA.today}];
+  let st = await loadState(KEY, {profiles: {}, invites: DEMO_INVITES});
   const save = () => saveState(KEY, st);
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const $ = id => document.getElementById(id);
@@ -258,6 +259,13 @@ SCRIPT = """
   }));
 
   /* ---------- NAUKOWIEC ---------- */
+  function showOsoba(){
+    const v = $('zp-osoba').value.trim();
+    const p = people.find(x => x.name === v);
+    $('zp-osoba-info').textContent = v === '' ? 'Wybierz osobę z podpowiedzi z listy pracowników WI.'
+      : !p ? 'Nie ma takiej osoby na liście pracowników WI. Wybierz nazwisko z podpowiedzi.'
+      : [p.field, (p.works || 0) + ' publikacji', p.topics.slice(0, 2).join(', ')].filter(Boolean).join(' · ');
+  }
   function fillPeople(){
     const q = ($('pn-search').value || '').trim().toLowerCase();
     const list = people.filter(p => !q || p.name.toLowerCase().includes(q));
@@ -265,8 +273,8 @@ SCRIPT = """
     const opts = list.map(p => '<option value="' + esc(p.name) + '">' + esc(p.name) + '</option>').join('');
     $('pn-person').innerHTML = opts;
     if (list.some(p => p.name === cur)) $('pn-person').value = cur;
-    $('zp-osoba').innerHTML = opts;
-    $('zp-nabor').innerHTML = DATA.calls.map(c => '<option value="' + esc(c.id) + '">' + esc(c.id) + ' · ' + esc(c.status) + '</option>').join('');
+    $('zp-osoba-list').innerHTML = people.map(p => '<option value="' + esc(p.name) + '"></option>').join('');
+    if (!$('zp-nabor').options.length) $('zp-nabor').innerHTML = '<option value="">— wybierz nabór —</option>' + DATA.calls.map(c => '<option value="' + esc(c.id) + '">' + esc(c.id) + ' · ' + esc(c.status) + '</option>').join('');
   }
   function showPerson(){
     const name = $('pn-person').value;
@@ -342,7 +350,7 @@ SCRIPT = """
     if (!rows.length) {
       $('bi-list').innerHTML = '<div class="pn-empty">Brak zaproszeń w tym filtrze. Zmień filtr albo utwórz nowe zaproszenie.</div>';
     } else {
-      $('bi-list').innerHTML = '<table class="pn-table"><thead><tr><th>Osoba</th><th>Nabór</th><th>Rola</th><th>Status</th><th></th></tr></thead><tbody>' +
+      $('bi-list').innerHTML = '<table class="pn-table"><thead><tr><th>Osoba</th><th>Nabór</th><th>Rola</th><th>Status</th><th><span class="pn-small">Akcja</span></th></tr></thead><tbody>' +
         rows.map(function (i) {
           var act = '';
           if (i.status === 'szkic') act = '<button class="pn-btn ghost" data-approve="' + i.idx + '" type="button">Zatwierdź</button>';
@@ -377,16 +385,19 @@ SCRIPT = """
   });
 
   $('zp-add').addEventListener('click', () => {
-    const person = $('zp-osoba').value, nabor = $('zp-nabor').value;
-    if (!person || !nabor) return;
+    const person = $('zp-osoba').value.trim(), nabor = $('zp-nabor').value;
+    if (!people.some(x => x.name === person)) { toast('Wybierz osobę z listy podpowiedzi.'); return; }
+    if (!nabor) { toast('Wybierz nabór, zanim zapiszesz szkic.'); return; }
     st.invites.push({person: person, nabor: nabor, rola: $('zp-rola').value, uzas: $('zp-uzas').value.trim(), status: 'szkic', created: DATA.today});
     toast('Szkic zapisany. Zatwierdź go, zanim wyślesz.');
+    $('zp-osoba').value = ''; showOsoba();
     $('zp-uzas').value = '';
     save(); refresh();
     document.querySelector('.pn-sub button[data-pane="nabory"]').click();
   });
   $('pn-person').addEventListener('change', showPerson);
   $('pn-search').addEventListener('input', () => { fillPeople(); showPerson(); });
+  $('zp-osoba').addEventListener('input', showOsoba);
   $('pf-save').addEventListener('click', () => {
     const name = $('pn-person').value;
     st.profiles[name] = {wnosze: $('pf-wnosze').value.trim(), szukam: $('pf-szukam').value.trim(), dost: $('pf-dost').value, zain: $('pf-zain').value, zaktualizowano: DATA.today};
@@ -394,7 +405,7 @@ SCRIPT = """
   });
 
   function refresh(){ renderNaukInvites(); renderBiuroKpi(); renderBiuroCalls(); }
-  fillPeople(); showPerson(); refresh();
+  fillPeople(); showPerson(); showOsoba(); refresh();
   setInterval(async () => {
     const v = await loadRemote(KEY);
     if (v && JSON.stringify(v) !== JSON.stringify(st)) { st = v; refresh(); }

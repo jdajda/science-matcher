@@ -66,7 +66,7 @@ def render():
         pe["badap"] = badap.get(pe["name"], {})
     import biuro as bz
     projects = bz.call_projects()
-    data = json.dumps({"people": people, "projects": projects, "columns": [[c, l, col] for c, l, col in bz.COLUMNS], "default": "Eckes Maria"}, ensure_ascii=False).replace("</", "<\\/")
+    data = json.dumps({"people": people, "projects": projects, "baza": bz.completed_base(), "columns": [[c, l, col] for c, l, col in bz.COLUMNS], "default": "Eckes Maria"}, ensure_ascii=False).replace("</", "<\\/")
     script = SCRIPT.replace("__DATA__", data)
     logo = brand_logo()
     return f"""{head}
@@ -115,7 +115,7 @@ def render():
 
   <div class="page-view active" id="view-naukowiec" data-role-only="naukowiec">
     <div class="pc-wrap">
-      <div class="pc-band"><div class="pc-band-text"><div class="pc-title" id="nk-name"></div><div class="pc-sub" id="nk-meta"></div><div class="pc-progress"><span id="nk-complete"></span><i><b id="nk-bar"></b></i></div></div>{logo}</div>
+      <div class="pc-band"><div class="pc-band-text"><h1 class="pc-title" id="nk-name"></h1><div class="pc-sub" id="nk-meta"></div><div class="pc-progress"><span id="nk-complete"></span><i><b id="nk-bar"></b></i></div></div>{logo}</div>
       <div class="pc-body">
         <aside class="pc-side">
           <div class="pc-h">Afiliacja</div>
@@ -126,7 +126,7 @@ def render():
           <div class="pc-kv" id="nk-email"></div>
           <div class="pc-h">Obszary i branże</div>
           <ul class="pc-list" id="nk-areas"></ul>
-          <div class="pc-h">Tematy (OpenAlex)</div>
+          <div class="pc-h">Tematy (OpenAlex, po angielsku)</div>
           <ul class="pc-list" id="nk-topics"></ul>
           <div class="pc-h">Technologie i metody</div>
           <ul class="pc-list" id="nk-keywords"></ul>
@@ -137,15 +137,15 @@ def render():
           <div class="pc-h">Certyfikaty</div>
           <p class="pc-note">Brak danych. Rejestr szkoleń nie jest jeszcze podłączony.</p>
           <div class="pc-h">Dostępność i zainteresowanie</div>
-          <div class="pc-kv"><b>Dostępność</b><select class="category-filter" id="nk-dost"><option>do ustalenia</option><option>tak</option><option>nie</option></select></div>
-          <div class="pc-kv"><b>Zainteresowanie nowymi projektami</b><select class="category-filter" id="nk-zain"><option>nie wiem</option><option>tak</option><option>nie</option></select></div>
+          <div class="pc-kv"><b>Dostępność</b><select class="category-filter" id="nk-dost" aria-label="Dostępność"><option>do ustalenia</option><option>tak</option><option>nie</option></select></div>
+          <div class="pc-kv"><b>Zainteresowanie nowymi projektami</b><select class="category-filter" id="nk-zain" aria-label="Zainteresowanie nowymi projektami"><option>nie wiem</option><option>tak</option><option>nie</option></select></div>
           <div class="pc-note" id="nk-confirmed"></div>
         </aside>
         <section class="pc-main">
           <div class="pc-h">Co wnoszę do projektu</div>
-          <textarea class="match-textarea" id="nk-wnosze" rows="3"></textarea>
+          <textarea class="match-textarea" id="nk-wnosze" rows="3" aria-label="Co wnoszę do projektu"></textarea>
           <div class="pc-h">Szukam kompetencji lub partnerów</div>
-          <textarea class="match-textarea" id="nk-szukam" rows="3"></textarea>
+          <textarea class="match-textarea" id="nk-szukam" rows="3" aria-label="Szukam kompetencji lub partnerów"></textarea>
           <div style="margin-top:.8rem;display:flex;gap:.6rem;align-items:center;flex-wrap:wrap"><button class="btn btn-primary" id="nk-save" type="button">Zapisz opis</button><button class="btn" id="nk-confirm" type="button">Potwierdzam, że dane są aktualne</button><span class="pc-note" id="nk-saved"></span></div>
           <div class="pc-h">Zgłoś korektę danych</div>
           <p class="pc-note">Widzisz błąd w danych z BaDAP albo OpenAlex? Opisz go, a biuro zobaczy zgłoszenie.</p>
@@ -163,7 +163,7 @@ def render():
 
   <div class="page-view" id="view-biuro" data-role-only="biuro">
     <div class="pc-wrap">
-      <div class="pc-band"><div class="pc-band-text"><div class="pc-title" id="bi-name"></div><div class="pc-sub" id="bi-meta"></div></div>{logo}</div>
+      <div class="pc-band"><div class="pc-band-text"><h1 class="pc-title" id="bi-name"></h1><div class="pc-sub" id="bi-meta"></div></div>{logo}</div>
       <div class="pc-body">
         <aside class="pc-side">
           <div class="pc-h">Tematy</div>
@@ -209,6 +209,14 @@ SCRIPT = """
   }
   const initials = n => n.split(/\\s+/).filter(Boolean).slice(0,2).map(p => p[0]).join('').toUpperCase();
   const people = DATA.people;
+  const bazaOver = (function () { try { return JSON.parse(localStorage.getItem('bm-baza-kier') || '{}'); } catch (e) { return {}; } })();
+  const STAGE = {'zakończony': 'Zakończone', 'w realizacji': 'W trakcie realizacji', 'planowany': 'Przyszłe'};
+  function bazaFor(name) {
+    return (DATA.baza || []).filter(function (r) {
+      var k = bazaOver.hasOwnProperty(String(r.id)) ? bazaOver[String(r.id)] : (r.kierownik_wi || '');
+      return k === name;
+    });
+  }
   const ANSWERS = ['odpowiedź: tak', 'odpowiedź: nie', 'brak odpowiedzi'];
   const LABEL = {'szkic': 'szkic', 'zatwierdzone': 'zatwierdzone', 'wysłane': 'wysłane', 'odpowiedź: tak': 'dołącza', 'odpowiedź: nie': 'nie dołącza', 'brak odpowiedzi': 'brak odpowiedzi'};
   let panel = {profiles: {}, invites: []};
@@ -249,7 +257,8 @@ SCRIPT = """
     ].filter(Boolean).join(' · ');
     $('nk-areas').innerHTML = (b.areas || []).map(function (a) { return '<li>' + esc(a) + '</li>'; }).join('') || '<li>Brak obszarów</li>';
     var projs = allProjects().filter(function (x) { return (x.people || []).indexOf(current) !== -1; });
-    $('nk-projects').innerHTML = projs.map(function (x) { return '<li>' + esc(x.title) + ' · ' + esc(x.column || '') + '</li>'; }).join('') || '<li>Brak przypisanych projektów</li>';
+    var bz0 = bazaFor(current);
+    $('nk-projects').innerHTML = projs.map(function (x) { return '<li>' + esc(x.title) + ' · ' + esc(x.column || '') + '</li>'; }).concat(bz0.map(function (r) { return '<li>' + esc(r.temat) + ' · ' + esc(STAGE[r.stan] || r.stan) + ' (' + esc(r.start) + ' – ' + esc(r.koniec) + ')' + (bazaOver.hasOwnProperty(String(r.id)) ? ' · przypisane przez biuro' : '') + '</li>'; })).join('') || '<li>Brak przypisanych projektów</li>';
     var pr0 = panel.profiles[current] || {};
     $('nk-confirmed').textContent = pr0.potwierdzono ? 'Dane potwierdzone: ' + pr0.potwierdzono + ' (potwierdzenie tożsamości przez SSO – po wdrożeniu)' : 'Dane nie zostały jeszcze potwierdzone przez właściciela.';
     var corr = (panel.korekty || []).filter(function (k) { return k.person === current; });
@@ -259,9 +268,9 @@ SCRIPT = """
     $('nk-wnosze').value = pr.wnosze || ''; $('nk-szukam').value = pr.szukam || '';
     $('nk-dost').value = pr.dost || 'do ustalenia'; $('nk-zain').value = pr.zain || 'nie wiem';
     $('nk-saved').textContent = '';
-    var checks = [pr.wnosze, pr.szukam, pr.dost && pr.dost !== 'do ustalenia', pr.zain && pr.zain !== 'nie wiem', p.orcid, p.topics && p.topics.length];
+    var checks = [pr.wnosze, pr.szukam, pr.dost && pr.dost !== 'do ustalenia', pr.zain && pr.zain !== 'nie wiem', p.orcid, p.topics && p.topics.length, pr.potwierdzono];
     var done = checks.filter(Boolean).length;
-    $('nk-complete').textContent = 'Profil uzupełniony: ' + done + ' z ' + checks.length;
+    $('nk-complete').textContent = 'Profil uzupełniony: ' + done + ' z ' + checks.length + (pr.potwierdzono ? '' : ' (brakuje potwierdzenia danych)');
     $('nk-bar').style.width = Math.round(done / checks.length * 100) + '%';
     const inv = panel.invites.map((i, idx) => Object.assign({}, i, {idx: idx})).filter(i => i.person === current && i.status !== 'szkic');
     var open = inv.filter(function (i) { return i.status !== 'odpowiedź: tak' && i.status !== 'odpowiedź: nie' && i.status !== 'brak odpowiedzi'; }).length;
@@ -291,7 +300,9 @@ SCRIPT = """
     $('bi-desc').innerHTML = pr.wnosze ? esc(pr.wnosze) + '<br><br><b>Szuka:</b> ' + esc(pr.szukam || '–') : 'Osoba nie uzupełniła profilu.';
     $('bi-topics').innerHTML = p.topics.map(t => '<li>' + esc(t) + '</li>').join('') || '<li>Brak tematów</li>';
     const projects = allProjects().filter(x => (x.people || []).includes(current));
-    $('bi-projects').innerHTML = projects.length ? projects.map(x => '<div class="member-row"><div><b>' + esc(x.title) + '</b><div class="s-sub">' + esc(x.status || '') + (x.deadlines && x.deadlines.length ? ' · termin: ' + esc(x.deadlines.join(' · ')) : '') + '</div></div><span class="s-pill">' + esc(x.column || '') + '</span></div>').join('') : '<p class="s-sub">Nie jest przypisana do żadnego projektu.</p>';
+    var bzList = bazaFor(current).map(r => '<div class="member-row"><div><b>' + esc(r.temat) + '</b><div class="s-sub">' + esc(r.start) + ' – ' + esc(r.koniec) + (r.kwota ? ' · ' + Math.round(r.kwota).toLocaleString('pl-PL') + ' PLN' : '') + '</div></div><span class="s-pill">' + esc(STAGE[r.stan] || r.stan) + '</span></div>').join('');
+    var kanbanHtml = projects.map(x => '<div class="member-row"><div><b>' + esc(x.title) + '</b><div class="s-sub">' + esc(x.status || '') + (x.deadlines && x.deadlines.length ? ' · termin: ' + esc(x.deadlines.join(' · ')) : '') + '</div></div><span class="s-pill">' + esc(x.column || '') + '</span></div>').join('');
+    $('bi-projects').innerHTML = (kanbanHtml + bzList) || '<p class="s-sub">Nie jest przypisana do żadnego projektu.</p>';
     const inv = panel.invites.filter(i => i.person === current);
     $('bi-invites').innerHTML = inv.length ? inv.map(i => '<div class="member-row"><div><b>' + esc(i.nabor) + '</b><div class="s-sub">rola: ' + esc(i.rola) + '</div></div><span class="s-pill">' + esc(LABEL[i.status] || i.status) + '</span></div>').join('') : '<p class="s-sub">Brak zaproszeń.</p>';
     const events = [];

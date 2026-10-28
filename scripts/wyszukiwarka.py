@@ -106,7 +106,7 @@ def render():
       </div>
       <div class="side-block">
         <span class="side-label">Aktualność</span>
-        <select id="ws-recent">
+        <select id="ws-recent" aria-label="Aktualność prac">
           <option value="0">bez ograniczeń</option>
           <option value="2022">prace od 2022</option>
           <option value="2024">prace od 2024</option>
@@ -114,7 +114,7 @@ def render():
       </div>
       <div class="side-block">
         <span class="side-label">Pokrycie potrzeb (min.)</span>
-        <select id="ws-min">
+        <select id="ws-min" aria-label="Minimalne dopasowanie">
           <option value="0">dowolne</option>
           <option value="0.5">co najmniej 50%</option>
           <option value="0.75">co najmniej 75%</option>
@@ -122,11 +122,11 @@ def render():
       </div>
       <div class="side-block">
         <span class="side-label">Dziedzina badawcza</span>
-        <select id="ws-field"><option value="">wszystkie</option>{body_fields}</select>
+        <select id="ws-field" aria-label="Dziedzina"><option value="">wszystkie</option>{body_fields}</select>
       </div>
       <div class="side-block">
         <span class="side-label">Minimalna liczba prac</span>
-        <select id="ws-minw">
+        <select id="ws-minw" aria-label="Minimalna liczba prac">
           <option value="0">bez ograniczeń</option>
           <option value="10">co najmniej 10</option>
           <option value="30">co najmniej 30</option>
@@ -143,9 +143,9 @@ def render():
       </div>
       <div class="side-block">
         <span class="side-label">Wkrótce (wymaga danych)</span>
-        <select disabled title="Wymaga danych z CWP"><option>Rola w projekcie</option></select>
-        <select disabled title="Wymaga rejestru szkoleń"><option>Certyfikat</option></select>
-        <select disabled title="Wymaga profilu dostępności"><option>Dostępność</option></select>
+        <select disabled aria-label="Rola w projekcie (wymaga danych z CWP)" title="Wymaga danych z CWP"><option>Rola w projekcie</option></select>
+        <select disabled aria-label="Certyfikat (wymaga rejestru szkoleń)" title="Wymaga rejestru szkoleń"><option>Certyfikat</option></select>
+        <select disabled aria-label="Dostępność (wymaga profilu dostępności)" title="Wymaga profilu dostępności"><option>Dostępność</option></select>
       </div>
       <div class="side-block">
         <button id="ws-reset" class="link-btn" type="button" style="text-align:left">Wyczyść</button>

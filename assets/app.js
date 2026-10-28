@@ -129,7 +129,7 @@
   }
   function firstName(panel) { return names(panel)[0] || ''; }
 
-  var BIURO_PAGES = ['biuro.html', 'biuro_przyklad.html', 'wyszukiwarka.html', 'dopasowanie.html', 'raport_dopasowanie_tematy.html'];
+  var BIURO_PAGES = ['biuro.html', 'wyszukiwarka.html', 'dopasowanie.html'];
 
   function currentPage() {
     var p = location.pathname.split('/').pop();
@@ -158,7 +158,7 @@
       if (heroS) heroS.textContent = 'Przeglądaj osoby, obszary i powiązania. Swój profil i zaproszenia znajdziesz w menu.';
     }
     if (page === 'panel.html' && heroT) {
-      heroT.textContent = naukowiec ? 'Moje zaproszenia' : 'Panel biura';
+      heroT.textContent = naukowiec ? 'Moje zaproszenia' : 'Zaproszenia';
       if (heroS) heroS.textContent = naukowiec
         ? 'Zaproszenia do naborów i Twoje odpowiedzi.'
         : 'Przegląd naborów, zaproszeń i odpowiedzi. Zatwierdzenie wysyłki wymaga innej osoby niż ta, która utworzyła szkic.';

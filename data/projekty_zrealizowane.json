@@ -5,7 +5,12 @@
   "kierownik": "prof. dr hab. inż. Rafał Dańko",
   "start": "2025-10-01",
   "koniec": "2028-12-31",
-  "zleceniodawca": "Ministerstwo Rozwoju i Technologii"
+  "zleceniodawca": "Ministerstwo Rozwoju i Technologii",
+  "nazwa": null,
+  "nr_umowy": null,
+  "kwota": null,
+  "zrodlo": "zestawienie 2026",
+  "kierownik_wi": ""
  },
  {
   "id": 2,
@@ -13,7 +18,12 @@
   "kierownik": "prof. dr hab. inż. Piotr Faliszewski",
   "start": "2026-09-01",
   "koniec": "2031-08-31",
-  "zleceniodawca": "Narodowe Centrum Nauki"
+  "zleceniodawca": "Narodowe Centrum Nauki",
+  "nazwa": null,
+  "nr_umowy": null,
+  "kwota": null,
+  "zrodlo": "zestawienie 2026",
+  "kierownik_wi": "Faliszewski Piotr"
  },
  {
   "id": 3,
@@ -21,7 +31,12 @@
   "kierownik": "prof. dr hab. inż. Leszek Rutkowski",
   "start": "2026-07-09",
   "koniec": "2029-07-08",
-  "zleceniodawca": "Narodowe Centrum Nauki"
+  "zleceniodawca": "Narodowe Centrum Nauki",
+  "nazwa": null,
+  "nr_umowy": null,
+  "kwota": null,
+  "zrodlo": "zestawienie 2026",
+  "kierownik_wi": "Rutkowski Leszek"
  },
  {
   "id": 4,
@@ -29,7 +44,12 @@
   "kierownik": "dr inż. Andrzej Kaczmarczyk",
   "start": "2026-10-01",
   "koniec": "2029-09-30",
-  "zleceniodawca": "Narodowa Agencja Wymiany Akademickiej"
+  "zleceniodawca": "Narodowa Agencja Wymiany Akademickiej",
+  "nazwa": null,
+  "nr_umowy": null,
+  "kwota": null,
+  "zrodlo": "zestawienie 2026",
+  "kierownik_wi": ""
  },
  {
   "id": 5,
@@ -37,7 +57,12 @@
   "kierownik": "dr hab. inż. Ewa Adamiec",
   "start": "2026-02-02",
   "koniec": "2026-08-01",
-  "zleceniodawca": "Komisja Europejska"
+  "zleceniodawca": "Komisja Europejska",
+  "nazwa": null,
+  "nr_umowy": null,
+  "kwota": null,
+  "zrodlo": "zestawienie 2026",
+  "kierownik_wi": "Adamiec Ewa"
  },
  {
   "id": 6,
@@ -45,7 +70,12 @@
   "kierownik": "dr inż. Łukasz Faber",
   "start": "2026-07-06",
   "koniec": "2029-07-05",
-  "zleceniodawca": "Komisja Europejska"
+  "zleceniodawca": "Komisja Europejska",
+  "nazwa": null,
+  "nr_umowy": null,
+  "kwota": null,
+  "zrodlo": "zestawienie 2026",
+  "kierownik_wi": ""
  },
  {
   "id": 7,
@@ -53,7 +83,12 @@
   "kierownik": "mgr inż. Justyna Zawalska",
   "start": "2025-12-15",
   "koniec": "2026-12-31",
-  "zleceniodawca": "Narodowe Centrum Nauki"
+  "zleceniodawca": "Narodowe Centrum Nauki",
+  "nazwa": null,
+  "nr_umowy": null,
+  "kwota": null,
+  "zrodlo": "zestawienie 2026",
+  "kierownik_wi": ""
  },
  {
   "id": 8,
@@ -61,7 +96,12 @@
   "kierownik": "dr inż. Tomasz Służalec",
   "start": "2026-02-13",
   "koniec": "2029-02-12",
-  "zleceniodawca": "Narodowe Centrum Nauki"
+  "zleceniodawca": "Narodowe Centrum Nauki",
+  "nazwa": null,
+  "nr_umowy": null,
+  "kwota": null,
+  "zrodlo": "zestawienie 2026",
+  "kierownik_wi": "Służalec Tomasz"
  },
  {
   "id": 9,
@@ -69,7 +109,12 @@
   "kierownik": "dr inż. Joanna Kosińska",
   "start": "2026-01-01",
   "koniec": "2029-01-31",
-  "zleceniodawca": "Narodowe Centrum Nauki"
+  "zleceniodawca": "Narodowe Centrum Nauki",
+  "nazwa": null,
+  "nr_umowy": null,
+  "kwota": null,
+  "zrodlo": "zestawienie 2026",
+  "kierownik_wi": "Kosińska Joanna"
  },
  {
   "id": 10,
@@ -77,7 +122,12 @@
   "kierownik": "prof. dr hab. inż. Witold Dzwinel",
   "start": "2026-03-16",
   "koniec": "2029-03-15",
-  "zleceniodawca": "Narodowe Centrum Nauki"
+  "zleceniodawca": "Narodowe Centrum Nauki",
+  "nazwa": null,
+  "nr_umowy": null,
+  "kwota": null,
+  "zrodlo": "zestawienie 2026",
+  "kierownik_wi": "Dzwinel Witold"
  },
  {
   "id": 11,
@@ -85,7 +135,12 @@
   "kierownik": "mgr inż. Maciej Rapacz",
   "start": "2026-01-01",
   "koniec": "2026-12-31",
-  "zleceniodawca": "Narodowe Centrum Nauki"
+  "zleceniodawca": "Narodowe Centrum Nauki",
+  "nazwa": null,
+  "nr_umowy": null,
+  "kwota": null,
+  "zrodlo": "zestawienie 2026",
+  "kierownik_wi": ""
  },
  {
   "id": 12,
@@ -93,7 +148,12 @@
   "kierownik": "dr inż. Wojciech Czech",
   "start": "2026-01-13",
   "koniec": "2030-01-12",
-  "zleceniodawca": "Narodowe Centrum Nauki"
+  "zleceniodawca": "Narodowe Centrum Nauki",
+  "nazwa": null,
+  "nr_umowy": null,
+  "kwota": null,
+  "zrodlo": "zestawienie 2026",
+  "kierownik_wi": "Czech Wojciech"
  },
  {
   "id": 13,
@@ -101,7 +161,12 @@
   "kierownik": "dr hab. Michael Friebe / dr inż. Dominik Rzepka",
   "start": "2026-03-01",
   "koniec": "2027-02-28",
-  "zleceniodawca": "NCBiR"
+  "zleceniodawca": "NCBiR",
+  "nazwa": null,
+  "nr_umowy": null,
+  "kwota": null,
+  "zrodlo": "zestawienie 2026",
+  "kierownik_wi": ""
  },
  {
   "id": 14,
@@ -109,7 +174,12 @@
   "kierownik": "dr hab. Michael Friebe",
   "start": "2023-03-01",
   "koniec": "2026-02-28",
-  "zleceniodawca": "NCBiR"
+  "zleceniodawca": "NCBiR",
+  "nazwa": null,
+  "nr_umowy": null,
+  "kwota": null,
+  "zrodlo": "zestawienie 2026",
+  "kierownik_wi": "Friebe Michael"
  },
  {
   "id": 15,
@@ -117,6 +187,349 @@
   "kierownik": "prof. dr hab. inż. Janusz Kacprzyk",
   "start": "2025-09-12",
   "koniec": "2028-09-11",
-  "zleceniodawca": "Narodowe Centrum Nauki"
+  "zleceniodawca": "Narodowe Centrum Nauki",
+  "nazwa": null,
+  "nr_umowy": null,
+  "kwota": null,
+  "zrodlo": "zestawienie 2026",
+  "kierownik_wi": "Kacprzyk Janusz"
+ },
+ {
+  "temat": "Pragmatyka Wyboru Komitetów: algorytmy i analiza danych preferencyjnych (PRAGMA)",
+  "nazwa": "Horizon 2020 H2020-ERC-COG Consolidator Grant",
+  "kierownik": "Piotr Faliszewski",
+  "start": "2021-06-01",
+  "koniec": "2026-05-31",
+  "zleceniodawca": "Komisja Europejska",
+  "nr_umowy": "GRANT AGREEMENT NUMBER 101002854 — PRAGMA",
+  "kwota": 6211272.34,
+  "zrodlo": "zestawienie 2021–2024",
+  "kierownik_wi": "Faliszewski Piotr",
+  "id": 101
+ },
+ {
+  "temat": "Wieloskalowa inwersja fizyki skał porowatych za pomocą symulatorów wysokiej wydajności: wypełnianie luk pomiędzy matematyką a geofizyką (MATHROCKS)",
+  "nazwa": "Horizon 2020 MSCA-RISE-2017",
+  "kierownik": "Maciej Paszyński",
+  "start": "2021-10-14",
+  "koniec": "2023-03-31",
+  "zleceniodawca": "Komisja Europejska",
+  "nr_umowy": "GRANT AGREEMENT NUMBER 777778 — MATHROCKS, AMENDMENT Reference No AMD-777778-19",
+  "kwota": 207685.38,
+  "zrodlo": "zestawienie 2021–2024",
+  "kierownik_wi": "Paszyński Maciej",
+  "id": 102
+ },
+ {
+  "temat": "Zarządzanie zasobami dla aplikacji naukowych na infrastrukturach o wysokiej elastyczności",
+  "nazwa": "OPUS 11",
+  "kierownik": "",
+  "start": "2017-01-27",
+  "koniec": "2021-01-26",
+  "zleceniodawca": "Narodowe Centrum Nauki",
+  "nr_umowy": "UMO-2016/21/B/ST6/01497",
+  "kwota": 552300.0,
+  "zrodlo": "zestawienie 2021–2024",
+  "kierownik_wi": "",
+  "id": 103
+ },
+ {
+  "temat": "Lemkin - inteligentny system informacji prawnej",
+  "nazwa": "LIDER VIII",
+  "kierownik": "Aleksander Smywiński-Pohl",
+  "start": "2017-11-01",
+  "koniec": "2021-09-30",
+  "zleceniodawca": "Narodowe Centrum Badań i Rozwoju",
+  "nr_umowy": "UMOWA NR LIDER/27/0164/L-8/16/NCBR/2017",
+  "kwota": 1200000.0,
+  "zrodlo": "zestawienie 2021–2024",
+  "kierownik_wi": "Smywiński-Pohl Aleksander",
+  "id": 104
+ },
+ {
+  "temat": "Hierarchiczna optymalizacja rojem cząstek jako agentowe narzędzie do wspomagania wielokryterialnych problemów decyzyjnych",
+  "nazwa": "PRELUDIUM 13",
+  "kierownik": "",
+  "start": "2018-04-09",
+  "koniec": "2021-10-08",
+  "zleceniodawca": "Narodowe Centrum Nauki",
+  "nr_umowy": "UMO-2017/25/N/ST6/02841",
+  "kwota": 118800.0,
+  "zrodlo": "zestawienie 2021–2024",
+  "kierownik_wi": "",
+  "id": 105
+ },
+ {
+  "temat": "Techniki i narzędzia informatyczne wspomagające prowadzenie działań w cyberprzestrzeni, w szczególności detekcję i aktywne reagowanie na akcje dezinformacyjne prowadzone w sieci Internet",
+  "nazwa": "Młodzi Naukowcy",
+  "kierownik": "",
+  "start": "2018-07-16",
+  "koniec": "2021-11-15",
+  "zleceniodawca": "Narodowe Centrum Badań i Rozwoju",
+  "nr_umowy": "DOB-2P/01/04/2018",
+  "kwota": 2856341.0,
+  "zrodlo": "zestawienie 2021–2024",
+  "kierownik_wi": "",
+  "id": 106
+ },
+ {
+  "temat": "cybercrypt@gov - rozproszony, skalowalny, wysokowydajny system pozwalajacy na przełamywanie zabezpieczeń kryptograficznych",
+  "nazwa": null,
+  "kierownik": "",
+  "start": "2018-12-10",
+  "koniec": "2022-12-09",
+  "zleceniodawca": "Narodowe Centrum Badań i Rozwoju",
+  "nr_umowy": "DOB-BIO9/32/03/2018",
+  "kwota": 2922500.0,
+  "zrodlo": "zestawienie 2021–2024",
+  "kierownik_wi": "",
+  "id": 107
+ },
+ {
+  "temat": "Przetwarzanie i analiza danych masowych w odniesieniu do przestępstw gospodarczych",
+  "nazwa": "STRATEGICZNE PROGRAMY RZĄDOWE",
+  "kierownik": "",
+  "start": "2018-12-17",
+  "koniec": "2022-06-16",
+  "zleceniodawca": "Narodowe Centrum Badań i Rozwoju",
+  "nr_umowy": "DOB-BIO9/33/01/2018",
+  "kwota": 6200583.75,
+  "zrodlo": "zestawienie 2021–2024",
+  "kierownik_wi": "",
+  "id": 108
+ },
+ {
+  "temat": "Rozwój energetyki rozproszonej w klastrach energii",
+  "nazwa": "GOSPOSTRATEG",
+  "kierownik": "",
+  "start": "2019-02-01",
+  "koniec": "2022-12-31",
+  "zleceniodawca": "nie podano w zestawieniu",
+  "nr_umowy": "Gospostrateg1/385085/21/NCBr/2019",
+  "kwota": 5197675.0,
+  "zrodlo": "zestawienie 2021–2024",
+  "kierownik_wi": "",
+  "id": 109
+ },
+ {
+  "temat": "Standaryzacja usług Hubów Innowacji Cyfrowych dla wsparcia cyfrowej transformacji przedsiebiorstw",
+  "nazwa": "Przemysł 4.0",
+  "kierownik": "",
+  "start": "2019-11-01",
+  "koniec": "2021-11-30",
+  "zleceniodawca": "Ministerstwo Rozwoju",
+  "nr_umowy": "II/330/P/150905/2830/20/DIN",
+  "kwota": 494000.0,
+  "zrodlo": "zestawienie 2021–2024",
+  "kierownik_wi": "",
+  "id": 110
+ },
+ {
+  "temat": "Inspiracje socjokognitywne w klasycznych metaheurystykach",
+  "nazwa": "PRELUDIUM BIS 1",
+  "kierownik": "",
+  "start": "2020-05-18",
+  "koniec": "2025-07-31",
+  "zleceniodawca": "Narodowe Centrum Nauki",
+  "nr_umowy": "UMO-2019/35/O/ST6/00570",
+  "kwota": 400680.0,
+  "zrodlo": "zestawienie 2021–2024",
+  "kierownik_wi": "",
+  "id": 111
+ },
+ {
+  "temat": "Zrównoleglanie metaheurystyk z desynchronizacją",
+  "nazwa": "PRELUDIUM BIS 1",
+  "kierownik": "",
+  "start": "2020-05-18",
+  "koniec": "2024-09-30",
+  "zleceniodawca": "Narodowe Centrum Nauki",
+  "nr_umowy": "UMO-2019/35/O/ST6/00571",
+  "kwota": 400680.0,
+  "zrodlo": "zestawienie 2021–2024",
+  "kierownik_wi": "",
+  "id": 112
+ },
+ {
+  "temat": "Super-skalowalna symulacja ruchu miejskiego",
+  "nazwa": "PRELUDIUM BIS 2",
+  "kierownik": "",
+  "start": "2020-05-18",
+  "koniec": "2024-09-30",
+  "zleceniodawca": "Narodowe Centrum Nauki",
+  "nr_umowy": "UMO-2019/35/O/ST6/01806",
+  "kwota": 406080.0,
+  "zrodlo": "zestawienie 2021–2024",
+  "kierownik_wi": "",
+  "id": 113
+ },
+ {
+  "temat": "Środowisko oparte na śledzeniu wzroku dla multimodalnej interakcji człowieka z robotem",
+  "nazwa": "POLTUR2",
+  "kierownik": "",
+  "start": "2018-02-01",
+  "koniec": "2021-09-30",
+  "zleceniodawca": "Narodowe Centrum Badań i Rozwoju",
+  "nr_umowy": "DZP/POLTUR2/281/2017",
+  "kwota": 793750.0,
+  "zrodlo": "zestawienie 2021–2024",
+  "kierownik_wi": "",
+  "id": 114
+ },
+ {
+  "temat": "Nowy paradygmat obliczeniowy Izogeometrycznej metody Minimalizacji Reziduum (iGRM) i jego zastosowanie do rozwiązywania problemów parabolicznych, hiperbolicznych, liniowych i nieliniowych",
+  "nazwa": "HARMONIA 9",
+  "kierownik": "",
+  "start": "2018-04-16",
+  "koniec": "2021-12-15",
+  "zleceniodawca": "Narodowe Centrum Nauki",
+  "nr_umowy": "UMO-2017/26/M/ST1/00281",
+  "kwota": 554400.0,
+  "zrodlo": "zestawienie 2021–2024",
+  "kierownik_wi": "",
+  "id": 115
+ },
+ {
+  "temat": "Współpraca między Katedrą Informatyki AGH a Eksperymentem TOTEM a CERN na lata 2019-2021",
+  "nazwa": "TOTEM",
+  "kierownik": "Maciej Malawski",
+  "start": "2019-01-01",
+  "koniec": "2021-12-31",
+  "zleceniodawca": "Ministerstwo Nauki i Szkolnictwa Wyższego",
+  "nr_umowy": "DIR/WK/2018/13",
+  "kwota": 1167583.0,
+  "zrodlo": "zestawienie 2021–2024",
+  "kierownik_wi": "Malawski Maciej",
+  "id": 116
+ },
+ {
+  "temat": "Od danych nawigacyjnych do ontologii - integracja wiedzy do skatalogowania scenariuszy etycznych w samochodach autonomicznych",
+  "nazwa": "Wymiana bilateralna",
+  "kierownik": "",
+  "start": "2020-01-01",
+  "koniec": "2021-12-31",
+  "zleceniodawca": "Narodowa Agencja Wymiany Akademickiej",
+  "nr_umowy": "PPN/BDE/2019/1/00007/U/00001",
+  "kwota": 24960.0,
+  "zrodlo": "zestawienie 2021–2024",
+  "kierownik_wi": "",
+  "id": 117
+ },
+ {
+  "temat": "Działanie, innowacje, aktywność, ludzie, otwartość, gotowość",
+  "nazwa": "DIALOG",
+  "kierownik": "",
+  "start": "2019-12-31",
+  "koniec": "2021-12-31",
+  "zleceniodawca": "Ministerstwo Funduszy i Polityki Regionalnej",
+  "nr_umowy": "DPT/BWGII/POPT/265/19",
+  "kwota": 806906.0,
+  "zrodlo": "zestawienie 2021–2024",
+  "kierownik_wi": "",
+  "id": 118
+ },
+ {
+  "temat": "Optymalizacja parametryczna modeli i systemów z opóźnieniem czasowym z wykorzystaniem metaheurystyk",
+  "nazwa": "OPUS LAP",
+  "kierownik": "",
+  "start": "2021-10-08",
+  "koniec": "2024-10-07",
+  "zleceniodawca": "Narodowe Centrum Nauki",
+  "nr_umowy": "UMO-2020/39/I/ST7/02285",
+  "kwota": 542900.0,
+  "zrodlo": "zestawienie 2021–2024",
+  "kierownik_wi": "",
+  "id": 119
+ },
+ {
+  "temat": "Nowe rozwiązania w zakresie asymilacji i przekazywania danych dla ulepszenia modeli i prognoz hydrologicznych",
+  "nazwa": "CHIST-ERA",
+  "kierownik": "",
+  "start": "2021-03-01",
+  "koniec": "2024-02-29",
+  "zleceniodawca": "Narodowe Centrum Nauki",
+  "nr_umowy": "UMO-2020/02/Y/ST10/00065",
+  "kwota": 338560.0,
+  "zrodlo": "zestawienie 2021–2024",
+  "kierownik_wi": "",
+  "id": 120
+ },
+ {
+  "temat": "Advanced artifical intelligence technologies summer and winter courses at AGH",
+  "nazwa": "SPINAKER",
+  "kierownik": "",
+  "start": "2022-06-01",
+  "koniec": "2023-08-31",
+  "zleceniodawca": "NAWA",
+  "nr_umowy": "BPI/SP/2021/1/00019/U/00001",
+  "kwota": 209354.0,
+  "zrodlo": "zestawienie 2021–2024",
+  "kierownik_wi": "",
+  "id": 121
+ },
+ {
+  "temat": "Eksperyment ALICE na Wielkim Zderzaczu Hadronów w CERN ALICE na Wielkim Zderzaczu Hadronów w CERN",
+  "nazwa": "ALICE",
+  "kierownik": "Jacek Kitowski",
+  "start": "2022-01-01",
+  "koniec": "2026-12-31",
+  "zleceniodawca": "MEiN",
+  "nr_umowy": "2022/WK/01",
+  "kwota": 2212959.85,
+  "zrodlo": "zestawienie 2021–2024",
+  "kierownik_wi": "Kitowski Jacek",
+  "id": 122
+ },
+ {
+  "temat": "Eksperyment Compact Muon Solenoid w CERN-ie (CMS 2022-2026)",
+  "nazwa": "CMS",
+  "kierownik": "",
+  "start": "2022-06-01",
+  "koniec": "2026-12-31",
+  "zleceniodawca": "MEiN",
+  "nr_umowy": "2022/WK/14",
+  "kwota": 2094569.9,
+  "zrodlo": "zestawienie 2021–2024",
+  "kierownik_wi": "",
+  "id": 123
+ },
+ {
+  "temat": "Automatyczne śledzenie i analiza ruchu dla wspomagania treningów sportowych",
+  "nazwa": "LIDER XII",
+  "kierownik": "",
+  "start": "2022-02-01",
+  "koniec": "2024-07-30",
+  "zleceniodawca": "Narodowe Centrum Badań i Rozwoju",
+  "nr_umowy": "LIDER/37/0198/L-12/20/NCBR/2021",
+  "kwota": 846875.0,
+  "zrodlo": "zestawienie 2021–2024",
+  "kierownik_wi": "",
+  "id": 124
+ },
+ {
+  "temat": "Opracowanie, implementacja i ocena bezpieczeństwa algorytmów postkwantowych",
+  "nazwa": "OBRONNOŚĆ",
+  "kierownik": "",
+  "start": "2022-12-20",
+  "koniec": "2024-12-19",
+  "zleceniodawca": "Narodowe Centrum Badań i Rozwoju",
+  "nr_umowy": "DOB-BIO-12-01-002-2022",
+  "kwota": 4045000.0,
+  "zrodlo": "zestawienie 2021–2024",
+  "kierownik_wi": "",
+  "id": 125
+ },
+ {
+  "temat": "Nowe klasy kognitywnych systemów zarządzania usługami i współdzielenia danych w Cloud Computingu",
+  "nazwa": "OPU2 12",
+  "kierownik": "",
+  "start": "2022-01-24",
+  "koniec": "2022-07-03",
+  "zleceniodawca": "Narodowe Centrum Badań i Rozwoju",
+  "nr_umowy": "UMO-2016/23/B/HS4/00616",
+  "kwota": 32753.79,
+  "zrodlo": "zestawienie 2021–2024",
+  "kierownik_wi": "",
+  "id": 126
  }
 ]
