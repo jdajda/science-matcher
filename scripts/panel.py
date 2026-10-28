@@ -199,7 +199,9 @@ table.pn-table th {{ color: var(--text2); font-weight: 600; font-size: .78rem; }
     <div class="pn-card pn-form" style="margin-bottom:1rem">
       <label for="bi-me">Twoje imię i nazwisko (osoba z biura)</label>
       <div style="display:flex;gap:.5rem;flex-wrap:wrap"><input id="bi-me" type="text" placeholder="np. Anna Kowalska" style="flex:1;min-width:200px"><button class="pn-btn ghost" id="bi-me-save" type="button">Zapisz</button></div>
-      <p class="pn-small">Szkic utworzony przez Ciebie zatwierdzi inna osoba z biura (W11). Do czasu logowania SSO wpisz się tu w przeglądarce.</p>
+      <label for="bi-rola">Twoja rola w biurze</label>
+      <select id="bi-rola" aria-label="Twoja rola w biurze"><option value="biuro">specjalista ds. projektów</option><option value="koordynator">koordynator</option></select>
+      <p class="pn-small">Szkic utworzony przez Ciebie zatwierdzi inna osoba z biura (W11). Opiekuna projektu przypisuje koordynator. Do czasu logowania SSO wpisz się tu w przeglądarce.</p>
     </div>
     <div class="pn-sub">
       <button class="active" data-pane="nabory">Zaproszenia</button>
@@ -366,6 +368,8 @@ SCRIPT = """
   /* ---------- BIURO ---------- */
   var BIURO_USER = localStorage.getItem('bm-biuro-user') || '';
   $('bi-me').value = BIURO_USER;
+  $('bi-rola').value = localStorage.getItem('bm-biuro-rola') || 'biuro';
+  $('bi-rola').addEventListener('change', function () { localStorage.setItem('bm-biuro-rola', $('bi-rola').value); toast('Rola zapisana. Odśwież Projekty, aby zobaczyć zmianę.'); });
   $('bi-me-save').addEventListener('click', function () {
     BIURO_USER = $('bi-me').value.trim();
     localStorage.setItem('bm-biuro-user', BIURO_USER);

@@ -112,7 +112,9 @@ def base_html():
     staff_js = json.dumps(sorted(staff, key=lambda n: n.lower()), ensure_ascii=False).replace("</", "<\\/")
     nab = [{"id": p["id"], "status": p["status"], "termin": " | ".join(p["deadlines"])} for p in call_projects()]
     nab_js = json.dumps(nab, ensure_ascii=False).replace("</", "<\\/")
-    return BASE_TEMPLATE.replace("__DATA__", data).replace("__STAFF__", staff_js).replace("__NABORY__", nab_js).replace("__TODAY__", TODAY)
+    members = json.loads((ROOT / "data" / "biuro_kontakt.json").read_text(encoding="utf-8")).get("czlonkowie", [])
+    members_js = json.dumps(members, ensure_ascii=False).replace("</", "<\\/")
+    return BASE_TEMPLATE.replace("__DATA__", data).replace("__STAFF__", staff_js).replace("__NABORY__", nab_js).replace("__MEMBERS__", members_js).replace("__TODAY__", TODAY)
 
 
 BASE_TEMPLATE = r'''  <section id="pj-baza" class="pj-base">
@@ -196,12 +198,14 @@ BASE_TEMPLATE = r'''  <section id="pj-baza" class="pj-base">
   <script>
   (function () {
     var KEY = 'bm-baza-stan', PKEY = 'bm-baza-pula', KKEY = 'bm-baza-kier';
+    var COORD_BASE = localStorage.getItem('bm-biuro-rola') === 'koordynator';
     var ORDER = ['w realizacji', 'zakończony'];
     var LBL = {'zakończony': 'Zakończone', 'w realizacji': 'W trakcie realizacji'};
     var PLBL = {'wi': 'Projekty WI', 'unijne': 'Unijne'};
     var rows = __DATA__;
     var STAFF = __STAFF__;
     var NABORY = __NABORY__;
+    var MEMBERS = __MEMBERS__;
     var over = {}, pover = {}, kover = {}, expanded = {}, LIMIT = 8;
     try { over = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { over = {}; }
     try { pover = JSON.parse(localStorage.getItem(PKEY) || '{}'); } catch (e) { pover = {}; }
@@ -280,7 +284,15 @@ BASE_TEMPLATE = r'''  <section id="pj-baza" class="pj-base">
       });
       var edit = document.createElement('details'); edit.className = 'bz-edit';
       var es = document.createElement('summary'); es.textContent = 'Edytuj: etap, pula, kierownik';
-      edit.append(es, sel, psel, ksel);
+      var osel = document.createElement('select'); osel.className = 'bz-sel'; osel.setAttribute('aria-label', 'Opiekun projektu: ' + r.temat);
+      var ocur = (JSON.parse(localStorage.getItem('bm-projekt-opiekun') || '{}'))['base:' + r.id] || '';
+      osel.innerHTML = '<option value="">— opiekun: nie przypisano —</option>' + MEMBERS.map(function (m) { return '<option value="' + esc(m.name) + '"' + (m.name === ocur ? ' selected' : '') + '>' + esc(m.name) + ' · ' + esc(m.rola) + '</option>'; }).join('');
+      osel.disabled = !COORD_BASE; if (!COORD_BASE) osel.title = 'Opiekuna przypisuje koordynator';
+      osel.addEventListener('change', function () {
+        var mp = {}; try { mp = JSON.parse(localStorage.getItem('bm-projekt-opiekun') || '{}'); } catch (e) { mp = {}; }
+        mp['base:' + r.id] = osel.value; localStorage.setItem('bm-projekt-opiekun', JSON.stringify(mp)); msg.textContent = osel.value ? 'Opiekun projektu: ' + osel.value : 'Usunięto opiekuna projektu';
+      });
+      edit.append(es, sel, psel, ksel, osel);
       d.addEventListener('dragstart', function (e) { e.dataTransfer.setData('text/plain', String(r.id)); d.classList.add('dragging'); });
       d.addEventListener('dragend', function () { d.classList.remove('dragging'); });
       d.append(p, nm, t, m, z, dt, edit);
@@ -411,6 +423,7 @@ def render():
         "sources": SOURCES,
         "programs": PROGRAMS,
         "roles": ROLES,
+        "members": json.loads((ROOT / "data" / "biuro_kontakt.json").read_text(encoding="utf-8")).get("czlonkowie", []),
     }
     data = json.dumps(payload, ensure_ascii=False).replace("</", "<\\/")
     script = SCRIPT.replace("__DATA__", data)
@@ -568,6 +581,10 @@ SCRIPT = """
 (async function(){
   const DATA = __DATA__;
   const KEY = DATA.key;
+  const OPKEY = 'bm-projekt-opiekun';
+  const COORD = localStorage.getItem('bm-biuro-rola') === 'koordynator';
+  let OPIEKUN = {}; try { OPIEKUN = JSON.parse(localStorage.getItem(OPKEY) || '{}'); } catch (e) { OPIEKUN = {}; }
+  function saveOpiekun(key, name){ OPIEKUN[key] = name; localStorage.setItem(OPKEY, JSON.stringify(OPIEKUN)); }
   let st = await loadState(KEY, {cards: {}, custom: []});
   const save = () => saveState(KEY, st);
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -599,6 +616,11 @@ SCRIPT = """
     const tags = [p.source, p.program, p.typ].concat(p.slowa || []).filter(Boolean);
     return tags.length ? '<div class="pj-tags">' + tags.map(t => '<span class="pj-tag">' + esc(t) + '</span>').join('') + '</div>' : '';
   }
+  function opiekunSel(key){
+    const cur = OPIEKUN[key] || '';
+    const opts = '<option value="">— nie przypisano —</option>' + (DATA.members || []).map(m => '<option value="' + esc(m.name) + '"' + (m.name === cur ? ' selected' : '') + '>' + esc(m.name) + ' · ' + esc(m.rola) + '</option>').join('');
+    return '<select data-opiekun="' + esc(key) + '"' + (COORD ? '' : ' disabled title="Opiekuna przypisuje koordynator"') + ' aria-label="Opiekun projektu">' + opts + '</select>' + (COORD ? '' : '<div class="pj-small">Przypisuje koordynator.</div>');
+  }
   function card(p){
     const col = colById[p.column];
     const term = p.deadlines && p.deadlines.length ? p.deadlines.join(' · ') : (p.term || 'brak terminu');
@@ -620,6 +642,7 @@ SCRIPT = """
         '<div class="pj-section"><div class="pj-label">Dopasowane osoby (dowody z publikacji)</div>' + matchHtml + '</div>' +
         '<div class="pj-section"><div class="pj-label">Zespół</div>' + (chips || '<div class="pj-empty">Brak osób. Dodaj z listy poniżej.</div>') +
         '<select data-add="' + esc(p.id) + '">' + peopleOpts + '</select></div>' +
+        '<div class="pj-section"><div class="pj-label">Opiekun projektu</div>' + opiekunSel('call:' + p.id) + '</div>' +
         '<div class="pj-section"><div class="pj-label">Etap</div><select data-move="' + esc(p.id) + '">' + colOpts + '</select></div>' +
         '<button class="btn" type="button" data-card="' + esc(p.id) + '">Wizytówka do wysłania</button>' +
       '</div></details>';
@@ -677,6 +700,10 @@ SCRIPT = """
       const id = e.target.dataset.add; const name = e.target.value; if (!name) return;
       const p = all.find(x => x.id === id);
       update(id, {people: (p.people || []).concat([name]), open: true});
+    }));
+    board.querySelectorAll('[data-opiekun]').forEach(sel => sel.addEventListener('change', () => {
+      if (!COORD) return;
+      saveOpiekun(sel.dataset.opiekun, sel.value); toast(sel.value ? 'Opiekun projektu: ' + sel.value : 'Usunięto opiekuna projektu'); render();
     }));
     board.querySelectorAll('[data-addm]').forEach(b => b.addEventListener('click', e => {
       const id = e.currentTarget.dataset.addm; const name = e.currentTarget.dataset.name;

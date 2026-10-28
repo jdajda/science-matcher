@@ -1,0 +1,14 @@
+{
+  "biuro": {
+    "nazwa": "Biuro projektowe Wydziału Informatyki AGH",
+    "email": "",
+    "telefon": "",
+    "adres": ""
+  },
+  "role": [
+    {"nazwa": "Koordynator", "zakres": "Zatwierdza wysyłkę zaproszeń, zarządza rolami biura, prowadzi dziennik zmian."},
+    {"nazwa": "Specjalista ds. projektów", "zakres": "Prowadzi nabory i tablicę, przygotowuje zaproszenia i karty projektów."},
+    {"nazwa": "Opiekun naukowca", "zakres": "Kontakt dla konkretnej osoby: pyta o dostępność, wyjaśnia propozycje, przyjmuje korekty danych."}
+  ],
+  "czlonkowie": []
+}
