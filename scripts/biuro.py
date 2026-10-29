@@ -65,6 +65,11 @@ def call_projects():
             status = "otwarty"
         else:
             status = "sprawdzić"
+        tematy = [TITLES_PL.get(t["id"]) or t.get("title") or t["id"] for t in topics]
+        wymogi = []
+        for tp in topics[:6]:
+            tname = TITLES_PL.get(tp["id"]) or tp.get("title") or tp["id"]
+            wymogi.append({"nazwa": tname, "wymagane": "tak", "kategoria": "tematyka", "opis": tp.get("title") or ""})
         projects.append({
             "id": call,
             "title": call,
@@ -77,8 +82,9 @@ def call_projects():
             "deadlines": deadlines,
             "status": status,
             "column": STATUS_TO_COLUMN[status],
-            "tematy": [TITLES_PL.get(t["id"]) or t.get("title") or t["id"] for t in topics],
-            "dopasowane": call_matches(call, [TITLES_PL.get(t["id"]) or t.get("title") or t["id"] for t in topics], profiles),
+            "tematy": tematy,
+            "wymogi": wymogi,
+            "dopasowane": call_matches(call, tematy, profiles),
             "people": [],
         })
     projects.sort(key=lambda p: (p["column"] != "otwarte", p["deadlines"][0] if p["deadlines"] else "9999", p["id"]))

@@ -28,6 +28,8 @@ ROLES = {"biuro", "koordynator", "naukowiec", "admin"}
 PERMS = {
     "bm-projekty-v1": {"read": {"biuro", "koordynator"}, "write": {"biuro", "koordynator"}},
     "bm-panel-v2": {"read": {"biuro", "koordynator"}, "write": {"biuro", "koordynator"}},
+    "bm-panel-v3": {"read": {"biuro", "koordynator", "naukowiec"}, "write": {"biuro", "koordynator"}},
+    "bm-audit-v1": {"read": {"biuro", "koordynator"}, "write": {"biuro", "koordynator"}},
     "bm-baza-nowe": {"read": {"biuro", "koordynator"}, "write": {"biuro", "koordynator"}},
     "bm-nabor-projekt": {"read": {"biuro", "koordynator"}, "write": {"biuro", "koordynator"}},
     "bm-projekt-opiekun": {"read": {"biuro", "koordynator"}, "write": {"koordynator"}},
@@ -169,6 +171,29 @@ class Handler(SimpleHTTPRequestHandler):
             value = json.loads(raw)
         except json.JSONDecodeError:
             return self._json(400, {"error": "invalid json"})
+        # Enforce two-person approval for panel invites
+        if key == "bm-panel-v3" and isinstance(value, dict):
+            try:
+                with db() as conn:
+                    row = conn.execute("SELECT value FROM kv WHERE key = ?", (key,)).fetchone()
+                oldv = json.loads(row[0]) if row and row[0] else {"invites": []}
+                old = oldv.get("invites") if isinstance(oldv, dict) else []
+                newlist = value.get("invites") if isinstance(value, dict) else []
+                omap = {(i.get("created") or "") + "|" + str(i.get("person") or "") + "|" + str(i.get("nabor") or ""): i for i in old if isinstance(i, dict)}
+                nmap = {(i.get("created") or "") + "|" + str(i.get("person") or "") + "|" + str(i.get("nabor") or ""): i for i in newlist if isinstance(i, dict)}
+                for k, vn in nmap.items():
+                    vo = omap.get(k)
+                    if not vo:
+                        continue
+                    if vo.get("status") == "szkic" and vn.get("status") == "zatwierdzone":
+                        autor = vo.get("autor") or vo.get("created_by")
+                        who = user.get("email")
+                        if autor and who and str(autor).lower() == str(who).lower():
+                            return self._json(403, {"error": "zatwierdzenie musi wykonać inna osoba niż autor szkicu"})
+                        if not vn.get("zatwierdzil"):
+                            vn["zatwierdzil"] = user.get("email")
+            except Exception:
+                pass
         ts = now()
         with db() as conn:
             conn.execute(

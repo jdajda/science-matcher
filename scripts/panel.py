@@ -67,10 +67,17 @@ def calls():
 def projects():
     """Nabory i trwające projekty, do których można wysłać zaproszenie (z opisem)."""
     out = []
+    # build wymogi map
+    items = json.loads((ROOT / "data/nabory_sedia.json").read_text(encoding="utf-8"))
+    wymogi = {}
+    for t in items:
+        call = t["call"]
+        wymogi.setdefault(call, [])
+        wymogi[call].append({"nazwa": TITLES_PL.get(t["id"]) or t.get("title") or t["id"], "wymagane": "tak", "kategoria": "tematyka"})
     for c in calls():
         shown = "; ".join(c["titles"][:4]) + (" …" if len(c["titles"]) > 4 else "")
         out.append({"id": c["id"], "nazwa": c["id"], "typ": "nabór", "termin": (c["deadlines"][-1] if c["deadlines"] else ""),
-                    "opis": "Nabór UE. Tematy: " + shown})
+                    "opis": "Nabór UE. Tematy: " + shown, "wymogi": wymogi.get(c["id"], [])[:6]})
     rows = json.loads((ROOT / "data/projekty_zrealizowane.json").read_text(encoding="utf-8"))
     for r in rows:
         if r["koniec"] < TODAY:
@@ -311,6 +318,21 @@ SCRIPT = """
   const pill = s => { const c = SC[s] || '#8a94a6'; return '<span class="pn-status" style="background:' + c + '22;color:' + c + ';border:1px solid ' + c + '">' + esc(s) + '</span>'; };
   const cpill = s => { const c = CC[s] || '#8a94a6'; return '<span class="pn-status" style="background:' + c + '22;color:' + c + ';border:1px solid ' + c + '">' + esc(s) + '</span>'; };
   const callLine = c => c ? esc(c.status) + ' · termin: ' + esc(c.deadlines.join(' · ') || 'brak') : 'brak danych';
+  function computeCoverage(personName, projId){
+    const p = people.find(x => x.name === personName);
+    const pj = (DATA.projects || []).find(x => x.id === projId) || projById[projId] || {};
+    const wymogi = pj.wymogi || [];
+    if (!wymogi.length) return {items: [], met: 0, total: 0};
+    const topics = (p && p.topics) || [];
+    const tset = topics.join(' ').toLowerCase();
+    const items = wymogi.map(w => {
+      const n = (w.nazwa||'').toLowerCase();
+      const hit = n && tset.indexOf(n.split(/\s+/)[0]) >= 0;
+      return {name: w.nazwa, status: hit ? 'spełnione' : 'do potwierdzenia', required: w.wymagane || 'tak', evidence: hit ? 'na podstawie tematyki profilu' : 'brak bezpośredniego potwierdzenia'};
+    });
+    const met = items.filter(x => x.status === 'spełnione').length;
+    return {items: items, met: met, total: items.length};
+  }
 
   document.querySelectorAll('.seg-btn[data-view]').forEach(b => b.addEventListener('click', () => {
     document.querySelectorAll('.seg-btn[data-view]').forEach(x => x.classList.toggle('active', x === b));
@@ -416,8 +438,10 @@ SCRIPT = """
           if (i.status === 'propozycja') act = '<button class="pn-btn ghost" data-accept="' + i.idx + '" type="button">Przyjmij jako szkic</button>';
           else if (i.status === 'szkic') act = '<button class="pn-btn ghost" data-approve="' + i.idx + '" type="button">Zatwierdź</button>';
           else if (i.status === 'zatwierdzone') act = '<button class="pn-btn" data-send="' + i.idx + '" type="button">Otwórz e-mail</button>';
+          var cov = computeCoverage(i.person, i.nabor);
+          var covHtml = cov.total ? '<div class="pn-small" style="margin-top:.2rem">Pokrycie wymogów: ' + cov.met + '/' + cov.total + ' (' + cov.items.map(function(x){return x.status === 'spełnione' ? '✓' : '△';}).join('') + ')</div>' : '';
           return '<tr><td><b>' + esc(i.person) + '</b>' + (i.zglosil ? '<div class="pn-small">propozycja od: ' + esc(i.zglosil) + '</div>' : '') + (i.autor ? '<div class="pn-small">szkic: ' + esc(i.autor) + (i.zatwierdzil ? ' · zatwierdził: ' + esc(i.zatwierdzil) : '') + '</div>' : '') + '</td>' +
-            '<td>' + esc(i.projekt || i.nabor) + '<div class="pn-small">' + esc(callStatus[i.nabor] || (projById[i.nabor] || {}).typ || '') + '</div>' + (i.opis ? '<div class="pn-small">' + esc(i.opis) + '</div>' : '') + '</td>' +
+            '<td>' + esc(i.projekt || i.nabor) + '<div class="pn-small">' + esc(callStatus[i.nabor] || (projById[i.nabor] || {}).typ || '') + '</div>' + (i.opis ? '<div class="pn-small">' + esc(i.opis) + '</div>' : '') + covHtml + '</td>' +
             '<td>' + esc(i.rola) + '</td>' +
             '<td>' + pill(i.status) + '</td>' +
             '<td style="text-align:right">' + act + '</td></tr>';
@@ -473,7 +497,7 @@ SCRIPT = """
     if (!people.some(x => x.name === person) || person === ME.name) { toast('Wybierz współpracownika z listy podpowiedzi.'); return; }
     if (!nabor) { toast('Wybierz projekt lub nabór.'); return; }
     const pj = projById[nabor];
-    st.invites.push({person: person, nabor: nabor, projekt: pj.nazwa, opis: pj.opis, rola: $('pp-rola').value, uzas: $('pp-uzas').value.trim(), status: 'propozycja', typ: 'propozycja', zglosil: ME.name, created: DATA.today});
+    st.invites.push({person: person, nabor: nabor, projekt: pj.nazwa, opis: pj.opis, rola: $('pp-rola').value, uzas: $('pp-uzas').value.trim(), status: 'propozycja', typ: 'propozycja', zglosil: ME.name, created: DATA.today, visibility: {internal: true, public: false}});
     save(); $('pp-osoba').value = ''; $('pp-uzas').value = '';
     toast('Propozycja wysłana do biura.'); renderMyProposals();
   });
