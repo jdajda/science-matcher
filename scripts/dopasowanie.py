@@ -75,6 +75,7 @@ NAV = [
     ("Naukowcy", "index.html", "naukowcy"),
     ("Projekty", "biuro.html", "projekty"),
     ("Zaproszenia", "panel.html", "panel"),
+    ("Słowniki", "slowniki.html", "slowniki"),
 ]
 
 
@@ -99,13 +100,12 @@ def toggle_html():
 
 
 def nav_html(active):
-    items = []
+    items = ['<a class="tab" href="profil.html" data-role-only="naukowiec">Mój profil</a>']
     for label, href, key in NAV:
         cur_cls = " active" if key == active else ""
         cur_attr = ' aria-current="page"' if key == active else ""
         role_attr = ' data-role-only="biuro"' if key in BIURO_ONLY else ""
         items.append(f'<a class="tab{cur_cls}" href="{href}"{cur_attr}{role_attr}>{label}</a>')
-    items.append('<a class="tab" href="profil.html" data-role-only="naukowiec">Mój profil</a>')
     return f'<nav class="tabs" aria-label="Menu główne"><div class="container tabs-row">{"".join(items)}</div></nav>'
 
 

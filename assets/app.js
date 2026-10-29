@@ -68,7 +68,9 @@
         }).join('') : '<div class="acc-empty">Brak nowych powiadomień.</div>') +
       '</div>' +
       '<button class="acc-me" type="button" aria-label="Konto: ' + esc(label) + '" aria-expanded="false" aria-controls="acc-menu">' +
-        '<span class="acc-av">' + esc(user.role === 'naukowiec' ? (user.name ? initials(user.name) : 'N') : 'BP') + '</span>' +
+        (user.role === 'naukowiec'
+          ? '<span class="acc-av acc-av-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg></span>'
+          : '<span class="acc-av">BP</span>') +
         '<span class="acc-name">' + esc(label) + '</span>' +
       '</button>' +
       '<div class="acc-menu" id="acc-menu" hidden>' +

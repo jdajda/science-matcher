@@ -33,6 +33,7 @@ PERMS = {
     "bm-baza-nowe": {"read": {"biuro", "koordynator"}, "write": {"biuro", "koordynator"}},
     "bm-nabor-projekt": {"read": {"biuro", "koordynator"}, "write": {"biuro", "koordynator"}},
     "bm-projekt-opiekun": {"read": {"biuro", "koordynator"}, "write": {"koordynator"}},
+    "bm-trl-v1": {"read": {"biuro", "koordynator"}, "write": {"biuro", "koordynator"}},
 }
 
 

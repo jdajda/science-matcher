@@ -20,6 +20,38 @@ STATUS_TO_COLUMN = {"planowany": "przyszle", "otwarty": "otwarte", "zamknięty":
 SOURCES = ["Nabór UE", "Partner zewnętrzny", "Inne"]
 PROGRAMS = ["Dane i AI", "Cyfryzacja", "Przemysł", "Energia i środowisko", "Zdrowie", "Inne"]
 ROLES = ["badawcza", "zarządcza", "wdrożeniowa", "komunikacja"]
+TRL_LEVELS = [
+    (1, "zasady podstawowe zaobserwowane"),
+    (2, "sformułowana koncepcja technologii"),
+    (3, "dowód koncepcji w badaniach eksperymentalnych"),
+    (4, "walidacja komponentów w warunkach laboratoryjnych"),
+    (5, "walidacja w środowisku zbliżonym do rzeczywistego"),
+    (6, "demonstracja prototypu w środowisku zbliżonym do rzeczywistego"),
+    (7, "demonstracja prototypu systemu w środowisku operacyjnym"),
+    (8, "system kompletny i zakwalifikowany"),
+    (9, "system potwierdzony w środowisku operacyjnym"),
+]
+
+
+TRL_COLORS = {1: ("#e8f0fb", "#2f4f7a"), 2: ("#e3f0fa", "#2c5f80"), 3: ("#e2f4f2", "#256a66"), 4: ("#e4f5e9", "#2b6a43"), 5: ("#edf7df", "#4a6b25"),
+              6: ("#f7f5d9", "#6b5f1f"), 7: ("#fbf0d9", "#7a5a1c"), 8: ("#fbe7da", "#7a4420"), 9: ("#f7dede", "#7a3434")}
+
+
+def trl_css():
+    rules = "".join(f".trl-l{n} {{ background: {bg}; color: {fg}; border-color: {bg}; }}" for n, (bg, fg) in TRL_COLORS.items())
+    return ".trl-badge { display: inline-block; font-size: .75rem; font-weight: 600; padding: .1rem .5rem; border-radius: 999px; border: 1px solid var(--border); color: var(--text); margin-top: .3rem; } " + rules
+
+
+def trl_legend():
+    items = "".join(f'<li><span class="trl-badge trl-l{n}">TRL {n}</span> {h.escape(d)}</li>' for n, d in TRL_LEVELS)
+    return ('<style>' + trl_css() + ' .trl-legend { margin: .6rem 0; font-size: .88rem; } .trl-legend ol { margin: .4rem 0 0 1.2rem; padding: 0; list-style: none; } .trl-legend li { margin: .3rem 0; }</style>'
+            '<details class="trl-legend"><summary>Legenda poziomów TRL</summary>'
+            '<p class="pj-small">Poziom dotyczy technologii lub rezultatu wniosku, nie pojedynczej osoby.</p>'
+            f'<ol>{items}</ol></details>')
+
+
+def trl_options():
+    return "".join(f'<option value="{n}">TRL {n}</option>' for n, _ in TRL_LEVELS)
 
 
 TITLES_PL = json.loads((ROOT / "data/tytuly_pl.json").read_text(encoding="utf-8"))
@@ -120,7 +152,8 @@ def base_html():
     nab_js = json.dumps(nab, ensure_ascii=False).replace("</", "<\\/")
     members = json.loads((ROOT / "data" / "biuro_kontakt.json").read_text(encoding="utf-8")).get("czlonkowie", [])
     members_js = json.dumps(members, ensure_ascii=False).replace("</", "<\\/")
-    return BASE_TEMPLATE.replace("__DATA__", data).replace("__STAFF__", staff_js).replace("__NABORY__", nab_js).replace("__MEMBERS__", members_js).replace("__TODAY__", TODAY)
+    return (BASE_TEMPLATE.replace("__DATA__", data).replace("__STAFF__", staff_js).replace("__NABORY__", nab_js).replace("__MEMBERS__", members_js).replace("__TODAY__", TODAY)
+            .replace("__TRL_LEGEND__", trl_legend()).replace("__TRL_OPTS__", trl_options()).replace("__TRL__", json.dumps([[n, d] for n, d in TRL_LEVELS], ensure_ascii=False)))
 
 
 BASE_TEMPLATE = r'''  <section id="pj-baza" class="pj-base">
@@ -131,6 +164,7 @@ BASE_TEMPLATE = r'''  <section id="pj-baza" class="pj-base">
       <button class="btn" id="bz-csv" type="button">Pobierz CSV</button>
       <span class="pj-meta" id="bz-msg" role="status" aria-live="polite"></span>
     </div>
+    __TRL_LEGEND__
     <div class="bz-layout">
       <aside class="bz-side" aria-label="Filtry bazy projektów">
         <div class="side-head"><h3>Filtry</h3></div>
@@ -146,8 +180,14 @@ BASE_TEMPLATE = r'''  <section id="pj-baza" class="pj-base">
         </div>
         <div class="bz-block">
           <span class="side-label">Etap</span>
+          <label class="bz-check"><input type="checkbox" name="bz-etap" value="wniosek" checked> Wnioski</label>
+          <label class="bz-check"><input type="checkbox" name="bz-etap" value="odrzucony" checked> Odrzucone wnioski</label>
           <label class="bz-check"><input type="checkbox" name="bz-etap" value="w realizacji" checked> W trakcie realizacji</label>
           <label class="bz-check"><input type="checkbox" name="bz-etap" value="zakończony" checked> Zakończone</label>
+        </div>
+        <div class="bz-block">
+          <label class="side-label" for="bz-trl">Poziom TRL wniosku</label>
+          <select id="bz-trl"><option value="">wszyscy</option><option value="brak">bez poziomu</option>__TRL_OPTS__</select>
         </div>
         <div class="bz-block">
           <label class="side-label" for="bz-kier">Kierownik</label>
@@ -162,6 +202,8 @@ BASE_TEMPLATE = r'''  <section id="pj-baza" class="pj-base">
       <div class="bz-main">
         <div class="bz-summary" id="bz-sum" role="status" aria-live="polite"></div>
         <div class="bz-board">
+          <div class="bz-col" data-stan="wniosek" style="--c:#5f9e80"><div class="bz-col-head"><span>Wnioski</span><span class="pj-count" data-count="wniosek"></span></div><div class="bz-list"></div><button class="link-btn bz-more" type="button" data-stan="wniosek" hidden></button></div>
+          <div class="bz-col" data-stan="odrzucony" style="--c:#b06464"><div class="bz-col-head"><span>Odrzucone wnioski</span><span class="pj-count" data-count="odrzucony"></span></div><div class="bz-list"></div><button class="link-btn bz-more" type="button" data-stan="odrzucony" hidden></button></div>
           <div class="bz-col" data-stan="w realizacji" style="--c:#b08a4a"><div class="bz-col-head"><span>W trakcie realizacji</span><span class="pj-count" data-count="w realizacji"></span></div><div class="bz-list"></div><button class="link-btn bz-more" type="button" data-stan="w realizacji" hidden></button></div>
           <div class="bz-col" data-stan="zakończony" style="--c:#8a94a6"><div class="bz-col-head"><span>Zakończone</span><span class="pj-count" data-count="zakończony"></span></div><div class="bz-list"></div><button class="link-btn bz-more" type="button" data-stan="zakończony" hidden></button></div>
         </div>
@@ -205,15 +247,31 @@ BASE_TEMPLATE = r'''  <section id="pj-baza" class="pj-base">
   (function () {
     var KEY = 'bm-baza-stan', PKEY = 'bm-baza-pula', KKEY = 'bm-baza-kier';
     var COORD_BASE = localStorage.getItem('bm-biuro-rola') === 'koordynator';
-    var ORDER = ['w realizacji', 'zakończony'];
-    var LBL = {'zakończony': 'Zakończone', 'w realizacji': 'W trakcie realizacji'};
+    var ORDER = ['wniosek', 'odrzucony', 'w realizacji', 'zakończony'];
+    var LBL = {'wniosek': 'Wnioski', 'odrzucony': 'Odrzucone wnioski', 'zakończony': 'Zakończone', 'w realizacji': 'W trakcie realizacji'};
     var PLBL = {'wi': 'Projekty WI', 'unijne': 'Unijne'};
+    var TRLKEY = 'bm-trl-v1', TRL_LVL = __TRL__, trlMap = {};
+    try { trlMap = JSON.parse(localStorage.getItem(TRLKEY) || '{}'); } catch (e) { trlMap = {}; }
+    function trlKeyOf(r) { return r.nabor || ('base:' + r.id); }
+    function trlOf(r) { return (trlMap[trlKeyOf(r)] || {}).poziom || null; }
+    function setTrl(r, n) {
+      if (n) trlMap[trlKeyOf(r)] = {poziom: n}; else delete trlMap[trlKeyOf(r)];
+      localStorage.setItem(TRLKEY, JSON.stringify(trlMap));
+      if (location.protocol.indexOf('http') === 0) fetch('/api/kv/' + encodeURIComponent(TRLKEY), {method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(trlMap)}).catch(function () {});
+      render();
+      msg.textContent = n ? 'Poziom TRL: ' + n + ' → ' + r.temat : 'Usunięto poziom TRL: ' + r.temat;
+    }
     var BASE_ROWS = __DATA__;
     var rows = BASE_ROWS.concat(loadNewRows());
     window.addEventListener('bm-baza-changed', function () { rows = BASE_ROWS.concat(loadNewRows()); render(); });
     if (location.protocol.indexOf('http') === 0) {
       fetch('/api/kv/bm-baza-nowe', {cache: 'no-store'}).then(function (r) { return r.ok ? r.json() : null; }).then(function (v) {
         if (v) { localStorage.setItem('bm-baza-nowe', JSON.stringify(v)); rows = BASE_ROWS.concat(loadNewRows()); render(); }
+      }).catch(function () {});
+    }
+    if (location.protocol.indexOf('http') === 0) {
+      fetch('/api/kv/bm-trl-v1', {cache: 'no-store'}).then(function (r) { return r.ok ? r.json() : null; }).then(function (v) {
+        if (v) { trlMap = v; localStorage.setItem(TRLKEY, JSON.stringify(v)); render(); }
       }).catch(function () {});
     }
     var STAFF = __STAFF__;
@@ -241,6 +299,9 @@ BASE_TEMPLATE = r'''  <section id="pj-baza" class="pj-base">
     function matches(r) {
       if (checked('bz-pula').indexOf(pulaOf(r)) === -1) return false;
       if (checked('bz-etap').indexOf(stanOf(r)) === -1) return false;
+      var tf = document.getElementById('bz-trl').value;
+      if (tf === 'brak' && trlOf(r)) return false;
+      if (tf && tf !== 'brak' && String(trlOf(r)) !== tf) return false;
       var q = document.getElementById('bz-q').value.trim().toLowerCase();
       if (q && [r.nazwa, r.temat, r.kierownik, kierWiOf(r), r.zleceniodawca, r.nr_umowy].join(' ').toLowerCase().indexOf(q) === -1) return false;
       var k = document.getElementById('bz-kier').value;
@@ -253,10 +314,10 @@ BASE_TEMPLATE = r'''  <section id="pj-baza" class="pj-base">
     function loadNewRows() {
       var list = []; try { list = JSON.parse(localStorage.getItem('bm-baza-nowe') || '[]'); } catch (e) { list = []; }
       return list.map(function (r) {
-        var stan = r.koniec < '__TODAY__' ? 'zakończony' : 'w realizacji';
+        var stan = r.koniec < '__TODAY__' ? 'zakończony' : (r.start <= '__TODAY__' ? 'w realizacji' : 'wniosek');
         var pula = /Komisja Europejska/.test(r.zleceniodawca || '') ? 'unijne' : 'wi';
         return Object.assign({}, r, {stan: stan, pula: pula});
-      }).filter(function (r) { return r.start <= '__TODAY__'; });
+      });
     }
     function fillSelect(sel, values) {
       var cur = sel.value;
@@ -274,6 +335,7 @@ BASE_TEMPLATE = r'''  <section id="pj-baza" class="pj-base">
       var d = document.createElement('article');
       d.className = 'bz-tile bz-tile--' + pulaOf(r); d.draggable = true; d.dataset.id = String(r.id);
       var p = document.createElement('span'); p.className = 'bz-pula'; p.textContent = PLBL[pulaOf(r)];
+      var tb = document.createElement('span'); tb.className = 'trl-badge' + (trlOf(r) ? ' trl-l' + trlOf(r) : ''); tb.textContent = trlOf(r) ? 'TRL ' + trlOf(r) : 'TRL: brak';
       var nm = document.createElement('div'); nm.className = 'bz-meta'; if (r.nazwa) nm.textContent = 'Nazwa: ' + r.nazwa;
       var t = document.createElement('div'); t.className = 'bz-title'; t.textContent = r.temat;
       var mlink = r.nabor ? ' · z naboru ' + r.nabor : '';
@@ -314,10 +376,14 @@ BASE_TEMPLATE = r'''  <section id="pj-baza" class="pj-base">
         var mp = {}; try { mp = JSON.parse(localStorage.getItem('bm-projekt-opiekun') || '{}'); } catch (e) { mp = {}; }
         mp['base:' + r.id] = osel.value; localStorage.setItem('bm-projekt-opiekun', JSON.stringify(mp)); msg.textContent = osel.value ? 'Opiekun projektu: ' + osel.value : 'Usunięto opiekuna projektu';
       });
+      var tsel = document.createElement('select'); tsel.className = 'bz-sel'; tsel.setAttribute('aria-label', 'Poziom TRL: ' + r.temat);
+      tsel.innerHTML = '<option value="">— poziom TRL: brak —</option>' + TRL_LVL.map(function (x) { return '<option value="' + x[0] + '"' + (x[0] === trlOf(r) ? ' selected' : '') + '>TRL ' + x[0] + ' · ' + esc(x[1]) + '</option>'; }).join('');
+      tsel.addEventListener('change', function () { setTrl(r, tsel.value ? +tsel.value : null); });
+      var tlab = document.createElement('label'); tlab.className = 'bz-meta'; tlab.textContent = 'Poziom TRL wniosku: '; tlab.appendChild(tsel);
       edit.append(es, sel, psel, ksel, osel);
       d.addEventListener('dragstart', function (e) { e.dataTransfer.setData('text/plain', String(r.id)); d.classList.add('dragging'); });
       d.addEventListener('dragend', function () { d.classList.remove('dragging'); });
-      d.append(p, nm, t, m, z, dt, edit);
+      d.append(p, tb, nm, t, m, z, dt, tlab, edit);
       return d;
     }
 
@@ -381,11 +447,13 @@ BASE_TEMPLATE = r'''  <section id="pj-baza" class="pj-base">
     document.getElementById('bz-q').addEventListener('input', render);
     document.getElementById('bz-kier').addEventListener('change', render);
     document.getElementById('bz-zlec').addEventListener('change', render);
+    document.getElementById('bz-trl').addEventListener('change', render);
     document.querySelectorAll('input[name="bz-pula"], input[name="bz-etap"]').forEach(function (c) { c.addEventListener('change', render); });
     document.getElementById('bz-clear').addEventListener('click', function () {
       document.getElementById('bz-q').value = '';
       document.getElementById('bz-kier').value = '';
       document.getElementById('bz-zlec').value = '';
+      document.getElementById('bz-trl').value = '';
       document.querySelectorAll('input[name="bz-pula"], input[name="bz-etap"]').forEach(function (c) { c.checked = true; });
       render();
     });
@@ -442,7 +510,8 @@ def nabory_status():
 
 
 def board_html(col_checks, opt):
-    return f"""  <div class="pj-layout">
+    return f"""{trl_legend()}
+  <div class="pj-layout">
     <aside class="pj-side">
       <div class="side-head"><h3>Filtry</h3></div>
       <div class="side-block">
@@ -452,6 +521,10 @@ def board_html(col_checks, opt):
       <div class="side-block">
         <span class="side-label">Etap</span>
         {col_checks}
+      </div>
+      <div class="side-block">
+        <label class="side-label" for="pj-trl">Poziom TRL wniosku</label>
+        <select id="pj-trl"><option value="">wszystkie</option><option value="brak">bez poziomu</option>{trl_options()}</select>
       </div>
       <div class="side-block">
         <span class="side-label">Status naboru</span>
@@ -492,7 +565,7 @@ def board_html(col_checks, opt):
 
 PAGE_VIEWS = [("baza", "biuro.html", "Baza projektów"), ("tablica", "nabory.html", "Tablica naborów")]
 HEROES = {
-    "baza": ("Projekty", "Baza projektów", "Realizowane i zakończone projekty WI i unijne. Filtry po lewej. Przeciągnij kafel na inny etap albo na pulę."),
+    "baza": ("Projekty", "Baza projektów", "Wnioski, odrzucone wnioski, projekty w realizacji i zakończone (WI i unijne). Filtry po lewej. Przeciągnij kafel na inny etap albo na pulę."),
     "tablica": ("Nabory UE", "Tablica naborów", "Nabory przyszłe i otwarte. W karcie widzisz tematy, terminy, dopasowane osoby i zespół. Projekt z naboru utworzysz w karcie."),
 }
 
@@ -522,6 +595,7 @@ def render(view="baza"):
         "sources": SOURCES,
         "programs": PROGRAMS,
         "roles": ROLES,
+        "trl": [[n, d] for n, d in TRL_LEVELS],
         "members": json.loads((ROOT / "data" / "biuro_kontakt.json").read_text(encoding="utf-8")).get("czlonkowie", []),
     }
     data = json.dumps(payload, ensure_ascii=False).replace("</", "<\\/")
@@ -646,7 +720,7 @@ SCRIPT = """
   let OPIEKUN = {}; try { OPIEKUN = JSON.parse(localStorage.getItem(OPKEY) || '{}'); } catch (e) { OPIEKUN = {}; }
   function saveOpiekun(key, name){ OPIEKUN[key] = name; saveState(OPKEY, OPIEKUN); }
   let st = await loadState(KEY, {cards: {}, custom: []});
-  for (const k of ['bm-baza-nowe', 'bm-nabor-projekt', 'bm-projekt-opiekun']) {
+  for (const k of ['bm-baza-nowe', 'bm-nabor-projekt', 'bm-projekt-opiekun', 'bm-trl-v1']) {
     const v = await loadRemote(k); if (v) localStorage.setItem(k, JSON.stringify(v));
   }
   OPIEKUN = jsonLs(OPKEY, {});
@@ -681,6 +755,10 @@ SCRIPT = """
     return tags.length ? '<div class="pj-tags">' + tags.map(t => '<span class="pj-tag">' + esc(t) + '</span>').join('') + '</div>' : '';
   }
   const NEWKEY = 'bm-baza-nowe', LINKKEY = 'bm-nabor-projekt';
+  let TRLMAP = await loadState('bm-trl-v1', {});
+  function trlOf(key){ return (TRLMAP[key] || {}).poziom || null; }
+  function trlBadge(key){ const v = trlOf(key); return '<span class="trl-badge' + (v ? ' trl-l' + v : '') + '">' + (v ? 'TRL ' + v : 'TRL: brak') + '</span>'; }
+  function trlOpts(cur){ return '<option value="">— brak —</option>' + DATA.trl.map(x => '<option value="' + x[0] + '"' + (x[0] === cur ? ' selected' : '') + '>TRL ' + x[0] + ' · ' + esc(x[1]) + '</option>').join(''); }
   function jsonLs(key, fallback) { try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); } catch (e) { return fallback; } }
   function linkedTo(callId) { return jsonLs(LINKKEY, {})[callId] || ''; }
   function createSection(p){
@@ -730,7 +808,7 @@ SCRIPT = """
       : '<p class="pj-empty">Brak dopasowań dla tego naboru.</p>';
     return '<details class="pj-card" style="--c:' + col + '"' + (p.open ? ' open' : '') + '>' +
       '<summary><div class="pj-title">' + esc(p.title).replace(/-/g, '\u2011') + '</div>' +
-      '<div class="pj-meta">' + esc(p.status || '') + ' · termin: ' + esc(term) + '</div>' + tagsOf(p) +
+      '<div class="pj-meta">' + esc(p.status || '') + ' · termin: ' + esc(term) + '</div>' + tagsOf(p) + trlBadge(p.id) +
       '<div class="pj-dots">' + dots(p.people || []) + '</div></summary>' +
       '<div class="pj-body">' +
         (p.opis ? '<div class="pj-section"><div class="pj-label">Opis</div><p>' + esc(p.opis) + '</p></div>' : '') +
@@ -740,6 +818,7 @@ SCRIPT = """
         '<select data-add="' + esc(p.id) + '">' + peopleOpts + '</select></div>' +
         '<div class="pj-section"><div class="pj-label">Opiekun projektu</div>' + opiekunSel('call:' + p.id) + '</div>' +
         (linkedTo(p.id) ? '<div class="pj-section"><div class="pj-label">Projekt w bazie</div><p>' + esc(linkedTo(p.id)) + ' (kafel w bazie projektów WI i unijne)</p></div>' : createSection(p)) +
+        '<div class="pj-section"><div class="pj-label">Poziom TRL wniosku</div><select data-trl="' + esc(p.id) + '" aria-label="Poziom TRL wniosku">' + trlOpts(trlOf(p.id)) + '</select><div class="pj-small">TRL dotyczy technologii lub rezultatu, nie osoby.</div></div>' +
         '<div class="pj-section"><div class="pj-label">Etap</div><select data-move="' + esc(p.id) + '">' + colOpts + '</select></div>' +
         '<button class="btn" type="button" data-card="' + esc(p.id) + '">Wizytówka do wysłania</button>' +
       '</div></details>';
@@ -752,6 +831,8 @@ SCRIPT = """
       const text = [p.title, p.opis, p.id, p.source, p.program, p.typ].concat(p.slowa || [], p.tematy || []).join(' ').toLowerCase();
       if (!text.includes(q)) return false;
     }
+    if ($('pj-trl').value === 'brak' && trlOf(p.id)) return false;
+    if ($('pj-trl').value && $('pj-trl').value !== 'brak' && String(trlOf(p.id)) !== $('pj-trl').value) return false;
     if ($('pj-status').value && p.status !== $('pj-status').value) return false;
     if ($('pj-source').value && p.source !== $('pj-source').value) return false;
     if ($('pj-program').value && p.program !== $('pj-program').value) return false;
@@ -820,6 +901,11 @@ SCRIPT = """
     board.querySelectorAll('[data-move]').forEach(s => s.addEventListener('change', e => {
       update(e.target.dataset.move, {column: e.target.value, open: true});
     }));
+    board.querySelectorAll('[data-trl]').forEach(s => s.addEventListener('change', () => {
+      const k = s.dataset.trl;
+      if (s.value) TRLMAP[k] = {poziom: +s.value}; else delete TRLMAP[k];
+      saveState('bm-trl-v1', TRLMAP); toast(s.value ? 'Poziom TRL: ' + s.value : 'Usunięto poziom TRL'); render();
+    }));
     board.querySelectorAll('[data-card]').forEach(b => b.addEventListener('click', e => {
       e.preventDefault();
       wizytowka(all.find(x => x.id === e.currentTarget.dataset.card));
@@ -835,11 +921,11 @@ SCRIPT = """
       h.textContent = hidden ? hidden + ' naborów zamkniętych nie jest na tablicy (są poza tym widokiem).' : '';
     })();
   }
-  ['pj-q', 'pj-status', 'pj-source', 'pj-program', 'pj-role', 'pj-person', 'pj-deadline'].forEach(id => $(id).addEventListener('input', render));
+  ['pj-q', 'pj-trl', 'pj-status', 'pj-source', 'pj-program', 'pj-role', 'pj-person', 'pj-deadline'].forEach(id => $(id).addEventListener('input', render));
   document.querySelectorAll('.pj-col-cb').forEach(c => c.addEventListener('change', render));
   $('pj-reset').addEventListener('click', () => {
     ['pj-q', 'pj-deadline'].forEach(id => $(id).value = '');
-    ['pj-status', 'pj-source', 'pj-program', 'pj-role', 'pj-person'].forEach(id => $(id).value = '');
+    ['pj-trl', 'pj-status', 'pj-source', 'pj-program', 'pj-role', 'pj-person'].forEach(id => $(id).value = '');
     document.querySelectorAll('.pj-col-cb').forEach(c => c.checked = true);
     render();
   });
