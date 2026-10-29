@@ -26,6 +26,13 @@ def plain(text):
     return h.unescape(re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", str(text or "")))).strip()
 
 
+PARTNER_RE = re.compile(
+    r"seeking (new )?partners|looking for (new )?partners|partners? (are|is) (sought|needed|wanted)|"
+    r"call for partners|partner search|expression of interest|consortium (partners|members) (are )?(sought|needed)",
+    re.I,
+)
+
+
 def topic_status(tid, call, texts):
     for t in texts.get(call, ()):
         m = re.search(r"submission session is now available for:(.*)", t, re.I)
@@ -63,6 +70,7 @@ def collect(prefix, pages, texts):
                 "model": first(meta, "deadlineModel"),
                 "opis": desc[:200],
                 "url": url,
+                "szuka_partnerow": bool(PARTNER_RE.search(desc)),
             }
         if not data.get("results"):
             break

@@ -598,7 +598,10 @@ a.tab, a.tab:hover { text-decoration: none; }
         <div class="bz-block">
           <span class="side-label">Etap</span>
           <label class="bz-check"><input type="checkbox" name="bz-etap" value="wniosek" checked> Wnioski</label>
+          <label class="bz-check"><input type="checkbox" name="bz-etap" value="ocena" checked> W ocenie</label>
+          <label class="bz-check"><input type="checkbox" name="bz-etap" value="przyznany" checked> Przyznany</label>
           <label class="bz-check"><input type="checkbox" name="bz-etap" value="odrzucony" checked> Odrzucone wnioski</label>
+          <label class="bz-check"><input type="checkbox" name="bz-etap" value="wycofany" checked> Wycofany</label>
           <label class="bz-check"><input type="checkbox" name="bz-etap" value="w realizacji" checked> W trakcie realizacji</label>
           <label class="bz-check"><input type="checkbox" name="bz-etap" value="zakończony" checked> Zakończone</label>
         </div>
@@ -620,7 +623,10 @@ a.tab, a.tab:hover { text-decoration: none; }
         <div class="bz-summary" id="bz-sum" role="status" aria-live="polite"></div>
         <div class="bz-board">
           <div class="bz-col" data-stan="wniosek" style="--c:#5f9e80"><div class="bz-col-head"><span>Wnioski</span><span class="pj-count" data-count="wniosek"></span></div><div class="bz-list"></div><button class="link-btn bz-more" type="button" data-stan="wniosek" hidden></button></div>
+          <div class="bz-col" data-stan="ocena" style="--c:#4f7fb0"><div class="bz-col-head"><span>W ocenie</span><span class="pj-count" data-count="ocena"></span></div><div class="bz-list"></div><button class="link-btn bz-more" type="button" data-stan="ocena" hidden></button></div>
+          <div class="bz-col" data-stan="przyznany" style="--c:#2f7d5b"><div class="bz-col-head"><span>Przyznany</span><span class="pj-count" data-count="przyznany"></span></div><div class="bz-list"></div><button class="link-btn bz-more" type="button" data-stan="przyznany" hidden></button></div>
           <div class="bz-col" data-stan="odrzucony" style="--c:#b06464"><div class="bz-col-head"><span>Odrzucone wnioski</span><span class="pj-count" data-count="odrzucony"></span></div><div class="bz-list"></div><button class="link-btn bz-more" type="button" data-stan="odrzucony" hidden></button></div>
+          <div class="bz-col" data-stan="wycofany" style="--c:#8a94a6"><div class="bz-col-head"><span>Wycofany</span><span class="pj-count" data-count="wycofany"></span></div><div class="bz-list"></div><button class="link-btn bz-more" type="button" data-stan="wycofany" hidden></button></div>
           <div class="bz-col" data-stan="w realizacji" style="--c:#b08a4a"><div class="bz-col-head"><span>W trakcie realizacji</span><span class="pj-count" data-count="w realizacji"></span></div><div class="bz-list"></div><button class="link-btn bz-more" type="button" data-stan="w realizacji" hidden></button></div>
           <div class="bz-col" data-stan="zakończony" style="--c:#8a94a6"><div class="bz-col-head"><span>Zakończone</span><span class="pj-count" data-count="zakończony"></span></div><div class="bz-list"></div><button class="link-btn bz-more" type="button" data-stan="zakończony" hidden></button></div>
         </div>
@@ -664,8 +670,8 @@ a.tab, a.tab:hover { text-decoration: none; }
   (function () {
     var KEY = 'bm-baza-stan', PKEY = 'bm-baza-pula', KKEY = 'bm-baza-kier';
     var COORD_BASE = localStorage.getItem('bm-biuro-rola') === 'koordynator';
-    var ORDER = ['wniosek', 'odrzucony', 'w realizacji', 'zakończony'];
-    var LBL = {'wniosek': 'Wnioski', 'odrzucony': 'Odrzucone wnioski', 'zakończony': 'Zakończone', 'w realizacji': 'W trakcie realizacji'};
+    var ORDER = ['wniosek', 'ocena', 'przyznany', 'odrzucony', 'wycofany', 'w realizacji', 'zakończony'];
+    var LBL = {'wniosek': 'Wnioski', 'ocena': 'W ocenie', 'przyznany': 'Przyznany', 'odrzucony': 'Odrzucone wnioski', 'wycofany': 'Wycofany', 'zakończony': 'Zakończone', 'w realizacji': 'W trakcie realizacji'};
     var PLBL = {'wi': 'Projekty WI', 'unijne': 'Unijne'};
     var TRLKEY = 'bm-trl-v1', TRL_LVL = [[1, "zasady podstawowe zaobserwowane"], [2, "sformułowana koncepcja technologii"], [3, "dowód koncepcji w badaniach eksperymentalnych"], [4, "walidacja komponentów w warunkach laboratoryjnych"], [5, "walidacja w środowisku zbliżonym do rzeczywistego"], [6, "demonstracja prototypu w środowisku zbliżonym do rzeczywistego"], [7, "demonstracja prototypu systemu w środowisku operacyjnym"], [8, "system kompletny i zakwalifikowany"], [9, "system potwierdzony w środowisku operacyjnym"]], trlMap = {};
     try { trlMap = JSON.parse(localStorage.getItem(TRLKEY) || '{}'); } catch (e) { trlMap = {}; }
@@ -705,10 +711,23 @@ a.tab, a.tab:hover { text-decoration: none; }
     function stanOf(r) { var o = over[String(r.id)]; return ORDER.indexOf(o) !== -1 ? o : r.stan; }
     function pulaOf(r) { return pover[String(r.id)] || r.pula; }
     function kierWiOf(r) { return kover.hasOwnProperty(String(r.id)) ? kover[String(r.id)] : (r.kierownik_wi || ''); }
+    function putRemote(key, v) {
+      localStorage.setItem(key, JSON.stringify(v));
+      if (location.protocol.indexOf('http') === 0) fetch('/api/kv/' + encodeURIComponent(key), {method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(v)}).catch(function () {});
+    }
     function save() {
-      localStorage.setItem(KEY, JSON.stringify(over));
-      localStorage.setItem(PKEY, JSON.stringify(pover));
-      localStorage.setItem(KKEY, JSON.stringify(kover));
+      putRemote(KEY, over);
+      putRemote(PKEY, pover);
+      putRemote(KKEY, kover);
+    }
+    if (location.protocol.indexOf('http') === 0) {
+      [[KEY, 'over'], [PKEY, 'pover'], [KKEY, 'kover']].forEach(function (pair) {
+        fetch('/api/kv/' + encodeURIComponent(pair[0]), {cache: 'no-store'}).then(function (r) { return r.ok ? r.json() : null; }).then(function (v) {
+          if (!v) return;
+          if (pair[1] === 'over') over = v; else if (pair[1] === 'pover') pover = v; else kover = v;
+          localStorage.setItem(pair[0], JSON.stringify(v)); render();
+        }).catch(function () {});
+      });
     }
     function checked(name) {
       return Array.prototype.map.call(document.querySelectorAll('input[name="' + name + '"]:checked'), function (x) { return x.value; });

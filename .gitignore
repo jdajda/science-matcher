@@ -23,3 +23,7 @@ index.html.zip
 # --- Python ---
 __pycache__/
 *.py[cod]
+# baza serwera i kopie zapasowe (dane osobowe, nie publikujemy)
+data/baza.sqlite
+data/baza.sqlite-*
+data/kopie/

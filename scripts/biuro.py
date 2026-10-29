@@ -115,6 +115,7 @@ def call_projects():
             "status": status,
             "column": STATUS_TO_COLUMN[status],
             "tematy": tematy,
+            "szuka_partnerow": any(t.get("szuka_partnerow") for t in topics),
             "wymogi": wymogi,
             "dopasowane": call_matches(call, tematy, profiles),
             "people": [],
@@ -181,7 +182,10 @@ BASE_TEMPLATE = r'''  <section id="pj-baza" class="pj-base">
         <div class="bz-block">
           <span class="side-label">Etap</span>
           <label class="bz-check"><input type="checkbox" name="bz-etap" value="wniosek" checked> Wnioski</label>
+          <label class="bz-check"><input type="checkbox" name="bz-etap" value="ocena" checked> W ocenie</label>
+          <label class="bz-check"><input type="checkbox" name="bz-etap" value="przyznany" checked> Przyznany</label>
           <label class="bz-check"><input type="checkbox" name="bz-etap" value="odrzucony" checked> Odrzucone wnioski</label>
+          <label class="bz-check"><input type="checkbox" name="bz-etap" value="wycofany" checked> Wycofany</label>
           <label class="bz-check"><input type="checkbox" name="bz-etap" value="w realizacji" checked> W trakcie realizacji</label>
           <label class="bz-check"><input type="checkbox" name="bz-etap" value="zakończony" checked> Zakończone</label>
         </div>
@@ -203,7 +207,10 @@ BASE_TEMPLATE = r'''  <section id="pj-baza" class="pj-base">
         <div class="bz-summary" id="bz-sum" role="status" aria-live="polite"></div>
         <div class="bz-board">
           <div class="bz-col" data-stan="wniosek" style="--c:#5f9e80"><div class="bz-col-head"><span>Wnioski</span><span class="pj-count" data-count="wniosek"></span></div><div class="bz-list"></div><button class="link-btn bz-more" type="button" data-stan="wniosek" hidden></button></div>
+          <div class="bz-col" data-stan="ocena" style="--c:#4f7fb0"><div class="bz-col-head"><span>W ocenie</span><span class="pj-count" data-count="ocena"></span></div><div class="bz-list"></div><button class="link-btn bz-more" type="button" data-stan="ocena" hidden></button></div>
+          <div class="bz-col" data-stan="przyznany" style="--c:#2f7d5b"><div class="bz-col-head"><span>Przyznany</span><span class="pj-count" data-count="przyznany"></span></div><div class="bz-list"></div><button class="link-btn bz-more" type="button" data-stan="przyznany" hidden></button></div>
           <div class="bz-col" data-stan="odrzucony" style="--c:#b06464"><div class="bz-col-head"><span>Odrzucone wnioski</span><span class="pj-count" data-count="odrzucony"></span></div><div class="bz-list"></div><button class="link-btn bz-more" type="button" data-stan="odrzucony" hidden></button></div>
+          <div class="bz-col" data-stan="wycofany" style="--c:#8a94a6"><div class="bz-col-head"><span>Wycofany</span><span class="pj-count" data-count="wycofany"></span></div><div class="bz-list"></div><button class="link-btn bz-more" type="button" data-stan="wycofany" hidden></button></div>
           <div class="bz-col" data-stan="w realizacji" style="--c:#b08a4a"><div class="bz-col-head"><span>W trakcie realizacji</span><span class="pj-count" data-count="w realizacji"></span></div><div class="bz-list"></div><button class="link-btn bz-more" type="button" data-stan="w realizacji" hidden></button></div>
           <div class="bz-col" data-stan="zakończony" style="--c:#8a94a6"><div class="bz-col-head"><span>Zakończone</span><span class="pj-count" data-count="zakończony"></span></div><div class="bz-list"></div><button class="link-btn bz-more" type="button" data-stan="zakończony" hidden></button></div>
         </div>
@@ -247,8 +254,8 @@ BASE_TEMPLATE = r'''  <section id="pj-baza" class="pj-base">
   (function () {
     var KEY = 'bm-baza-stan', PKEY = 'bm-baza-pula', KKEY = 'bm-baza-kier';
     var COORD_BASE = localStorage.getItem('bm-biuro-rola') === 'koordynator';
-    var ORDER = ['wniosek', 'odrzucony', 'w realizacji', 'zakończony'];
-    var LBL = {'wniosek': 'Wnioski', 'odrzucony': 'Odrzucone wnioski', 'zakończony': 'Zakończone', 'w realizacji': 'W trakcie realizacji'};
+    var ORDER = ['wniosek', 'ocena', 'przyznany', 'odrzucony', 'wycofany', 'w realizacji', 'zakończony'];
+    var LBL = {'wniosek': 'Wnioski', 'ocena': 'W ocenie', 'przyznany': 'Przyznany', 'odrzucony': 'Odrzucone wnioski', 'wycofany': 'Wycofany', 'zakończony': 'Zakończone', 'w realizacji': 'W trakcie realizacji'};
     var PLBL = {'wi': 'Projekty WI', 'unijne': 'Unijne'};
     var TRLKEY = 'bm-trl-v1', TRL_LVL = __TRL__, trlMap = {};
     try { trlMap = JSON.parse(localStorage.getItem(TRLKEY) || '{}'); } catch (e) { trlMap = {}; }
@@ -288,10 +295,23 @@ BASE_TEMPLATE = r'''  <section id="pj-baza" class="pj-base">
     function stanOf(r) { var o = over[String(r.id)]; return ORDER.indexOf(o) !== -1 ? o : r.stan; }
     function pulaOf(r) { return pover[String(r.id)] || r.pula; }
     function kierWiOf(r) { return kover.hasOwnProperty(String(r.id)) ? kover[String(r.id)] : (r.kierownik_wi || ''); }
+    function putRemote(key, v) {
+      localStorage.setItem(key, JSON.stringify(v));
+      if (location.protocol.indexOf('http') === 0) fetch('/api/kv/' + encodeURIComponent(key), {method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(v)}).catch(function () {});
+    }
     function save() {
-      localStorage.setItem(KEY, JSON.stringify(over));
-      localStorage.setItem(PKEY, JSON.stringify(pover));
-      localStorage.setItem(KKEY, JSON.stringify(kover));
+      putRemote(KEY, over);
+      putRemote(PKEY, pover);
+      putRemote(KKEY, kover);
+    }
+    if (location.protocol.indexOf('http') === 0) {
+      [[KEY, 'over'], [PKEY, 'pover'], [KKEY, 'kover']].forEach(function (pair) {
+        fetch('/api/kv/' + encodeURIComponent(pair[0]), {cache: 'no-store'}).then(function (r) { return r.ok ? r.json() : null; }).then(function (v) {
+          if (!v) return;
+          if (pair[1] === 'over') over = v; else if (pair[1] === 'pover') pover = v; else kover = v;
+          localStorage.setItem(pair[0], JSON.stringify(v)); render();
+        }).catch(function () {});
+      });
     }
     function checked(name) {
       return Array.prototype.map.call(document.querySelectorAll('input[name="' + name + '"]:checked'), function (x) { return x.value; });
@@ -511,6 +531,13 @@ def nabory_status():
 
 def board_html(col_checks, opt):
     return f"""{trl_legend()}
+  <details class="pt-block" open>
+    <summary>Ogłoszenia partnerskie z alertów (wklej tekst alertu)</summary>
+    <p class="pj-small">Wklej treść alertu z poczty. Zapisujemy tylko tytuł, link, kraj i słowa kluczowe. Treści alertu ani danych osób kontaktowych nie przechowujemy.</p>
+    <textarea id="pt-text" rows="4" aria-label="Treść alertu" placeholder="Wklej tu treść alertu partnerskiego…"></textarea>
+    <div class="pj-actions"><button class="btn btn-primary" id="pt-add" type="button">Dodaj do listy</button><span class="pj-meta" id="pt-msg" role="status"></span></div>
+    <div id="pt-list"></div>
+  </details>
   <div class="pj-layout">
     <aside class="pj-side">
       <div class="side-head"><h3>Filtry</h3></div>
@@ -529,6 +556,10 @@ def board_html(col_checks, opt):
       <div class="side-block">
         <span class="side-label">Status naboru</span>
         <select id="pj-status" aria-label="Status naboru"><option value="">wszystkie</option><option>planowany</option><option>otwarty</option><option>zamknięty</option><option>sprawdzić</option></select>
+      </div>
+      <div class="side-block">
+        <label class="side-label" for="pj-partner">Szukanie partnerów</label>
+        <select id="pj-partner"><option value="">wszystkie</option><option value="tak">tylko szukające partnerów</option></select>
       </div>
       <div class="side-block">
         <span class="side-label">Źródło</span>
@@ -720,7 +751,7 @@ SCRIPT = """
   let OPIEKUN = {}; try { OPIEKUN = JSON.parse(localStorage.getItem(OPKEY) || '{}'); } catch (e) { OPIEKUN = {}; }
   function saveOpiekun(key, name){ OPIEKUN[key] = name; saveState(OPKEY, OPIEKUN); }
   let st = await loadState(KEY, {cards: {}, custom: []});
-  for (const k of ['bm-baza-nowe', 'bm-nabor-projekt', 'bm-projekt-opiekun', 'bm-trl-v1']) {
+  for (const k of ['bm-baza-nowe', 'bm-nabor-projekt', 'bm-projekt-opiekun', 'bm-trl-v1', 'bm-nabor-partner-v1']) {
     const v = await loadRemote(k); if (v) localStorage.setItem(k, JSON.stringify(v));
   }
   OPIEKUN = jsonLs(OPKEY, {});
@@ -756,7 +787,15 @@ SCRIPT = """
   }
   const NEWKEY = 'bm-baza-nowe', LINKKEY = 'bm-nabor-projekt';
   let TRLMAP = await loadState('bm-trl-v1', {});
+  let PARTMAP = await loadState('bm-nabor-partner-v1', {});
+  function szukaOf(p){ return PARTMAP.hasOwnProperty(p.id) ? PARTMAP[p.id] === 'tak' : !!p.szuka_partnerow; }
   function trlOf(key){ return (TRLMAP[key] || {}).poziom || null; }
+  function partnerOpts(p){
+    const cur = PARTMAP.hasOwnProperty(p.id) ? PARTMAP[p.id] : '';
+    return '<option value="">— wg tekstu z SEDIA (' + (p.szuka_partnerow ? 'tak' : 'nie') + ')</option>' +
+      '<option value="tak"' + (cur === 'tak' ? ' selected' : '') + '>tak, szuka partnerów</option>' +
+      '<option value="nie"' + (cur === 'nie' ? ' selected' : '') + '>nie szuka partnerów</option>';
+  }
   function trlBadge(key){ const v = trlOf(key); return '<span class="trl-badge' + (v ? ' trl-l' + v : '') + '">' + (v ? 'TRL ' + v : 'TRL: brak') + '</span>'; }
   function trlOpts(cur){ return '<option value="">— brak —</option>' + DATA.trl.map(x => '<option value="' + x[0] + '"' + (x[0] === cur ? ' selected' : '') + '>TRL ' + x[0] + ' · ' + esc(x[1]) + '</option>').join(''); }
   function jsonLs(key, fallback) { try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); } catch (e) { return fallback; } }
@@ -808,7 +847,7 @@ SCRIPT = """
       : '<p class="pj-empty">Brak dopasowań dla tego naboru.</p>';
     return '<details class="pj-card" style="--c:' + col + '"' + (p.open ? ' open' : '') + '>' +
       '<summary><div class="pj-title">' + esc(p.title).replace(/-/g, '\u2011') + '</div>' +
-      '<div class="pj-meta">' + esc(p.status || '') + ' · termin: ' + esc(term) + '</div>' + tagsOf(p) + trlBadge(p.id) +
+      '<div class="pj-meta">' + esc(p.status || '') + ' · termin: ' + esc(term) + '</div>' + tagsOf(p) + (szukaOf(p) ? '<div class="pj-tags"><span class="pj-tag">szuka partnerów</span></div>' : '') + trlBadge(p.id) +
       '<div class="pj-dots">' + dots(p.people || []) + '</div></summary>' +
       '<div class="pj-body">' +
         (p.opis ? '<div class="pj-section"><div class="pj-label">Opis</div><p>' + esc(p.opis) + '</p></div>' : '') +
@@ -818,6 +857,7 @@ SCRIPT = """
         '<select data-add="' + esc(p.id) + '">' + peopleOpts + '</select></div>' +
         '<div class="pj-section"><div class="pj-label">Opiekun projektu</div>' + opiekunSel('call:' + p.id) + '</div>' +
         (linkedTo(p.id) ? '<div class="pj-section"><div class="pj-label">Projekt w bazie</div><p>' + esc(linkedTo(p.id)) + ' (kafel w bazie projektów WI i unijne)</p></div>' : createSection(p)) +
+        '<div class="pj-section"><div class="pj-label">Szuka partnerów</div><select data-partner="' + esc(p.id) + '" aria-label="Szuka partnerów">' + partnerOpts(p) + '</select><div class="pj-small">Biuro zaznacza po przejrzeniu naboru. Bez zaznaczenia działa automatyczne sprawdzenie tekstu.</div></div>' +
         '<div class="pj-section"><div class="pj-label">Poziom TRL wniosku</div><select data-trl="' + esc(p.id) + '" aria-label="Poziom TRL wniosku">' + trlOpts(trlOf(p.id)) + '</select><div class="pj-small">TRL dotyczy technologii lub rezultatu, nie osoby.</div></div>' +
         '<div class="pj-section"><div class="pj-label">Etap</div><select data-move="' + esc(p.id) + '">' + colOpts + '</select></div>' +
         '<button class="btn" type="button" data-card="' + esc(p.id) + '">Wizytówka do wysłania</button>' +
@@ -831,6 +871,7 @@ SCRIPT = """
       const text = [p.title, p.opis, p.id, p.source, p.program, p.typ].concat(p.slowa || [], p.tematy || []).join(' ').toLowerCase();
       if (!text.includes(q)) return false;
     }
+    if ($('pj-partner').value === 'tak' && !szukaOf(p)) return false;
     if ($('pj-trl').value === 'brak' && trlOf(p.id)) return false;
     if ($('pj-trl').value && $('pj-trl').value !== 'brak' && String(trlOf(p.id)) !== $('pj-trl').value) return false;
     if ($('pj-status').value && p.status !== $('pj-status').value) return false;
@@ -854,6 +895,7 @@ SCRIPT = """
     w.document.write('<!doctype html><html lang="pl"><head><meta charset="utf-8"><title>Wizytówka: ' + esc(p.title) + '</title><style>body{font-family:-apple-system,Segoe UI,sans-serif;max-width:720px;margin:2rem auto;color:#1c2736;line-height:1.5}h1{font-size:1.4rem}h2{font-size:1rem;margin-top:1.2rem}.meta{color:#5a6679}ul{padding-left:1.2rem}.btn{display:inline-block;margin-top:1rem;padding:.5rem 1rem;border-radius:8px;background:#2c64a0;color:#fff;text-decoration:none}@media print{.btn{display:none}}</style></head><body>' +
       '<h1>' + esc(p.title) + '</h1><div class="meta">' + esc(p.status || '') + ' · termin: ' + esc(term) + '</div>' +
       (p.opis ? '<h2>Opis</h2><p>' + esc(p.opis) + '</p>' : '') +
+      '<h2>Poziom TRL wniosku</h2><p>' + (trlOf(p.id) ? 'TRL ' + trlOf(p.id) + ' · ' + esc((DATA.trl.find(x => x[0] === trlOf(p.id)) || [])[1] || '') : 'nie określono') + '</p>' +
       '<h2>Tematy naboru</h2><ul>' + (topics || '<li>brak</li>') + '</ul>' +
       '<h2>Zespół</h2><ul>' + team + '</ul>' +
       '<p>Czy chce Pan/Pani dołączyć do projektu? Proszę odpowiedzieć na wiadomość lub skontaktować się z biurem projektowym.</p>' +
@@ -901,6 +943,11 @@ SCRIPT = """
     board.querySelectorAll('[data-move]').forEach(s => s.addEventListener('change', e => {
       update(e.target.dataset.move, {column: e.target.value, open: true});
     }));
+    board.querySelectorAll('[data-partner]').forEach(s => s.addEventListener('change', () => {
+      const k = s.dataset.partner;
+      if (s.value) PARTMAP[k] = s.value; else delete PARTMAP[k];
+      saveState('bm-nabor-partner-v1', PARTMAP); toast(s.value ? 'Zapisano: ' + (s.value === 'tak' ? 'szuka partnerów' : 'nie szuka partnerów') : 'Wrócono do oceny z tekstu SEDIA'); render();
+    }));
     board.querySelectorAll('[data-trl]').forEach(s => s.addEventListener('change', () => {
       const k = s.dataset.trl;
       if (s.value) TRLMAP[k] = {poziom: +s.value}; else delete TRLMAP[k];
@@ -921,15 +968,53 @@ SCRIPT = """
       h.textContent = hidden ? hidden + ' naborów zamkniętych nie jest na tablicy (są poza tym widokiem).' : '';
     })();
   }
-  ['pj-q', 'pj-trl', 'pj-status', 'pj-source', 'pj-program', 'pj-role', 'pj-person', 'pj-deadline'].forEach(id => $(id).addEventListener('input', render));
+  ['pj-q', 'pj-partner', 'pj-trl', 'pj-status', 'pj-source', 'pj-program', 'pj-role', 'pj-person', 'pj-deadline'].forEach(id => $(id).addEventListener('input', render));
   document.querySelectorAll('.pj-col-cb').forEach(c => c.addEventListener('change', render));
   $('pj-reset').addEventListener('click', () => {
     ['pj-q', 'pj-deadline'].forEach(id => $(id).value = '');
-    ['pj-trl', 'pj-status', 'pj-source', 'pj-program', 'pj-role', 'pj-person'].forEach(id => $(id).value = '');
+    ['pj-partner', 'pj-trl', 'pj-status', 'pj-source', 'pj-program', 'pj-role', 'pj-person'].forEach(id => $(id).value = '');
     document.querySelectorAll('.pj-col-cb').forEach(c => c.checked = true);
     render();
   });
   render();
+  (function () {
+    const PT_KEY = 'bm-partnerzy-v1';
+    const COUNTRIES = ['Poland', 'Polska', 'Germany', 'Niemcy', 'France', 'Francja', 'Spain', 'Hiszpania', 'Italy', 'Włochy', 'Netherlands', 'Holandia', 'Belgium', 'Belgia', 'Austria', 'Czechia', 'Czechy', 'Slovakia', 'Słowacja', 'Hungary', 'Węgry', 'Romania', 'Rumunia', 'Greece', 'Grecja', 'Portugal', 'Sweden', 'Szwecja', 'Denmark', 'Dania', 'Finland', 'Finlandia', 'Ireland', 'Irlandia', 'Norway', 'Norwegia', 'Turkey', 'Türkiye', 'Ukraine', 'Ukraina', 'United Kingdom', 'Wielka Brytania', 'Switzerland', 'Szwajcaria', 'Lithuania', 'Litwa', 'Latvia', 'Łotwa', 'Estonia', 'Chorwacja', 'Croatia', 'Slovenia', 'Słowenia', 'Bulgaria', 'Bułgaria', 'Cyprus', 'Cypr', 'Malta', 'Luxembourg', 'Luksemburg'];
+    const KEYWORDS = ['partner search', 'looking for partners', 'seeking partners', 'partner sought', 'consortium', 'expression of interest', 'partnership', 'horizon europe', 'cooperation'];
+    const TYPES = ['Research & Development Request', 'Business request', 'Technology request', 'Business Offer', 'Technology offer'];
+    let items = [];
+    loadState(PT_KEY, []).then(function (v) { items = Array.isArray(v) ? v : []; renderPt(); });
+    function parse(text) {
+      const lines = text.split(/\\n/).map(function (x) { return x.trim(); }).filter(Boolean);
+      const url = (text.match(/https?:\/\/[^\s)\]>"]+/) || [''])[0];
+      const title = (lines.find(function (x) { return x.length > 8 && !/^https?:/i.test(x) && TYPES.every(function (t) { return x.toLowerCase() !== t.toLowerCase(); }); }) || '').replace(/\\b[A-Z]{2,6}\\d{6,}\\b/g, '').trim();
+      const low = text.toLowerCase();
+      const kraj = COUNTRIES.find(function (c) { return low.indexOf(c.toLowerCase()) !== -1; }) || '';
+      const slowa = KEYWORDS.filter(function (k) { return low.indexOf(k) !== -1; });
+      const typ = TYPES.find(function (t) { return low.indexOf(t.toLowerCase()) !== -1; }) || '';
+      const eenId = (text.match(/\\b[A-Z]{2,6}\\d{6,}\\b/) || [''])[0];
+      return {id: Date.now().toString(36), tytul: title.slice(0, 160), link: url, kraj: kraj, slowa: slowa, typ: typ, eenId: eenId, dodano: DATA.today};
+    }
+    function renderPt() {
+      const box = document.getElementById('pt-list');
+      if (!items.length) { box.innerHTML = '<p class="pj-empty">Brak zapisanych ogłoszeń.</p>'; return; }
+      box.innerHTML = '<ul class="pj-match">' + items.map(function (x) {
+        return '<li><b>' + esc(x.tytul || '(bez tytułu)') + '</b> <span class="pj-small">· ' + esc(x.typ || 'typ nieznany') + (x.eenId ? ' · ' + esc(x.eenId) : '') + ' · ' + esc(x.kraj || 'kraj nieznany') + ' · ' + esc(x.slowa.join(', ') || 'bez słów kluczowych') + ' · dodano ' + esc(x.dodano) + '</span> ' +
+          (x.link ? '<a href="' + esc(x.link) + '" target="_blank" rel="noopener">link</a> ' : '') +
+          '<button class="btn" type="button" data-pt-del="' + esc(x.id) + '">Usuń</button></li>';
+      }).join('') + '</ul>';
+      box.querySelectorAll('[data-pt-del]').forEach(function (b) { b.addEventListener('click', function () {
+        items = items.filter(function (x) { return x.id !== b.dataset.ptDel; }); saveState(PT_KEY, items); renderPt(); }); });
+    }
+    document.getElementById('pt-add').addEventListener('click', function () {
+      const text = document.getElementById('pt-text').value.trim();
+      if (!text) { document.getElementById('pt-msg').textContent = 'Wklej treść alertu.'; return; }
+      const rec = parse(text);
+      if (!rec.tytul) { document.getElementById('pt-msg').textContent = 'Nie znaleziono tytułu. Wklej pełną treść alertu.'; return; }
+      items.unshift(rec); saveState(PT_KEY, items); renderPt();
+      document.getElementById('pt-text').value = ''; document.getElementById('pt-msg').textContent = 'Dodano: ' + rec.tytul.slice(0, 60);
+    });
+  })();
   setInterval(async () => {
     const v = await loadRemote(KEY);
     if (v && JSON.stringify(v) !== JSON.stringify(st)) { st = v; render(); }

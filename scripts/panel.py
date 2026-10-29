@@ -210,6 +210,10 @@ table.pn-table th {{ color: var(--text2); font-weight: 600; font-size: .78rem; }
       <select id="bi-rola" aria-label="Twoja rola w biurze"><option value="biuro">specjalista ds. projektów</option><option value="koordynator">koordynator</option></select>
       <p class="pn-small">Szkic utworzony przez Ciebie zatwierdzi inna osoba z biura (W11). Opiekuna projektu przypisuje koordynator. Do czasu logowania SSO wpisz się tu w przeglądarce.</p>
     </div>
+    <details class="pn-card" style="margin-bottom:1rem">
+      <summary>Ostatnie zmiany w bazie i tablicy</summary>
+      <div id="bi-hist" class="pn-small" style="margin-top:.6rem"></div>
+    </details>
     <div class="pn-sub">
       <button class="active" data-pane="nabory">Zaproszenia</button>
       <button data-pane="nowe">Nowe zaproszenie</button>
@@ -395,6 +399,20 @@ SCRIPT = """
   /* ---------- BIURO ---------- */
   var BIURO_USER = localStorage.getItem('bm-biuro-user') || '';
   $('bi-me').value = BIURO_USER;
+  if (location.protocol.indexOf('http') === 0) {
+    fetch('/api/me', {cache: 'no-store'}).then(function (r) { return r.ok ? r.json() : null; }).then(function (v) {
+      if (v && v.user && v.user.email) {
+        BIURO_USER = v.user.email; $('bi-me').value = v.user.email; $('bi-me').readOnly = true; $('bi-me-save').disabled = true;
+        refresh();
+      }
+    }).catch(function () {});
+    fetch('/api/historia', {cache: 'no-store'}).then(function (r) { return r.ok ? r.json() : null; }).then(function (rows) {
+      if (!rows) { $('bi-hist').textContent = 'Historia dostępna po zalogowaniu.'; return; }
+      $('bi-hist').innerHTML = rows.length ? rows.slice(0, 50).map(function (x) {
+        return '<div>' + esc(x.ts.slice(0, 16).replace('T', ' ')) + ' · ' + esc(x.email || '?') + ' · ' + esc(x.key) + ' · ' + esc(x.item) + ': ' + esc(x.before || '—') + ' → ' + esc(x.after || '—') + '</div>';
+      }).join('') : 'Brak zmian.';
+    }).catch(function () {});
+  }
   $('bi-rola').value = localStorage.getItem('bm-biuro-rola') || 'biuro';
   $('bi-rola').addEventListener('change', function () { localStorage.setItem('bm-biuro-rola', $('bi-rola').value); toast('Rola zapisana. Odśwież Projekty, aby zobaczyć zmianę.'); });
   $('bi-me-save').addEventListener('click', function () {
@@ -438,6 +456,9 @@ SCRIPT = """
           if (i.status === 'propozycja') act = '<button class="pn-btn ghost" data-accept="' + i.idx + '" type="button">Przyjmij jako szkic</button>';
           else if (i.status === 'szkic') act = '<button class="pn-btn ghost" data-approve="' + i.idx + '" type="button">Zatwierdź</button>';
           else if (i.status === 'zatwierdzone') act = '<button class="pn-btn" data-send="' + i.idx + '" type="button">Otwórz e-mail</button>';
+          if (i.status === 'wysłane' || i.status === 'brak odpowiedzi') act += ' <button class="pn-btn ghost" data-link="' + i.idx + '" type="button">Link do odpowiedzi</button>';
+          var days = i.sent ? Math.floor((new Date(DATA.today) - new Date(i.sent)) / 86400000) : 0;
+          if (i.status === 'wysłane' && days >= 7) act += ' <button class="pn-btn ghost" data-remind="' + i.idx + '" type="button">Przypomnij (' + days + ' dni)</button>';
           var cov = computeCoverage(i.person, i.nabor);
           var covHtml = cov.total ? '<div class="pn-small" style="margin-top:.2rem">Pokrycie wymogów: ' + cov.met + '/' + cov.total + ' (' + cov.items.map(function(x){return x.status === 'spełnione' ? '✓' : '△';}).join('') + ')</div>' : '';
           return '<tr><td><b>' + esc(i.person) + '</b>' + (i.zglosil ? '<div class="pn-small">propozycja od: ' + esc(i.zglosil) + '</div>' : '') + (i.autor ? '<div class="pn-small">szkic: ' + esc(i.autor) + (i.zatwierdzil ? ' · zatwierdził: ' + esc(i.zatwierdzil) : '') + '</div>' : '') + '</td>' +
@@ -455,6 +476,28 @@ SCRIPT = """
         const inv = st.invites[+b.dataset.approve];
         if (!canApprove(inv)) return;
         inv.status = 'zatwierdzone'; inv.zatwierdzil = BIURO_USER; save(); toast('Zaproszenie zatwierdzone'); refresh();
+      });
+    });
+    $('bi-list').querySelectorAll('[data-remind]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var i = st.invites[+b.dataset.remind];
+        var subj = encodeURIComponent('Przypomnienie: zaproszenie do udziału w ' + (i.projekt || i.nabor));
+        var body = encodeURIComponent('Dzień dobry ' + i.person + ',\\n\\nprzypominamy o zaproszeniu do udziału w projekcie „' + (i.projekt || i.nabor) + '” w roli: ' + i.rola + '.\\nProsimy o odpowiedź, czy jest Pan/Pani zainteresowana/y.\\n\\nPozdrawiamy,\\nBiuro projektowe Wydziału Informatyki AGH');
+        window.location.href = 'mailto:?subject=' + subj + '&body=' + body;
+        toast('Otwarto przypomnienie. Status zaproszenia się nie zmienia.');
+      });
+    });
+    $('bi-list').querySelectorAll('[data-link]').forEach(function (b) {
+      b.addEventListener('click', async function () {
+        var i = st.invites[+b.dataset.link];
+        var key = (i.created || '') + '|' + (i.person || '') + '|' + (i.nabor || '');
+        try {
+          var r = await fetch('/api/zaproszenie-link', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({invite_key: key})});
+          if (!r.ok) { toast('Nie udało się utworzyć linku (sprawdź logowanie).'); return; }
+          var v = await r.json(); var url = location.origin + v.url;
+          if (navigator.clipboard) navigator.clipboard.writeText(url).catch(function () {});
+          prompt('Link do odpowiedzi (ważny do ' + v.wygasa + '). Skopiuj i wyślij osobie:', url);
+        } catch (e) { toast('Brak połączenia z serwerem. Link działa tylko po uruchomieniu serwera.'); }
       });
     });
     $('bi-list').querySelectorAll('[data-send]').forEach(function (b) {
