@@ -43,6 +43,9 @@ def topic_status(tid, call, texts):
     return "nieustalony (sprawdzić)"
 
 
+LANGS = {}
+
+
 def collect(prefix, pages, texts):
     found = {}
     for page in range(1, pages + 1):
@@ -56,11 +59,16 @@ def collect(prefix, pages, texts):
             if not call.startswith(prefix):
                 continue
             tid = url.rsplit("/", 1)[-1].replace(".json", "")
+            lang = (first(meta, "language") or "").lower()
             desc = plain(first(meta, "description"))
             texts.setdefault(call, set()).add(desc)
             deadlines = sorted({d[:10] for d in (meta.get("deadlineDate") or []) if d})
             if tid in found:
                 deadlines = sorted(set(deadlines) | set(found[tid]["terminy"]))
+                if LANGS.get(tid) == "en" and lang != "en":
+                    found[tid]["terminy"] = deadlines
+                    continue
+            LANGS[tid] = lang
             found[tid] = {
                 "id": tid,
                 "call": call,

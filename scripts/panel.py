@@ -1,3 +1,4 @@
+import html
 import json
 import sys
 from pathlib import Path
@@ -42,7 +43,7 @@ def calls():
     for t in items:
         g = groups.setdefault(t["call"], {"id": t["call"], "deadlines": set(), "starts": [], "topics": 0, "titles": []})
         g["topics"] += 1
-        g["titles"].append(TITLES_PL.get(t["id"]) or t.get("title") or t["id"])
+        g["titles"].append(html.unescape(TITLES_PL.get(t["id"]) or t.get("title") or t["id"]))
         g["deadlines"].update(t.get("terminy") or [])
         if t.get("start"):
             g["starts"].append(t["start"][:10])
@@ -73,7 +74,7 @@ def projects():
     for t in items:
         call = t["call"]
         wymogi.setdefault(call, [])
-        wymogi[call].append({"nazwa": TITLES_PL.get(t["id"]) or t.get("title") or t["id"], "wymagane": "tak", "kategoria": "tematyka"})
+        wymogi[call].append({"nazwa": html.unescape(TITLES_PL.get(t["id"]) or t.get("title") or t["id"]), "wymagane": "tak", "kategoria": "tematyka"})
     for c in calls():
         shown = "; ".join(c["titles"][:4]) + (" …" if len(c["titles"]) > 4 else "")
         out.append({"id": c["id"], "nazwa": c["id"], "typ": "nabór", "termin": (c["deadlines"][-1] if c["deadlines"] else ""),
@@ -273,9 +274,7 @@ SCRIPT = """
   const ME = (function () { try { return JSON.parse(localStorage.getItem('bm-me') || 'null') || {}; } catch (e) { return {}; } })();
   const NAUK = ME.role === 'naukowiec';
   const KEY = 'bm-panel-v3';
-  const DEMO_PROJ = DATA.projects.find(p => p.id === 'HORIZON-CL4-2027-01') || {nazwa: 'HORIZON-CL4-2027-01', opis: ''};
-  const DEMO_INVITES = [{person: 'Eckes Maria', nabor: 'HORIZON-CL4-2027-01', projekt: DEMO_PROJ.nazwa, opis: DEMO_PROJ.opis, rola: 'wykonawca', uzas: 'publikacje z optymalizacji i analizy danych w projektach przemysłowych', status: 'wysłane', typ: 'zaproszenie', created: DATA.today, sent: DATA.today}];
-  let st = await loadState(KEY, {profiles: {}, invites: DEMO_INVITES});
+  let st = await loadState(KEY, {profiles: {}, invites: []});
   const save = () => saveState(KEY, st);
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const $ = id => document.getElementById(id);
@@ -450,7 +449,7 @@ SCRIPT = """
     if (!rows.length) {
       $('bi-list').innerHTML = '<div class="pn-empty">Brak zaproszeń w tym filtrze. Zmień filtr albo utwórz nowe zaproszenie.</div>';
     } else {
-      $('bi-list').innerHTML = '<table class="pn-table"><thead><tr><th>Osoba</th><th>Projekt lub nabór</th><th>Rola w projekcie</th><th>Status</th><th><span class="pn-small">Akcja</span></th></tr></thead><tbody>' +
+      $('bi-list').innerHTML = '<div style="overflow-x:auto"><table class="pn-table"><thead><tr><th>Osoba</th><th>Projekt lub nabór</th><th>Rola w projekcie</th><th>Status</th><th><span class="pn-small">Akcja</span></th></tr></thead><tbody>' +
         rows.map(function (i) {
           var act = '';
           if (i.status === 'propozycja') act = '<button class="pn-btn ghost" data-accept="' + i.idx + '" type="button">Przyjmij jako szkic</button>';
@@ -466,7 +465,7 @@ SCRIPT = """
             '<td>' + esc(i.rola) + '</td>' +
             '<td>' + pill(i.status) + '</td>' +
             '<td style="text-align:right">' + act + '</td></tr>';
-        }).join('') + '</tbody></table>';
+        }).join('') + '</tbody></table></div>';
     }
     $('bi-list').querySelectorAll('[data-accept]').forEach(function (b) {
       b.addEventListener('click', function () { st.invites[+b.dataset.accept].status = 'szkic'; st.invites[+b.dataset.accept].autor = BIURO_USER; save(); toast('Propozycja przyjęta jako szkic. Zatwierdź ją, zanim wyślesz.'); refresh(); });

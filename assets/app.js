@@ -130,7 +130,7 @@
     return Object.keys(set).sort();
   }
 
-  var BIURO_PAGES = ['biuro.html', 'nabory.html', 'dopasowanie.html'];
+  var BIURO_PAGES = ['biuro.html', 'nabory.html', 'partnerzy.html', 'dopasowanie.html'];
 
   function currentPage() {
     var p = location.pathname.split('/').pop();

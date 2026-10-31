@@ -97,7 +97,7 @@ def call_projects():
             status = "otwarty"
         else:
             status = "sprawdzić"
-        tematy = [TITLES_PL.get(t["id"]) or t.get("title") or t["id"] for t in topics]
+        tematy = [h.unescape(TITLES_PL.get(t["id"]) or t.get("title") or t["id"]) for t in topics]
         wymogi = []
         for tp in topics[:6]:
             tname = TITLES_PL.get(tp["id"]) or tp.get("title") or tp["id"]
@@ -133,8 +133,14 @@ def people_list():
 def completed_base():
     rows = json.loads((ROOT / "data" / "projekty_zrealizowane.json").read_text(encoding="utf-8"))
     today = TODAY
+    known = {(r.get("nazwa") or "").lower() for r in rows}
+    extra = json.loads((ROOT / "data" / "projekty_cwp_wi.json").read_text(encoding="utf-8"))
+    rows += [dict(r) for r in extra if (r.get("nazwa") or "").lower() not in known]
     for r in rows:
-        r["pula"] = "unijne" if "Komisja Europejska" in r["zleceniodawca"] else "wi"
+        if r.get("zrodlo", "").startswith("CWP"):
+            pass
+        else:
+            r["pula"] = "unijne" if "Komisja Europejska" in r["zleceniodawca"] else "wi"
         if r["koniec"] < today:
             r["stan"] = "zakończony"
         elif r["start"] > today:
@@ -531,13 +537,6 @@ def nabory_status():
 
 def board_html(col_checks, opt):
     return f"""{trl_legend()}
-  <details class="pt-block" open>
-    <summary>Ogłoszenia partnerskie z alertów (wklej tekst alertu)</summary>
-    <p class="pj-small">Wklej treść alertu z poczty. Zapisujemy tylko tytuł, link, kraj i słowa kluczowe. Treści alertu ani danych osób kontaktowych nie przechowujemy.</p>
-    <textarea id="pt-text" rows="4" aria-label="Treść alertu" placeholder="Wklej tu treść alertu partnerskiego…"></textarea>
-    <div class="pj-actions"><button class="btn btn-primary" id="pt-add" type="button">Dodaj do listy</button><span class="pj-meta" id="pt-msg" role="status"></span></div>
-    <div id="pt-list"></div>
-  </details>
   <div class="pj-layout">
     <aside class="pj-side">
       <div class="side-head"><h3>Filtry</h3></div>
@@ -590,14 +589,180 @@ def board_html(col_checks, opt):
       <div class="pj-board" id="pj-board"></div>
     </div>
   </div>
-
 """
 
 
-PAGE_VIEWS = [("baza", "biuro.html", "Baza projektów"), ("tablica", "nabory.html", "Tablica naborów")]
+PARTNER_BOARD = """  <section class="pt-page">
+    <div class="pt-card">
+      <h3>Dodaj alert</h3>
+      <p class="pj-small">Wklej treść alertu z poczty. Zapisujemy tytuł, link, kraj, typ i identyfikator. Treści alertu ani danych osób kontaktowych nie przechowujemy.</p>
+      <textarea id="pt-text" rows="5" aria-label="Treść alertu" placeholder="Wklej tu treść alertu partnerskiego…"></textarea>
+      <div class="pt-actions"><button class="btn btn-primary" id="pt-add" type="button">Dodaj do listy</button><span class="pj-meta" id="pt-msg" role="status"></span></div>
+    </div>
+    <div class="pt-card">
+      <div class="pt-filters">
+        <input id="pt-q" type="search" placeholder="Szukaj w tytule lub słowach" aria-label="Szukaj">
+        <select id="pt-st" aria-label="Status"><option value="">każdy status</option><option value="nowe">do przejrzenia</option><option value="przydatne">przydatne</option><option value="odrzucone">odrzucone</option></select>
+        <select id="pt-typ" aria-label="Typ"><option value="">każdy typ</option></select>
+        <select id="pt-kraj" aria-label="Kraj"><option value="">każdy kraj</option></select>
+      </div>
+      <div class="pt-count pj-small" id="pt-count"></div>
+      <div class="pt-bulk" id="pt-bulk" hidden>
+        <span class="pj-small" id="pt-selcount"></span>
+        <select id="pt-bulk-st" aria-label="Nowy status zaznaczonych"><option value="">zmień status na…</option><option value="nowe">do przejrzenia</option><option value="przydatne">przydatne</option><option value="odrzucone">odrzucone</option></select>
+        <button class="btn" id="pt-bulk-apply" type="button">Zastosuj do zaznaczonych</button>
+        <button class="btn pt-del" id="pt-bulk-del" type="button">Usuń zaznaczone</button>
+      </div>
+      <div id="pt-table"></div>
+    </div>
+  </section>
+  <style>
+  .pt-page { display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem; }
+  .pt-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1rem 1.1rem; }
+  .pt-card h3 { margin: 0 0 .4rem; font-size: 1rem; }
+  .pt-card textarea, .pt-filters input, .pt-filters select, .pt-row select, .pt-row input { box-sizing: border-box; padding: .5rem .6rem; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font: inherit; }
+  .pt-card textarea { width: 100%; min-height: 110px; resize: vertical; }
+  .pt-actions { display: flex; gap: .6rem; align-items: center; margin-top: .6rem; flex-wrap: wrap; }
+  .pt-filters { display: flex; gap: .6rem; flex-wrap: wrap; margin-bottom: .6rem; }
+  .pt-filters input { flex: 1; min-width: 220px; }
+  .pt-table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+  .pt-table th, .pt-table td { text-align: left; padding: .55rem .5rem; border-top: 1px solid var(--border); vertical-align: top; }
+  .pt-table th { color: var(--text2); font-weight: 600; font-size: .8rem; }
+  .pt-row input { width: 100%; min-width: 160px; }
+  .pt-tag { display: inline-block; font-size: .75rem; padding: .1rem .5rem; border-radius: 999px; border: 1px solid var(--border); color: var(--text2); margin: .1rem .2rem .1rem 0; }
+  .pt-del { font-size: .8rem; }
+  .pt-bulk { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; margin: .4rem 0 .6rem; padding: .6rem .7rem; border-radius: 10px; background: var(--bg); border: 1px solid var(--border); }
+  </style>
+"""
+
+PARTNER_SCRIPT = r"""
+<script>
+(function () {
+  const STORE_API = location.protocol.indexOf('http') === 0;
+  const KEY = 'bm-partnerzy-v1';
+  const ST = {nowe: 'do przejrzenia', przydatne: 'przydatne', odrzucone: 'odrzucone'};
+  const COUNTRIES = ['Poland', 'Polska', 'Germany', 'Niemcy', 'France', 'Francja', 'Spain', 'Hiszpania', 'Italy', 'Włochy', 'Netherlands', 'Holandia', 'Belgium', 'Belgia', 'Austria', 'Czechia', 'Czechy', 'Slovakia', 'Słowacja', 'Hungary', 'Węgry', 'Romania', 'Rumunia', 'Greece', 'Grecja', 'Portugal', 'Sweden', 'Szwecja', 'Denmark', 'Dania', 'Finland', 'Finlandia', 'Ireland', 'Irlandia', 'Norway', 'Norwegia', 'Turkey', 'Türkiye', 'Ukraine', 'Ukraina', 'United Kingdom', 'Wielka Brytania', 'Switzerland', 'Szwajcaria', 'Lithuania', 'Litwa', 'Latvia', 'Łotwa', 'Estonia', 'Chorwacja', 'Croatia', 'Slovenia', 'Słowenia', 'Bulgaria', 'Bułgaria', 'Cyprus', 'Cypr', 'Malta', 'Luxembourg', 'Luksemburg'];
+  const KEYWORDS = ['partner search', 'looking for partners', 'seeking partners', 'partner sought', 'consortium', 'expression of interest', 'partnership', 'horizon europe', 'brokerage event', 'matchmaking', 'cooperation'];
+  const TYPES = ['Research & Development Request', 'Business request', 'Technology request', 'Business Offer', 'Technology offer', 'Project cooperation', 'Cooperation profile'];
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
+  const $ = id => document.getElementById(id);
+  const today = new Date().toISOString().slice(0, 10);
+  async function loadRemote(key) {
+    if (!STORE_API) return null;
+    try { const r = await fetch('/api/kv/' + encodeURIComponent(key), {cache: 'no-store'}); return r.ok ? await r.json() : null; } catch (e) { return null; }
+  }
+  function saveRemote(key, v) {
+    localStorage.setItem(key, JSON.stringify(v));
+    if (STORE_API) fetch('/api/kv/' + encodeURIComponent(key), {method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(v)}).catch(function () {});
+  }
+  let items = [];
+  const selected = new Set();
+  function parse(text) {
+    const lines = text.split(/\n/).map(function (x) { return x.trim(); }).filter(Boolean);
+    const url = (text.match(/https?:\/\/[^\s)\]>"]+/) || [''])[0];
+    const eenId = (text.match(/\b[A-Z]{2,6}\d{6,}\b/) || [''])[0];
+    const title = (lines.find(function (x) { return x.length > 8 && !/^https?:/i.test(x) && TYPES.every(function (t) { return x.toLowerCase() !== t.toLowerCase(); }); }) || '')
+      .replace(/\b[A-Z]{2,6}\d{6,}\b/g, '').trim();
+    const low = text.toLowerCase();
+    const kraj = COUNTRIES.find(function (c) { return low.indexOf(c.toLowerCase()) !== -1; }) || '';
+    const slowa = KEYWORDS.filter(function (k) { return low.indexOf(k) !== -1; });
+    const typ = TYPES.find(function (t) { return low.indexOf(t.toLowerCase()) !== -1; }) || '';
+    return {id: Date.now().toString(36), tytul: title.slice(0, 160), link: url, kraj: kraj, slowa: slowa, typ: typ, eenId: eenId, dodano: today, status: 'nowe', notatka: ''};
+  }
+  function fillFilters() {
+    const uniq = function (f) { return Array.from(new Set(items.map(f).filter(Boolean))).sort(); };
+    const fill = function (sel, vals) { const cur = sel.value; sel.innerHTML = sel.options[0].outerHTML + vals.map(function (v) { return '<option value="' + esc(v) + '">' + esc(v) + '</option>'; }).join(''); sel.value = cur; };
+    fill($('pt-typ'), uniq(function (x) { return x.typ; }));
+    fill($('pt-kraj'), uniq(function (x) { return x.kraj; }));
+  }
+  function visible() {
+    const q = $('pt-q').value.trim().toLowerCase(), st = $('pt-st').value, typ = $('pt-typ').value, kraj = $('pt-kraj').value;
+    return items.filter(function (x) {
+      if (st && x.status !== st) return false;
+      if (typ && x.typ !== typ) return false;
+      if (kraj && x.kraj !== kraj) return false;
+      if (q && [x.tytul, x.slowa.join(' '), x.eenId, x.typ].join(' ').toLowerCase().indexOf(q) === -1) return false;
+      return true;
+    });
+  }
+  function updateBulk() {
+    const n = selected.size;
+    $('pt-bulk').hidden = n === 0;
+    $('pt-selcount').textContent = 'Zaznaczono: ' + n;
+  }
+  function render() {
+    const list = visible();
+    items.forEach(function (x) { if (!items.some(function (y) { return y.id === x.id; })) selected.delete(x.id); });
+    updateBulk();
+    $('pt-count').textContent = 'Pokazano ' + list.length + ' z ' + items.length + ' ogłoszeń';
+    if (!list.length) { $('pt-table').innerHTML = '<p class="pj-empty">Brak ogłoszeń w tym widoku. Wklej alert powyżej albo zmień filtr.</p>'; return; }
+    const rows = list.map(function (x) {
+      const opts = Object.keys(ST).map(function (k) { return '<option value="' + k + '"' + (x.status === k ? ' selected' : '') + '>' + ST[k] + '</option>'; }).join('');
+      return '<tr class="pt-row">' +
+        '<td><input type="checkbox" data-sel="' + esc(x.id) + '"' + (selected.has(x.id) ? ' checked' : '') + ' aria-label="Zaznacz ogłoszenie"></td>' +
+        '<td><b>' + esc(x.tytul || '(bez tytułu)') + '</b>' + (x.link ? '<div class="pj-small"><a href="' + esc(x.link) + '" target="_blank" rel="noopener">otwórz ogłoszenie</a></div>' : '') + '</td>' +
+        '<td>' + (x.typ ? '<span class="pt-tag">' + esc(x.typ) + '</span>' : '<span class="pj-small">—</span>') + '</td>' +
+        '<td>' + esc(x.kraj || '—') + '</td>' +
+        '<td class="pj-small">' + esc(x.eenId || '—') + '</td>' +
+        '<td>' + (x.slowa.length ? x.slowa.map(function (k) { return '<span class="pt-tag">' + esc(k) + '</span>'; }).join('') : '<span class="pj-small">—</span>') + '</td>' +
+        '<td class="pj-small">' + esc(x.dodano) + '</td>' +
+        '<td><select data-st="' + esc(x.id) + '" aria-label="Status ogłoszenia">' + opts + '</select></td>' +
+        '<td><input data-note="' + esc(x.id) + '" value="' + esc(x.notatka) + '" placeholder="notatka biura" aria-label="Notatka"></td>' +
+        '<td><button class="btn pt-del" type="button" data-del="' + esc(x.id) + '">Usuń</button></td>' +
+        '</tr>';
+    }).join('');
+    $('pt-table').innerHTML = '<table class="pt-table"><thead><tr><th><input type="checkbox" id="pt-selall" aria-label="Zaznacz wszystkie widoczne"></th><th>Tytuł</th><th>Typ</th><th>Kraj</th><th>ID</th><th>Słowa kluczowe</th><th>Dodano</th><th>Status</th><th>Notatka</th><th></th></tr></thead><tbody>' + rows + '</tbody></table>';
+    $('pt-table').querySelectorAll('[data-sel]').forEach(function (c) { c.addEventListener('change', function () {
+      if (c.checked) selected.add(c.dataset.sel); else selected.delete(c.dataset.sel); updateBulk(); }); });
+    $('pt-selall').addEventListener('change', function () {
+      list.forEach(function (x) { if (this.checked) selected.add(x.id); else selected.delete(x.id); }, this);
+      render(); });
+    $('pt-table').querySelectorAll('[data-st]').forEach(function (s) { s.addEventListener('change', function () {
+      items.find(function (x) { return x.id === s.dataset.st; }).status = s.value; saveRemote(KEY, items); render(); }); });
+    $('pt-table').querySelectorAll('[data-note]').forEach(function (n) { n.addEventListener('change', function () {
+      items.find(function (x) { return x.id === n.dataset.note; }).notatka = n.value.trim(); saveRemote(KEY, items); }); });
+    $('pt-table').querySelectorAll('[data-del]').forEach(function (b) { b.addEventListener('click', function () {
+      if (!confirm('Usunąć to ogłoszenie z listy?')) return;
+      items = items.filter(function (x) { return x.id !== b.dataset.del; }); saveRemote(KEY, items); fillFilters(); render(); }); });
+  }
+  ['pt-q', 'pt-st', 'pt-typ', 'pt-kraj'].forEach(function (id) { $(id).addEventListener('input', render); });
+  $('pt-add').addEventListener('click', function () {
+    const text = $('pt-text').value.trim();
+    if (!text) { $('pt-msg').textContent = 'Wklej treść alertu.'; return; }
+    const rec = parse(text);
+    if (!rec.tytul) { $('pt-msg').textContent = 'Nie znaleziono tytułu. Wklej pełną treść alertu.'; return; }
+    items.unshift(rec); saveRemote(KEY, items); fillFilters(); render();
+    $('pt-text').value = ''; $('pt-msg').textContent = 'Dodano: ' + rec.tytul.slice(0, 60);
+  });
+  (async function () {
+    const v = await loadRemote(KEY);
+    if (Array.isArray(v)) items = v; else { try { items = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch (e) { items = []; } }
+    items.forEach(function (x) { if (!x.status) x.status = 'nowe'; if (x.notatka == null) x.notatka = ''; });
+    fillFilters(); render();
+  })();
+  $('pt-bulk-apply').addEventListener('click', function () {
+    const st = $('pt-bulk-st').value;
+    if (!st) { $('pt-msg').textContent = 'Wybierz nowy status.'; return; }
+    items.forEach(function (x) { if (selected.has(x.id)) x.status = st; });
+    saveRemote(KEY, items); selected.clear(); $('pt-bulk-st').value = ''; updateBulk(); render();
+    $('pt-msg').textContent = 'Zmieniono status zaznaczonych.';
+  });
+  $('pt-bulk-del').addEventListener('click', function () {
+    if (!selected.size) return;
+    if (!confirm('Usunąć zaznaczone ogłoszenia (' + selected.size + ')?')) return;
+    items = items.filter(function (x) { return !selected.has(x.id); });
+    selected.clear(); saveRemote(KEY, items); fillFilters(); updateBulk(); render();
+  });
+})();
+</script>
+"""
+
+
+PAGE_VIEWS = [("baza", "biuro.html", "Baza projektów"), ("tablica", "nabory.html", "Tablica naborów"), ("partnerzy", "partnerzy.html", "Ogłoszenia partnerskie")]
 HEROES = {
-    "baza": ("Projekty", "Baza projektów", "Wnioski, odrzucone wnioski, projekty w realizacji i zakończone (WI i unijne). Filtry po lewej. Przeciągnij kafel na inny etap albo na pulę."),
-    "tablica": ("Nabory UE", "Tablica naborów", "Nabory przyszłe i otwarte. W karcie widzisz tematy, terminy, dopasowane osoby i zespół. Projekt z naboru utworzysz w karcie."),
+    "partnerzy": ("Partnerzy", "Ogłoszenia partnerskie", "Alerty partnerskie i ogłoszenia do przejrzenia."),
+    "baza": ("Projekty", "Baza projektów", "Projekty WI i unijne od wniosku do zakończenia."),
+    "tablica": ("Nabory UE", "Tablica naborów", "Nabory przyszłe i otwarte, z dopasowanymi osobami."),
 }
 
 
@@ -630,7 +795,7 @@ def render(view="baza"):
         "members": json.loads((ROOT / "data" / "biuro_kontakt.json").read_text(encoding="utf-8")).get("czlonkowie", []),
     }
     data = json.dumps(payload, ensure_ascii=False).replace("</", "<\\/")
-    script = SCRIPT.replace("__DATA__", data) if view == "tablica" else ""
+    script = SCRIPT.replace("__DATA__", data) if view == "tablica" else (PARTNER_SCRIPT if view == "partnerzy" else "")
     opt = lambda items: "".join(f'<option value="{h.escape(x)}">{h.escape(x)}</option>' for x in items)
     col_checks = "".join(
         f'<label class="f-check"><input type="checkbox" class="pj-col-cb" value="{c}" checked> {h.escape(l)}</label>'
@@ -643,7 +808,7 @@ def render(view="baza"):
   </section>
 """
     body_base = base_html() if view == "baza" else ""
-    board = board_html(col_checks, opt) if view == "tablica" else ""
+    board = board_html(col_checks, opt) if view == "tablica" else (PARTNER_BOARD if view == "partnerzy" else "")
     return f"""{head}
 <style>a.tab, a.tab:hover {{ text-decoration: none; }} 
 .pj-layout {{ display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 1.2rem; align-items: start; }}
@@ -669,6 +834,11 @@ def render(view="baza"):
 .pj-match {{ list-style: none; padding: 0; margin: .3rem 0; }}
 .pj-match li {{ margin: .45rem 0; font-size: .85rem; }}
 .pj-small {{ color: var(--text2); font-size: .78rem; }}
+.pt-block {{ margin-top: 1.6rem; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: .9rem 1.1rem; }}
+.pt-block > summary {{ cursor: pointer; font-weight: 600; color: var(--text); }}
+.pt-block > p {{ margin: .6rem 0; }}
+.pt-block textarea {{ width: 100%; box-sizing: border-box; min-height: 110px; padding: .6rem .7rem; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font: inherit; resize: vertical; }}
+.pt-block .pj-actions {{ margin: .6rem 0; }}
 .pj-meta {{ font-size: .8rem; color: var(--text2); margin-top: .25rem; line-height: 1.4; }}
 .pj-tags {{ display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .4rem; }}
 .pj-tag {{ font-size: .72rem; color: var(--text2); background: var(--surface2); border-radius: 999px; padding: .1rem .5rem; }}
@@ -854,12 +1024,12 @@ SCRIPT = """
         '<div class="pj-section"><div class="pj-label">Tematy naboru</div>' + topics + '</div>' +
         '<div class="pj-section"><div class="pj-label">Dopasowane osoby (dowody z publikacji)</div>' + matchHtml + '</div>' +
         '<div class="pj-section"><div class="pj-label">Zespół</div>' + (chips || '<div class="pj-empty">Brak osób. Dodaj z listy poniżej.</div>') +
-        '<select data-add="' + esc(p.id) + '">' + peopleOpts + '</select></div>' +
+        '<select data-add="' + esc(p.id) + '" aria-label="Dodaj osobę do zespołu">' + peopleOpts + '</select></div>' +
         '<div class="pj-section"><div class="pj-label">Opiekun projektu</div>' + opiekunSel('call:' + p.id) + '</div>' +
         (linkedTo(p.id) ? '<div class="pj-section"><div class="pj-label">Projekt w bazie</div><p>' + esc(linkedTo(p.id)) + ' (kafel w bazie projektów WI i unijne)</p></div>' : createSection(p)) +
         '<div class="pj-section"><div class="pj-label">Szuka partnerów</div><select data-partner="' + esc(p.id) + '" aria-label="Szuka partnerów">' + partnerOpts(p) + '</select><div class="pj-small">Biuro zaznacza po przejrzeniu naboru. Bez zaznaczenia działa automatyczne sprawdzenie tekstu.</div></div>' +
         '<div class="pj-section"><div class="pj-label">Poziom TRL wniosku</div><select data-trl="' + esc(p.id) + '" aria-label="Poziom TRL wniosku">' + trlOpts(trlOf(p.id)) + '</select><div class="pj-small">TRL dotyczy technologii lub rezultatu, nie osoby.</div></div>' +
-        '<div class="pj-section"><div class="pj-label">Etap</div><select data-move="' + esc(p.id) + '">' + colOpts + '</select></div>' +
+        '<div class="pj-section"><div class="pj-label">Etap</div><select data-move="' + esc(p.id) + '" aria-label="Etap projektu">' + colOpts + '</select></div>' +
         '<button class="btn" type="button" data-card="' + esc(p.id) + '">Wizytówka do wysłania</button>' +
       '</div></details>';
   }
@@ -977,44 +1147,6 @@ SCRIPT = """
     render();
   });
   render();
-  (function () {
-    const PT_KEY = 'bm-partnerzy-v1';
-    const COUNTRIES = ['Poland', 'Polska', 'Germany', 'Niemcy', 'France', 'Francja', 'Spain', 'Hiszpania', 'Italy', 'Włochy', 'Netherlands', 'Holandia', 'Belgium', 'Belgia', 'Austria', 'Czechia', 'Czechy', 'Slovakia', 'Słowacja', 'Hungary', 'Węgry', 'Romania', 'Rumunia', 'Greece', 'Grecja', 'Portugal', 'Sweden', 'Szwecja', 'Denmark', 'Dania', 'Finland', 'Finlandia', 'Ireland', 'Irlandia', 'Norway', 'Norwegia', 'Turkey', 'Türkiye', 'Ukraine', 'Ukraina', 'United Kingdom', 'Wielka Brytania', 'Switzerland', 'Szwajcaria', 'Lithuania', 'Litwa', 'Latvia', 'Łotwa', 'Estonia', 'Chorwacja', 'Croatia', 'Slovenia', 'Słowenia', 'Bulgaria', 'Bułgaria', 'Cyprus', 'Cypr', 'Malta', 'Luxembourg', 'Luksemburg'];
-    const KEYWORDS = ['partner search', 'looking for partners', 'seeking partners', 'partner sought', 'consortium', 'expression of interest', 'partnership', 'horizon europe', 'cooperation'];
-    const TYPES = ['Research & Development Request', 'Business request', 'Technology request', 'Business Offer', 'Technology offer'];
-    let items = [];
-    loadState(PT_KEY, []).then(function (v) { items = Array.isArray(v) ? v : []; renderPt(); });
-    function parse(text) {
-      const lines = text.split(/\\n/).map(function (x) { return x.trim(); }).filter(Boolean);
-      const url = (text.match(/https?:\/\/[^\s)\]>"]+/) || [''])[0];
-      const title = (lines.find(function (x) { return x.length > 8 && !/^https?:/i.test(x) && TYPES.every(function (t) { return x.toLowerCase() !== t.toLowerCase(); }); }) || '').replace(/\\b[A-Z]{2,6}\\d{6,}\\b/g, '').trim();
-      const low = text.toLowerCase();
-      const kraj = COUNTRIES.find(function (c) { return low.indexOf(c.toLowerCase()) !== -1; }) || '';
-      const slowa = KEYWORDS.filter(function (k) { return low.indexOf(k) !== -1; });
-      const typ = TYPES.find(function (t) { return low.indexOf(t.toLowerCase()) !== -1; }) || '';
-      const eenId = (text.match(/\\b[A-Z]{2,6}\\d{6,}\\b/) || [''])[0];
-      return {id: Date.now().toString(36), tytul: title.slice(0, 160), link: url, kraj: kraj, slowa: slowa, typ: typ, eenId: eenId, dodano: DATA.today};
-    }
-    function renderPt() {
-      const box = document.getElementById('pt-list');
-      if (!items.length) { box.innerHTML = '<p class="pj-empty">Brak zapisanych ogłoszeń.</p>'; return; }
-      box.innerHTML = '<ul class="pj-match">' + items.map(function (x) {
-        return '<li><b>' + esc(x.tytul || '(bez tytułu)') + '</b> <span class="pj-small">· ' + esc(x.typ || 'typ nieznany') + (x.eenId ? ' · ' + esc(x.eenId) : '') + ' · ' + esc(x.kraj || 'kraj nieznany') + ' · ' + esc(x.slowa.join(', ') || 'bez słów kluczowych') + ' · dodano ' + esc(x.dodano) + '</span> ' +
-          (x.link ? '<a href="' + esc(x.link) + '" target="_blank" rel="noopener">link</a> ' : '') +
-          '<button class="btn" type="button" data-pt-del="' + esc(x.id) + '">Usuń</button></li>';
-      }).join('') + '</ul>';
-      box.querySelectorAll('[data-pt-del]').forEach(function (b) { b.addEventListener('click', function () {
-        items = items.filter(function (x) { return x.id !== b.dataset.ptDel; }); saveState(PT_KEY, items); renderPt(); }); });
-    }
-    document.getElementById('pt-add').addEventListener('click', function () {
-      const text = document.getElementById('pt-text').value.trim();
-      if (!text) { document.getElementById('pt-msg').textContent = 'Wklej treść alertu.'; return; }
-      const rec = parse(text);
-      if (!rec.tytul) { document.getElementById('pt-msg').textContent = 'Nie znaleziono tytułu. Wklej pełną treść alertu.'; return; }
-      items.unshift(rec); saveState(PT_KEY, items); renderPt();
-      document.getElementById('pt-text').value = ''; document.getElementById('pt-msg').textContent = 'Dodano: ' + rec.tytul.slice(0, 60);
-    });
-  })();
   setInterval(async () => {
     const v = await loadRemote(KEY);
     if (v && JSON.stringify(v) !== JSON.stringify(st)) { st = v; render(); }
@@ -1029,6 +1161,8 @@ def main():
     print(f"zapisano: {out}")
     nabory = ROOT / "nabory.html"
     nabory.write_text(render("tablica"), encoding="utf-8")
+    partnerzy = ROOT / "partnerzy.html"
+    partnerzy.write_text(render("partnerzy"), encoding="utf-8")
     print(f"zapisano: {nabory}")
 
 
